@@ -26,12 +26,12 @@ There are several interfaces for managing Azure AD. While the M365 Admin Portal 
 - Azure AD Commercial
   - Entra Portal: https://entra.microsoft.com
   - Azure Portal: https://portal.azure.com
-  - Microsoft Graph PowerShell: Connect-MgGraph
+  - Microsoft Graph PowerShell: `Connect-MgGraph`
   - Microsoft Graph Explorer: https://developer.microsoft.com/en-us/graph/graph-explorer
   - Postman: https://graph.microsoft.com
 - Azure AD Government and DoD
   - Azure Portal: https://portal.azure.us
-  - Microsoft Graph PowerShell: Connect-MgGraph -Environment UsGov | UsGovDoD
+  - Microsoft Graph PowerShell: `Connect-MgGraph -Environment <UsGov|UsGovDoD>`
   - Postman: https://graph.microsoft.us | https://dod-graph.microsoft.us
 
 ## Where is Azure AD Data stored?
