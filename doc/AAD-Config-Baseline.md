@@ -1,11 +1,30 @@
-# Azure Active Directory Baseline Configuration
-Re-organizing the document to include AAD Setup recommendations here.
+# Azure Active Directory Baseline Configuration for MLZ
+This document outlines the main steps an MLZ tenant owner should complete to secure Azure AD.
 
-# Prepare a New Azure AD Tenant
-Follow these setup steps for MLZ deployed to a new Azure AD tenant.
+> **Note**:
+Some steps require Azure AD P2 licensing for privileged users within the environment. Alternative steps are included in case licenses are not available during initial configuration.
+
+# Table of Contents
+
+  1. [Prepare a Privileged Access Workstation](#1-prepare-a-secure-workstation)  
+  2. [Create Emergency Access Accounts](#2-create-emergency-access-accounts)
+  3. [Create Named Administrator Accounts](#3-create-named-administrator-accounts)
+  4. [Enforce MFA and Disable Legacy Protocols](#4-enforce-multi-factor-authentication-and-disable-legacy-authentication-protocols)
+  5. [Configure User Settings](#5-configure-user-settings)
+  6. [Configure Collaboration Settings](#6-configure-external-collaboration-settings)
+  7. [Add a Custom Domain to Azure AD](#7-optional-add-a-custom-domain-to-azure-ad)
+  8. [Optional: Configure Certificate-Based Authentication](#8-optional-configure-azure-ad-native-certificate-based-authentication)
+  9. [Optional: Configure Hybrid Identity](#9-optional-configure-hybrid-identity)
+  10.[Optional: Configure Group-Based Licensing](#10-configure-group-based-licensing)
 
 ## 1. Prepare a secure workstation for managing Azure AD
-There are several client tools for managing Azure AD configuration. Make sure you are managing Azure AD from a secure workstation. Best practice is to deploy a special purpose Privileged Access Workstation that includes AAD management tools.
+There are several client tools for managing Azure AD configuration. Make sure you are managing Azure and Azure AD from a secure workstation. Ensure these privileged access devices include the Azure management tools outlined in this section. 
+
+Reference: [Privileged Access Devices](https://docs.microsoft.com/en-us/security/compass/privileged-access-devices)
+
+> **Note**:
+The practice of securing access with privileged access devices applies to any IT systems, not just the Azure cloud. 
+
 ### Install Azure CLI
 Azure Command Line Interface (CLI) is a powerful suite of command line tools for managing Azure. Install Azure CLI on your workstation by following instructions from the Azure CLI documentation.
 
@@ -29,6 +48,8 @@ Open PowerShell and run the following command to connect to Azure AD:
 - Azure AD Government - DoD
   - `Connect-MgGraph -Environment UsGovDoD -scope TBD`
 
+Log in with an account that is a [Global Administrator](https://docs.microsoft.com/en-us/azure/active-directory/roles/permissions-reference#global-administrator) within the tenant.
+
 ## 2. Create Emergency Access Accounts
 When a new Azure AD tenant is created, the user who created the tenant is the only user in the directory with administrative privileges. The first thing we need to do is create 2 Emergency Access accounts, 1 of which will be excluded from multi-factor authentication in case the Azure MFA service is degrated.
 
@@ -42,28 +63,33 @@ Reference: [Manage emergency access accounts in Azure AD](https://docs.microsoft
 
 `Placeholder Script to create the accounts with random complex password`
 
-### Azure AD Free or Premium P1
+**Azure AD Free or Premium P1**
+For Azure AD Free or Premium P1, assign the Global Administrator Azure Active Directory Role.
 
 `Placeholder Script to create accounts and assign Global Administrator role`
 
-### Azure AD Premium P2
+**Azure AD Premium P2**
+If Azure AD Premium P2 is available in the tenant, activate the premium features and assign the Global Administrator role using Azure AD Privileged Identity Management
 
 1. Enable Privileged Identity Management
-2. Assign Global Administrator Role using PIM to the Emergency Access Accounts
+2. Enable Identity Protection
+3. Assign Global Administrator Role using PIM to the Emergency Access Accounts
 
-`Placeholder Script to create accounts and assign Global Administrator role with PIM`
+`Placeholder Script to Assign Global Administrator role with PIM`
 
 ### Document and Test Emergency Access Procedures
 Creation and secure storage for Emergency Access credentials is useless if the emergency procedures to retrieve and use the Emergency Access accounts is not properly documented and disseminated to all individuals who may be tasked with using the accounts.
 
-Consult your Information Systems Security Officer (ISSO) for proper handling procedures for Emergency Access accounts.
+> **Note**: Consult your Information Systems Security Officer (ISSO) for proper handling procedures for Emergency Access accounts.
 
-**Recommendations**:
+**Recommendations**:(
 - Record passwords for Emergency Access accounts legibly by hand (do not type or send to a printer)
 - Store passwords for Emergency Access accounts in a safe that resides in a physically secure location.
-- Do not save passwords to a personal password vault (LastPass, Apple Keychain, Google, OnePassword, Microsoft Authenticator, etc.)
 - Do not save passwords to an Enterprise password vault or Privleged Access Management (PAM) system
+- Do not save passwords to a personal password vault (LastPass, Apple Keychain, Google, OnePassword, Microsoft Authenticator, etc.)
 - Store backup copies for Emergency Access account credentials in a geographic distant location.
+
+Reference: [Manage Emergency Access Accounts in Azure AD](https://docs.microsoft.com/en-us/azure/active-directory/roles/security-emergency-access)
 
 ### Set up alerts with Microsoft Sentinel
 If you are configuring Azure AD for MLZ after the MLZ deployment, leverage the existing Microsoft Sentinel deployment in the Operations subscription to alert on Emergency Account usage.
@@ -72,32 +98,42 @@ If you are configuring Azure AD for MLZ after the MLZ deployment, leverage the e
 2. [Configure an Analytics Rule to alert when Emergency Access account is used](https://docs.microsoft.com/en-us/azure/active-directory/roles/security-emergency-access#monitor-sign-in-and-audit-logs)
 
 ## 3. Create Named Administrator Accounts
-Once the Emergency Access accounts 
-All named administrator accounts (not shared emergency access accounts) should register for multi-factor authentication. Security Keys are the recommended method.
+Day-to-day operations requiring administrative privileges should be performed by named administrator accounts, assigned to individual users (not shared), separate from accounts used to access productivity services like Email, SharePoint, and Teams.
 
 **Recommendations**:
-- Limit the number of Global Administrators
+- Limit the number of Global Administrators, referring to [least privileged roles by task](https://docs.microsoft.com/en-us/azure/active-directory/roles/delegate-by-task) to assign the proper limited administrator role
 - Assign permissions Just-In-Time using [Azure AD Privileged Identity Management](https://docs.microsoft.com/en-us/azure/active-directory/privileged-identity-management/pim-configure)
 - Periodically review role eligibility
 - Leverage PIM [insights](https://docs.microsoft.com/en-us/azure/active-directory/privileged-identity-management/pim-security-wizard) and [alerts](https://docs.microsoft.com/en-us/azure/active-directory/privileged-identity-management/pim-how-to-configure-security-alerts) to further secure your organization
-- Use [Limited Administrator roles](https://docs.microsoft.com/en-us/azure/active-directory/roles/delegate-by-task) whenever possible
 - Review [Privileged Access Groups](https://docs.microsoft.com/en-us/azure/active-directory/privileged-identity-management/groups-features) and [Administrative Units](https://docs.microsoft.com/en-us/azure/active-directory/roles/administrative-units)
 
 ### Create Azure AD Security Groups
+Azure resource RBAC roles should be assigned to Azure AD Security Groups that are eligible for elevation into privileged roles using Azure AD PIM. Each MLZ deployment has unique role group requirements. Use this set of Azure AD Security Groups as a baseline.
 
-### Map Azure AD Security Groups to Azure RBAC Roles
+To do: Insert table with core roles for Sentinel and Subscription Management
+#### Azure AD Free or Premium P1
+1. Create Azure AD Security Groups for the MLZ RBAC Role Groups
+`Placeholder command`
+2. Map MLZ RBAC Security Groups to Azure RBAC Roles
+`Placeholder command`
+
+#### Azure AD Premium P2
+1. Create Privileged Access Group for MLZ RBAC Role Groups
+`Placeholder command`
+2. Map MLZ RBAC Role Groups to Azure RBAC Roles using Privileged Identity Management
+`Placeholder command`
 
 ### Enable Multi-Factor Authentication
 
-#### Bad: SMS or TwoWayPhone
+- **Bad:** SMS or TwoWayPhone
 Some MFA is better than no MFA, but phone-based MFA is the weakest option available. SMS is especially egregious since it is susceptable to [SIM swapping attacks](https://en.wikipedia.org/wiki/SIM_swap_scam).
-#### Good: Authenticator App TOTP Code or Push notification
+- **Good:** Authenticator App TOTP Code or Push notification
 These methods are not phishing-resistant or passwordless. In either case, a password is used, followed by an Azure MFA prompt.
-#### Better: Passwordless Phone Sign-In on Registered Device
+- **Better:** Passwordless Phone Sign-In on Registered Device
 Passwordless, but not phishing-resistant. This required registration of an iOS or Android mobile device with the Azure AD tenant.
-#### Best: Phishing-Resistant MFA FIDO2 Security Key or Azure AD native Certificate-Based Authentication (CBA)
-- FIDO2 Security Key
-- Certificate-Based Authentication
+- **Best:** Phishing-Resistant MFA FIDO2 Security Key or Azure AD native Certificate-Based Authentication (CBA)
+  - FIDO2 Security Key
+  - Certificate-Based Authentication
 
 > **Note**:
 Microsoft Authenticator App is considered phishing-resistant when deployed to a managed mobile device. Since this guide assumes a new tenant, it assumes Microsoft Endpoint Manager is not configured to manage mobile devices.
@@ -109,18 +145,29 @@ This section enables key recommended access policies for all apps protected by A
 Azure AD Free offers a feature called Security Defaults. This feature performs basic security configuration for the Azure AD platform. To enable security defaults, see (Enable Security Defaults)[https://docs.microsoft.com/en-us/azure/active-directory/fundamentals/concept-fundamentals-security-defaults].
 
 ### Azure AD Premium P1 - Create Conditional Access Policies
+
+1. Block Legacy Authentication
+2. Require MFA for All Users all Apps
 `script`
 
 ### Azure AD Premium P2 - Configure Risk-Based Conditional Access Policies
+1. Configure Azure AD Identity Protection
+2. Create Conditional Access rule to Block when Sign-In Risk is **High**
 `script`
 
+> **Note**: If Microsoft Endpoint Manager (Intune) will be deployed for the Azure AD tenant used by MLZ, enroll privileged access devices and use [Conditional Access](https://docs.microsoft.com/en-us/mem/intune/protect/create-conditional-access-intune) to require a compliant device for Azure Management.
+
 ## 5. Configure User Settings
+
 `script`
 
 ## 6. Configure External Collaboration Settings
 `script`
 
 ## 7. Optional: Add a custom domain to Azure AD
+When an Azure AD tenant is created, a default domain is assigned that looks like *tenantname.onmicrosoft.com* (*tenantname.onmicrosoft.us* for Azure AD Government). By default, all users in Azure AD get a UserPrincipalName (UPN) with the default domain suffix.
+
+[Custom domains](https://docs.microsoft.com/en-us/azure/active-directory/fundamentals/add-custom-domain) let tenant administrators change the UPN suffix by verifying ownership of an organization's DNS domain via TXT record.
 
 > **Note**:
 Sometimes when custom domains are added to an Azure AD tenant, users who signed up for trial Microsoft services with their organization email address will appear in the tenant once the domain is verified. Do not be alarmed by this. To verify no other users have privileges within the tenant, [view the Azure AD role members](https://docs.microsoft.com/en-us/azure/active-directory/roles/view-assignments).
