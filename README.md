@@ -3,17 +3,18 @@ This repository is working guidance for configuring Azure AD for Azure Mission L
 
 ## Table of Contents
 
-- [Understanding Azure AD](#Understanding-Azure-AD)  
-- [1. Prepare a Privileged Access Workstation](#1-prepare-a-secure-workstation)  
-- [2. Create Emergency Access Accounts](#2-create-emergency-access-accounts)
-- [3. Create Named Administrator Accounts](#3-create-named-administrator-accounts)
-- [4. Enforce MFA and Disable Legacy Protocols](#4-enforce-multi-factor-authentication-and-disable-legacy-authentication-protocols)
-- [5. Configure User Settings](#5-configure-user-settings)
-- [6. Configure Collaboration Settings](#6-configure-external-collaboration-settings)
-- [7. Add a Custom Domain to Azure AD](#7-optional-add-a-custom-domain-to-azure-ad)
-- [8. Optional: Configure Certificate-Based Authentication](#8-optional-configure-azure-ad-native-certificate-based-authentication)
-- [9. Optional: Configure Hybrid Identity](#9-optional-configure-hybrid-identity)
-- [10.Optional: Configure Group-Based Licensing](#10-configure-group-based-licensing)
+- [Understanding Azure AD](#Understanding-Azure-AD)
+- [Prepare a New Azure AD Tenant](#prepare-a-new-azure-ad-tenant)
+  - [1. Prepare a Privileged Access Workstation](#1-prepare-a-secure-workstation)  
+  - [2. Create Emergency Access Accounts](#2-create-emergency-access-accounts)
+  - [3. Create Named Administrator Accounts](#3-create-named-administrator-accounts)
+  - [4. Enforce MFA and Disable Legacy Protocols](#4-enforce-multi-factor-authentication-and-disable-legacy-authentication-protocols)
+  - [5. Configure User Settings](#5-configure-user-settings)
+  - [6. Configure Collaboration Settings](#6-configure-external-collaboration-settings)
+  - [7. Add a Custom Domain to Azure AD](#7-optional-add-a-custom-domain-to-azure-ad)
+  - [8. Optional: Configure Certificate-Based Authentication](#8-optional-configure-azure-ad-native-certificate-based-authentication)
+  - [9. Optional: Configure Hybrid Identity](#9-optional-configure-hybrid-identity)
+  - [10.Optional: Configure Group-Based Licensing](#10-configure-group-based-licensing)
 - [See Also](#see-also)  
 
 # Understanding Azure AD
@@ -77,7 +78,7 @@ In either case, Azure AD Application proxy connectors are recommended to broker 
 ### MLZ Subscriptions attached to a separate, standalone Azure Platform tenant
 In some cases, customers choose to use a separate Azure AD where their subscriptions are managed. This configuration introduces complexity for Azure services that are accessed by Azure AD identities, since users either need A) Separate Azure AD accounts and licenses in each tenant, B) Rely on Azure AD B2B Guests and switching tenant context, C) configuring light house for all Azure resource access.
 
-# New Azure AD Tenants
+# Prepare a New Azure AD Tenant
 Follow these setup steps for MLZ deployed to a new Azure AD tenant.
 
 ## 1. Prepare a secure workstation for managing Azure AD
