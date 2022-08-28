@@ -1,11 +1,24 @@
 # MLZ-Identity-AzureADSetup
 This repository is working guidance for configuring Azure AD for Azure Mission Landing Zone. Like MLZ, this is a highly opinionated document for Azure AD security.
 
-[toc]
+## Table of Contents
 
-# Level Setting
+- [Understanding Azure AD](#Understanding-Azure-AD)  
+- [1. Prepare a Privileged Access Workstation](#1-prepare-a-secure-workstation)  
+- [2. Create Emergency Access Accounts](#2-create-emergency-access-accounts)
+- [3. Create Named Administrator Accounts](#3-create-named-administrator-accounts)
+- [4. Enforce MFA and Disable Legacy Protocols](#4-enforce-multi-factor-authentication-and-disable-legacy-authentication-protocols)
+- [5. Configure User Settings](#5-configure-user-settings)
+- [6. Configure Collaboration Settings](#6-configure-external-collaboration-settings)
+- [7. Add a Custom Domain to Azure AD](#7-optional-add-a-custom-domain-to-azure-ad)
+- [8. Optional: Configure Certificate-Based Authentication](#8-optional-configure-azure-ad-native-certificate-based-authentication)
+- [9. Optional: Configure Hybrid Identity](#9-optional-configure-hybrid-identity)
+- [10.Optional: Configure Group-Based Licensing](#10-configure-group-based-licensing)
+- [See Also](#see-also)  
 
-## What is Microsoft Entra?
+# Understanding Azure AD
+
+### What is Microsoft Entra?
 Entra is the name for the family of Microsoft cloud identity and access management products.
 
 There are currently 3 separate products in the Entra family:
@@ -15,12 +28,12 @@ There are currently 3 separate products in the Entra family:
 
 This document focuses on Azure AD, the identity platform for Microsoft Azure.
 
-## What is Azure Active Directory?
+### What is Azure Active Directory?
 Azure Active Directory (Azure AD) is an Identity as a Service (IDaaS) platform for the Microsoft cloud.
 
 Reference: [What is Azure AD?](https://docs.microsoft.com/en-us/azure/active-directory/fundamentals/active-directory-whatis)
 
-## How do I manage Azure AD?
+### How do I manage Azure AD?
 There are several interfaces for managing Azure AD. While the M365 Admin Portal provides access to Azure AD users and licensing, it only exposes a subset of Azure AD features. We recommend using the below methods for Azure AD management:
 
 - Azure AD Commercial
@@ -34,20 +47,20 @@ There are several interfaces for managing Azure AD. While the M365 Admin Portal 
   - Microsoft Graph PowerShell: `Connect-MgGraph -Environment <UsGov|UsGovDoD>`
   - Postman: https://graph.microsoft.us | https://dod-graph.microsoft.us
 
-## Where is Azure AD Data stored?
+### Where is Azure AD Data stored?
 Azure AD is a non-regional service, meaning it does not run in specific Azure regions. Data is replicated across Azure AD service locations. Separate instances exist for Azure Government and Azure Commercial clouds.
 
 Reference: [Azure AD Architecture](https://docs.microsoft.com/en-us/azure/active-directory/fundamentals/active-directory-architecture)
 
-## What are the core components of Azure AD?
+### What are the core components of Azure AD?
 - Login Service / Security Token Service (login.microsoftonline.com | login.microsoftonline.us)
 - Directory Service - users, groups, guests, application and system identities
 - Microsoft Graph API - managment interface for Azure and M365
 
-## What is an Azure AD Tenant?
+### What is an Azure AD Tenant?
 An Azure AD tenant is a logically separated instance of the AAD service that belongs to an organization.
 
-## How many Azure AD Tenants should an organization have?
+### How many Azure AD Tenants should an organization have?
 Microsoft recommends each organization use 1 Azure AD tenant for *both* Microsoft 365 services and pinned Azure Subscriptions. Because Azure AD is intended to be an enterprise identity solution, a single tenant offers the most cohesive experience for end users and administrators. Nevertheless, there are situations where an organization will opt for separate Azure AD tenants. It is important to understand the implications for choosing a separate tenant for MLZ deployment.
 
 ## Understand which Tenant type MLZ subscriptions will use
@@ -134,7 +147,7 @@ If you are configuring Azure AD for MLZ after the MLZ deployment, leverage the e
 1. [Connect Azure AD Sign-In Logs to Microsoft Sentinel](https://docs.microsoft.com/en-us/azure/sentinel/connect-azure-active-directory)
 2. [Configure an Analytics Rule to alert when Emergency Access account is used](https://docs.microsoft.com/en-us/azure/active-directory/roles/security-emergency-access#monitor-sign-in-and-audit-logs)
 
-## 3. Create Named Azure AD Administrator Accounts
+## 3. Create Named Administrator Accounts
 Once the Emergency Access accounts 
 All named administrator accounts (not shared emergency access accounts) should register for multi-factor authentication. Security Keys are the recommended method.
 
@@ -146,13 +159,19 @@ All named administrator accounts (not shared emergency access accounts) should r
 - Use [Limited Administrator roles](https://docs.microsoft.com/en-us/azure/active-directory/roles/delegate-by-task) whenever possible
 - Review [Privileged Access Groups](https://docs.microsoft.com/en-us/azure/active-directory/privileged-identity-management/groups-features) and [Administrative Units](https://docs.microsoft.com/en-us/azure/active-directory/roles/administrative-units)
 
-### Bad: SMS or TwoWayPhone
+### Create Azure AD Security Groups
+
+### Map Azure AD Security Groups to Azure RBAC Roles
+
+### Enable Multi-Factor Authentication
+
+#### Bad: SMS or TwoWayPhone
 Some MFA is better than no MFA, but phone-based MFA is the weakest option available. SMS is especially egregious since it is susceptable to [SIM swapping attacks](https://en.wikipedia.org/wiki/SIM_swap_scam).
-### Good: Authenticator App TOTP Code or Push notification
+#### Good: Authenticator App TOTP Code or Push notification
 These methods are not phishing-resistant or passwordless. In either case, a password is used, followed by an Azure MFA prompt.
-### Better: Passwordless Phone Sign-In on Registered Device
+#### Better: Passwordless Phone Sign-In on Registered Device
 Passwordless, but not phishing-resistant. This required registration of an iOS or Android mobile device with the Azure AD tenant.
-### Best: Phishing-Resistant MFA FIDO2 Security Key or Azure AD native Certificate-Based Authentication (CBA)
+#### Best: Phishing-Resistant MFA FIDO2 Security Key or Azure AD native Certificate-Based Authentication (CBA)
 - FIDO2 Security Key
 - Certificate-Based Authentication
 
@@ -187,11 +206,13 @@ Sometimes when custom domains are added to an Azure AD tenant, users who signed 
 ### Configure CertificateBasedAuthentication Settings
 ### Preview: Open Support Ticket for CRL limit increase
 
-## Optional: Configure Hybrid Identity
+## 9. Optional: Configure Hybrid Identity
 ### Azure AD Connect v2
 ### Azure AD Connect Cloud Sync
 Note: Only if there is no requirement to synchronize devices
 ### Exclude sync account from Multi-Factor authentication Conditional Access Policy
 
-# Existing Azure AD Tenant
-## 
+## 10. Configure Group-Based Licensing
+
+# See Also
+Links
