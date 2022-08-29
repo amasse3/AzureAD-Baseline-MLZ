@@ -97,7 +97,32 @@ If you are configuring Azure AD for MLZ after the MLZ deployment, leverage the e
 1. [Connect Azure AD Sign-In Logs to Microsoft Sentinel](https://docs.microsoft.com/en-us/azure/sentinel/connect-azure-active-directory)
 2. [Configure an Analytics Rule to alert when Emergency Access account is used](https://docs.microsoft.com/en-us/azure/active-directory/roles/security-emergency-access#monitor-sign-in-and-audit-logs)
 
-## 3. Create Named Administrator Accounts
+## 3. Create MLZ RBAC Security Groups
+Azure resource RBAC roles should be assigned to Azure AD Security Groups that are eligible for elevation into privileged roles using Azure AD PIM. Each MLZ deployment has unique role group requirements. Use this set of Azure AD Security Groups as a baseline.
+
+|Role Group|Usage|RBAC Role Name|Type|
+|----------|-----|--------------|----|
+|Azure Platform Owner|Management Group and subscription lifecycle management|Owner|Built-in|
+|Security Operations|View and update permissions for Microsoft Defender for Cloud|Security Admin|Built-in|
+|Subscription Owner|Grants full access to manage all resources, including ability to assign roles with RBAC |Owner|Built-in|
+|Subscription Owner no Network Write|Delegated role for subscription owner that prohibits ability to manage role assignments and routes.|SubscriptionOwnerNoNetwork|Custom|
+|Subscription Contributor|insert blurb|Contributor|Built-in|
+|Subscription Reader|insert blurb|Reader|Built-in|
+|Application Owners (DevOps)|Contributor role granted at resource group.|DevOpsAppOps|Custom|
+
+Also need to add AAD Groups - Group Management, delegation model, application management
+
+### Create Azure AD Security Groups
+`Script that creates security groups`
+### Map MLZ RBAC Security Groups to Azure RBAC Roles
+
+**Azure AD Free or Premium P1**
+`Script`
+
+**Azure AD Premium P2**
+`Script`
+
+## 4. Create Named Administrator Accounts
 Day-to-day operations requiring administrative privileges should be performed by named administrator accounts, assigned to individual users (not shared), separate from accounts used to access productivity services like Email, SharePoint, and Teams.
 
 **Recommendations**:
@@ -106,22 +131,6 @@ Day-to-day operations requiring administrative privileges should be performed by
 - Periodically review role eligibility
 - Leverage PIM [insights](https://docs.microsoft.com/en-us/azure/active-directory/privileged-identity-management/pim-security-wizard) and [alerts](https://docs.microsoft.com/en-us/azure/active-directory/privileged-identity-management/pim-how-to-configure-security-alerts) to further secure your organization
 - Review [Privileged Access Groups](https://docs.microsoft.com/en-us/azure/active-directory/privileged-identity-management/groups-features) and [Administrative Units](https://docs.microsoft.com/en-us/azure/active-directory/roles/administrative-units)
-
-### Create Azure AD Security Groups
-Azure resource RBAC roles should be assigned to Azure AD Security Groups that are eligible for elevation into privileged roles using Azure AD PIM. Each MLZ deployment has unique role group requirements. Use this set of Azure AD Security Groups as a baseline.
-
-To do: Insert table with core roles for Sentinel and Subscription Management
-#### Azure AD Free or Premium P1
-1. Create Azure AD Security Groups for the MLZ RBAC Role Groups
-`Placeholder command`
-2. Map MLZ RBAC Security Groups to Azure RBAC Roles
-`Placeholder command`
-
-#### Azure AD Premium P2
-1. Create Privileged Access Group for MLZ RBAC Role Groups
-`Placeholder command`
-2. Map MLZ RBAC Role Groups to Azure RBAC Roles using Privileged Identity Management
-`Placeholder command`
 
 ### Enable Multi-Factor Authentication
 
@@ -138,30 +147,34 @@ Passwordless, but not phishing-resistant. This required registration of an iOS o
 > **Note**:
 Microsoft Authenticator App is considered phishing-resistant when deployed to a managed mobile device. Since this guide assumes a new tenant, it assumes Microsoft Endpoint Manager is not configured to manage mobile devices.
 
-## 4. Enforce Multi-Factor Authentication and disable Legacy Authentication Protocols
+## 5. Enforce Multi-Factor Authentication and disable Legacy Authentication Protocols
 This section enables key recommended access policies for all apps protected by Azure AD. This includes the Azure portal, Microsoft Graph, Azure Resource Manager, M365 applications, and any future applications integrated with Azure AD.
 
-### Azure AD Free - Turn on Security Defaults
+**Azure AD Free - Turn on Security Defaults**
 Azure AD Free offers a feature called Security Defaults. This feature performs basic security configuration for the Azure AD platform. To enable security defaults, see (Enable Security Defaults)[https://docs.microsoft.com/en-us/azure/active-directory/fundamentals/concept-fundamentals-security-defaults].
 
-### Azure AD Premium P1 - Create Conditional Access Policies
+**Azure AD Premium P1 - Create Conditional Access Policies**
 
 1. Block Legacy Authentication
 2. Require MFA for All Users all Apps
 `script`
 
-### Azure AD Premium P2 - Configure Risk-Based Conditional Access Policies
+**Azure AD Premium P2 - Configure Risk-Based Conditional Access Policies**
 1. Configure Azure AD Identity Protection
 2. Create Conditional Access rule to Block when Sign-In Risk is **High**
 `script`
 
 > **Note**: If Microsoft Endpoint Manager (Intune) will be deployed for the Azure AD tenant used by MLZ, enroll privileged access devices and use [Conditional Access](https://docs.microsoft.com/en-us/mem/intune/protect/create-conditional-access-intune) to require a compliant device for Azure Management.
 
-## 5. Configure User Settings
+## 6. Configure User, Group, and External Collaboration Settings
 
+### User Settings
 `script`
 
-## 6. Configure External Collaboration Settings
+### Group Settings
+`script`
+
+### External Collaboration Settings
 `script`
 
 ## 7. Optional: Add a custom domain to Azure AD
@@ -175,7 +188,8 @@ Sometimes when custom domains are added to an Azure AD tenant, users who signed 
 ## 8. Optional: Configure Azure AD Native Certificate-Based Authentication
 ### Upload Certificates
 ### Configure CertificateBasedAuthentication Settings
-### Preview: Open Support Ticket for CRL limit increase
+> **Note**:
+This capability is in Public Preview. If Certificate-Based Authentication will be used with certificates that have a large CRL size, 
 
 ## 9. Optional: Configure Hybrid Identity
 ### Azure AD Connect v2
