@@ -98,19 +98,45 @@ If you are configuring Azure AD for MLZ after the MLZ deployment, leverage the e
 2. [Configure an Analytics Rule to alert when Emergency Access account is used](https://docs.microsoft.com/en-us/azure/active-directory/roles/security-emergency-access#monitor-sign-in-and-audit-logs)
 
 ## 3. Create MLZ RBAC Security Groups
-Azure resource RBAC roles should be assigned to Azure AD Security Groups that are eligible for elevation into privileged roles using Azure AD PIM. Each MLZ deployment has unique role group requirements. Use this set of Azure AD Security Groups as a baseline.
+Use this set of Azure AD Security Groups and RBAC role assignments as a baseline.
 
-|Role Group|Usage|RBAC Role Name|Type|
-|----------|-----|--------------|----|
-|Azure Platform Owner|Management Group and subscription lifecycle management|Owner|Built-in|
-|Security Operations|View and update permissions for Microsoft Defender for Cloud|Security Admin|Built-in|
-|Subscription Owner|Grants full access to manage all resources, including ability to assign roles with RBAC |Owner|Built-in|
-|Subscription Owner no Network Write|Delegated role for subscription owner that prohibits ability to manage role assignments and routes.|SubscriptionOwnerNoNetwork|Custom|
-|Subscription Contributor|insert blurb|Contributor|Built-in|
-|Subscription Reader|insert blurb|Reader|Built-in|
-|Application Owners (DevOps)|Contributor role granted at resource group.|DevOpsAppOps|Custom|
+### Azure Resource RBAC
+Roles for Azure resource management are assigned within Azure RBAC. When using the Azure Portal, RBAC roles are assigned using the IAM button on the desired Azure resource. Permissions granted by RBAC role assignments scoped at the Reso 
 
-Also need to add AAD Groups - Group Management, delegation model, application management
+|Name|Usage|RBAC Role |Role Type|Intended Scope|
+|----|-----|----------|---------|--------------|
+|Azure Platform Owner|Management Group and subscription lifecycle management|Owner|Built-in|Management Group|
+|Security Operations|View and update permissions for Microsoft Defender for Cloud|Security Admin|Built-in|Subscription|
+|Subscription Owner|Grants full access to manage all resources, including ability to assign roles with RBAC |Owner|Built-in|Subscription|
+|Subscription Owner no Network Write|Delegated role for subscription owner that prohibits ability to manage role assignments and routes.SubscriptionOwnerNoNetwork|Custom|Subscription|
+|Subscription Contributor|insert blurb|Contributor|Built-in|Subscription|
+|Subscription Reader|insert blurb|Reader|Built-in|Subscription|
+|Application Owners (DevOps)|Contributor role granted at resource group.|DevOpsAppOps|Custom|Resource Group|
+
+### Azure AD RBAC
+In addition to Azure AD roles, there are several Azure AD Directory roles that may be needed. 
+
+|Name|Usage|
+|----|-----|
+|Application Developer|Register applications with Azure AD.|
+|Application Administrator|Manage all Enterprise Applications in Azure AD.|
+|Hybrid Identity Administrator|Configure Azure AD Connect to synchronize identities from AD DS to Azure AD|
+
+**Azure AD Free or Premium P1**
+Assign users directly to Azure AD roles using the [least-privileged role by task](https://docs.microsoft.com/en-us/azure/active-directory/roles/delegate-by-task).
+
+**Azure AD Premium P2**
+Create [Role-Assignable Groups]() and assign eligibility to Azure AD directory roles using Privileged Identity Management (PIM).
+
+The following role-assignable groups are used in the AAD Configuration Baseline:
+|Name|Usage|AAD Role| Role Type|Scope|
+|Groups Administrator|Azure AD role assignment for managing groups|Groups Administrator|Built-in AAD Role|Global|
+|Mission RBAC Role Manager|Privileged Access Group|AAD Role for Groups Administrator|Administrative Unit|
+|Application Developers|Azure AD role assignment for app registration|Application Developers|Built-in AAD Role|Global|
+|Hybrid Identity Admins|Configure Azure AD Connect to synchronize identities from AD DS to Azure AD|Global
+
+> **Note**:
+These security group and role assignments represent baseline configuration. Modify with additional roles as needed, starting with built-in roles when possible.
 
 ### Create Azure AD Security Groups
 `Script that creates security groups`
@@ -120,7 +146,24 @@ Also need to add AAD Groups - Group Management, delegation model, application ma
 `Script`
 
 **Azure AD Premium P2**
+Azure AD Premium P2 customers should map security groups as eligible for roles using Privileged Identity Management (PIM). Choose an elevation duration and access review interval.
+
+**Recommended Settings**:
+- Global Administrator
+    - Elevation Duration: 2 hours
+    - Approvals Required: Yes
+    - Notification: Yes
+- Other Roles
+    - Duration: 4 hours
+    - Approval Required: No
+    - Notification: Yes
+
 `Script`
+
+### Review Securing Privileged Access in Azure AD
+Familiarize yourself with the Securing Privileged Access guidance for Azure AD and build a plan for handling privileged access to the Mission Landing Zone environment.
+
+> **Reference**: [Securing privileged access for hybrid and cloud deployments in Azure AD](https://docs.microsoft.com/en-us/azure/active-directory/roles/security-planning)
 
 ## 4. Create Named Administrator Accounts
 Day-to-day operations requiring administrative privileges should be performed by named administrator accounts, assigned to individual users (not shared), separate from accounts used to access productivity services like Email, SharePoint, and Teams.
