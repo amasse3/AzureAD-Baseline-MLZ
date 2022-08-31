@@ -1,5 +1,5 @@
 # Azure Active Directory Baseline Configuration for MLZ
-This document outlines the main steps an MLZ tenant owner should complete to secure Azure AD.
+This document provides key steps for deploying and securing Azure Active Directory for Mission Landing Zone.
 
 > **Note**:
 Some steps require Azure AD P2 licensing for privileged users within the environment. Alternative steps are included in case licenses are not available during initial configuration.
@@ -15,7 +15,7 @@ Some steps require Azure AD P2 licensing for privileged users within the environ
   7. [Add a Custom Domain to Azure AD](#7-optional-add-a-custom-domain-to-azure-ad)
   8. [Optional: Configure Certificate-Based Authentication](#8-optional-configure-azure-ad-native-certificate-based-authentication)
   9. [Optional: Configure Hybrid Identity](#9-optional-configure-hybrid-identity)
-  10.[Optional: Configure Group-Based Licensing](#10-configure-group-based-licensing)
+  10. [Optional: Configure Group-Based Licensing](#10-configure-group-based-licensing)
 
 ## 1. Prepare to manage Azure AD
 The first user in an Azure AD tenant will have super user / root access to the entire Azure tenant. These permissions are assigned by the Global Administrator Azure AD role.
