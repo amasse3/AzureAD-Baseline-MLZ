@@ -13,9 +13,9 @@ Some steps require Azure AD P2 licensing for privileged users within the environ
   5. [Enforce Multi-Factor Authentication](#5-enforce-multi-factor-authentication-and-disable-legacy-authentication-protocols)
   6. [Configure Tenant Settings](#6-configure-user-group-and-external-collaboration-settings)
   7. [Add a Custom Domain to Azure AD](#7-optional-add-a-custom-domain-to-azure-ad)
-  8. [Optional: Configure Certificate-Based Authentication](#8-optional-configure-azure-ad-native-certificate-based-authentication)
-  9. [Optional: Configure Hybrid Identity](#9-optional-configure-hybrid-identity)
-  10. [Optional: Configure Group-Based Licensing](#10-configure-group-based-licensing)
+  8. [Configure Authentication Methods](#8-configure-authentication-methods)
+  9. [Evaluate Hybrid Identity Configuration](#9-evaluate-hybrid-identity-needs-identity-synchronization)
+  10. [Configure Group-Based Licensing](#10-configure-group-based-licensing)
 
 ## 1. Prepare to manage Azure AD
 The first user in an Azure AD tenant will have super user / root access to the entire Azure tenant. These permissions are assigned by the Global Administrator Azure AD role.
@@ -300,7 +300,23 @@ When an Azure AD tenant is created, a default domain is assigned that looks like
 > **Note**:
 Sometimes when custom domains are added to an Azure AD tenant, users who signed up for trial Microsoft services with their organization email address will appear in the tenant once the domain is verified. Do not be alarmed by this. To verify no other users have privileges within the tenant, [view the Azure AD role members](https://docs.microsoft.com/en-us/azure/active-directory/roles/view-assignments).
 
-## 8. Optional: Configure Azure AD Native Certificate-Based Authentication
+## 8. Configure Authentication Methods
+Azure AD authenticaton methods allow an administrator to configure how users can authenticate to Azure AD.
+
+>**Refernce**: [What authentication verification methods are available in Azure AD](https://docs.microsoft.com/en-us/azure/active-directory/authentication/concept-authentication-methods)
+
+### Enable Microsoft Authenticator app
+The Microsoft Authenticator app for iOS and Android lets users authenticate / complete MFA challenges when Azure AD configuration (Conditional Access or Security Defaults) needs an additional factor. The Microsoft Authenticator app can be used in the following ways:
+- Passwordless Phone Sign-in
+- Notification
+- Time-based One Time Password (TOTP) code
+
+>**Reference**: [Microsoft Authenticator app](https://docs.microsoft.com/en-us/azure/active-directory/authentication/concept-authentication-authenticator-app)
+
+### Enable FIDO2 security keys
+FIDO2 security keys are an unphishable standards-based passwordless authentication method that come in different form factors. Most security keys resemble a USB thumb drive and communicate with device over USB.
+
+### Pilot Azure AD Native Certificate-Based Authentication
 Organizations that need to use smartcard (certificate-based) authentication with Azure AD should configure Azure AD Native Certificate-Based Authentication settings in Azure AD. This feature is in Public Preview and is subject to change. Follow the latest documentation to configure from the reference below.
 
 > **Reference**: [Azure AD Native Certificate-Based Authentication](https://docs.microsoft.com/en-us/azure/active-directory/authentication/how-to-certificate-based-authentication)
@@ -310,7 +326,9 @@ This capability is in Public Preview. If Certificate-Based Authentication will b
 
 > **Note**: As of August 2022, user certificates can only be mapped using Principal Name and RFC822 Name values on certificates, and UserPrincipalName or OnPremisesUserPrincipalName values in Azure AD. This restricts using certificates with non-routable suffix for the Principal Name / RFC822 values for cloud-only Azure AD accounts (Azure AD UserPrincipalName must be a routable, [verified domain](#7-optional-add-a-custom-domain-to-azure-ad) in Azure AD)'
 
-## 9. Optional: Configure Hybrid Identity
+## 9. Evaluate Hybrid Identity Configuration
+
+### Synchronization
 Hybrid identity should be configured if an organization uses Active Directory Domain Services and wishes to synchronize users and groups to Azure AD. Microsoft offers 2 tools (named very similarly) to accomolish this function:
 - [Azure AD Connect](#azure-ad-connect-v2)
 - [Azure AD Connect Cloud Sync](#azure-ad-connect-cloud-sync)
@@ -319,7 +337,7 @@ Which tool you should use varies depending on the hybrid identity needs for the 
 
 > **Note**: Synchronizing all identities to Azure AD helps establish an enterprise identity and zero trust surface for all applications. If hybrid identity is already configured for a different tenant, treat that tenant as the enterprise Azure AD for the organization. Review the tenant types.
 
-### Azure AD Connect v2
+#### Azure AD Connect v2
 [Azure AD Connect Synchronization Service v2](https://docs.microsoft.com/en-us/azure/active-directory/hybrid/whatis-azure-ad-connect-v2) is the latest version of Microsoft's on-premises infrastructure based synchronization tool. 
 
 Use Azure AD Connect Sync if:
@@ -334,7 +352,7 @@ Use Azure AD Connect Sync if:
 
 > **Reference**: (Choose the right authentication method for your Azure AD hybrid identity solution)[https://docs.microsoft.com/en-us/azure/active-directory/hybrid/choose-ad-authn]
 
-### Azure AD Connect Cloud Sync
+#### Azure AD Connect Cloud Sync
 [Azure AD Connect Cloud Sync](https://docs.microsoft.com/en-us/azure/active-directory/cloud-sync/what-is-cloud-sync) is an agent-based synchronization tool managed in Azure AD. This tool is expected to replace Azure AD Connect sync for most scenarios.
 
 Use Azure AD Connect Cloud Sync if:
@@ -345,8 +363,15 @@ Use Azure AD Connect Cloud Sync if:
 - You do not need to filter using attribute values (Organizational Unit filtering only)
 - You do not need complex or custom attribute synchronization logic
 
-### Exclude sync account from Multi-Factor authentication Conditional Access Policy
+#### Exclude sync account from Multi-Factor authentication Conditional Access Policy
 Once a synchronization tool is configured, you should see initial synchronization fails due to single-factor authentication. Ensure this account is excluded from any MFA requirements set by Conditional Access policy. See [user exclusions](https://docs.microsoft.com/en-us/azure/active-directory/conditional-access/howto-conditional-access-policy-all-users-mfa#user-exclusions).
+
+### Authentication
+Hybrid identity configuration can include [Password Hash Synchronization (PHS)](placeholder) where passwords are replicated from Active Directory to Azure AD. This is only applicable for AD environments where users have and use a password. If users access AD-protected resources with a smartcard (CAC/PIV), there is no reason to set up password hash sync.
+
+Pass-Through Authentication (PTA) and federation with ADFS are not recommended. Hybrid authentication is less secure than Azure AD native methods, as the on-premises environment represents a significant identity attack surface.
+
+>**Recommendation**: Use Azure AD native strong authentication method, like FIDO2 security keys or native certificate-based authentication, for administration of Azure and Azure AD.
 
 ## 10. Configure Group-Based Licensing
 Group-based licensing is an Azure AD Premium feauture that automatically applied licenses to members of a security group. Creating [dynamic groups](https://docs.microsoft.com/en-us/azure/active-directory/enterprise-users/groups-create-rule) can further automate this process, since these groups are populated based on user attribute values. To use group-based licensing, follow steps in [assign licenses to a group](https://docs.microsoft.com/en-us/azure/active-directory/enterprise-users/licensing-groups-assign).
