@@ -1,5 +1,9 @@
-# Permissions in Azure and Azure
+# Permissions in Azure and Azure AD
 Document to describe roles relevant to Mission Landing Zone deployment and management.
+
+## Table of Contents
+- Placeholder
+- Placeholder
 
 ## Understanding Azure AD Permissions
 
