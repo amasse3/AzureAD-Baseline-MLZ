@@ -23,7 +23,7 @@ The first user in an Azure AD tenant will have super user / root access to the e
 ### Prepare a secure workstation for managing Azure AD
 There are several client tools for managing Azure AD configuration. Make sure you are managing Azure and Azure AD from a secure workstation. Ensure these privileged access devices include the Azure management tools outlined in this section. 
 
-Reference: [Privileged Access Devices](https://docs.microsoft.com/en-us/security/compass/privileged-access-devices)
+> **Reference**: [Privileged Access Devices](https://docs.microsoft.com/en-us/security/compass/privileged-access-devices)
 
 > **Note**:
 The practice of securing access with privileged access devices applies to any IT systems, not just the Azure cloud. 
@@ -31,7 +31,7 @@ The practice of securing access with privileged access devices applies to any IT
 ### Install Azure CLI
 Azure Command Line Interface (CLI) is a powerful suite of command line tools for managing Azure. Install Azure CLI on your workstation by following instructions from the Azure CLI documentation.
 
-Reference: [Install Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli)
+>**Reference**: [Install Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli)
 
 ### Install MS Graph PowerShell
 The Microsoft Graph PowerShell module is used for managing Azure AD and other services that expose configuration through the Microsoft Graph. 
