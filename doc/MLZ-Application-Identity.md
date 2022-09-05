@@ -1,8 +1,6 @@
 # Identity for Mission Landing Zone Applications
 This document contains identity guidance for applications running in Mission Landing Zone.
 
-Azure Active Directory directly supports identity for most applications, with Azure AD Application Proxy and Secure Hybrid Access partner integrations filling the gaps. Still, some lift+shift application migrations will require legacy identity systems such as Active Directory Domain Services (AD DS) running on Azure VMs.
-
 
 
 ## Table of Contents
@@ -26,11 +24,22 @@ Azure Active Directory directly supports identity for most applications, with Az
   - 3. B2B guests and MLZ
 - See Also
 
+## Azure AD - the everything identity platform
+Azure Active Directory is not just the Microsoft cloud Identity as a Service (IDaaS) platform, but the everything identity platform for all enterprise applications.
+
+While AAD is the identity platform for Azure and M365, it also directly supports identity for modern applications that implement industry-standard protocols. Azure AD Application Proxy and Secure Hybrid Access partner integrations allow Azure AD to also provide identity services to legacy apps on-premises, in Azure, and in other clouds like AWS or GCP.
+
 ## Understanding Azure AD Identities
 
 ## Azure AD tenant types
 
+|Type|Users|Identities|Services|
+|----|-----|-------------|--------|
+|Enterprise|All employees, contractors, guests|hybrid (synced)|Microsoft 365, Azure, enterprise apps|
+|Standalone Azure Platform|Azure admins and developers|cloud-only|Azure subscriptions|
+
 ## Enterprise Azure AD tenant
+An organization's Azure AD that contains all users and licenses is an **Enterprise Azure AD Tenant**. These tenants are often configured for hybrid identity with users and groups synchronized from an on-Premises Active Directory enviornment using Azure AD Connect, or provisioned into Azure AD directly from a support HR SaaS Provider. All non-Microsoft applications, including applications running on-premises, in other clouds, SaaS apps, or Azure subscriptions pinned to *other* non-Enterprise AAD should use the **Enterprise Azure AD** for identity.
 
 ## The MyApps Portal
 [My Apps](https://docs.microsoft.com/en-us/azure/active-directory/manage-apps/myapps-overview) is a customizable portal that offers a launchpad for accessing enterprise applications integrated with Azure AD.
