@@ -1,8 +1,6 @@
 # Identity for Mission Landing Zone Applications
 This document contains identity guidance for applications running in Mission Landing Zone.
 
-
-
 ## Table of Contents
 - [Understanding Azure AD Identities](#understanding-azure-ad-identities)
 - [Azure AD tenant types](#azure-ad-tenant-types)
@@ -27,16 +25,58 @@ This document contains identity guidance for applications running in Mission Lan
 ## Azure AD - the everything identity platform
 Azure Active Directory is not just the Microsoft cloud Identity as a Service (IDaaS) platform, but the everything identity platform for all enterprise applications.
 
-While AAD is the identity platform for Azure and M365, it also directly supports identity for modern applications that implement industry-standard protocols. Azure AD Application Proxy and Secure Hybrid Access partner integrations allow Azure AD to also provide identity services to legacy apps on-premises, in Azure, and in other clouds like AWS or GCP.
+While AAD is the identity platform for Azure and M365, it also directly supports identity for applications that implement industry-standard modern authentication protocols, like OpenID Connect, OAuth, and SAML. Azure AD Application Proxy and Secure Hybrid Access partner integrations allow Azure AD to also provide identity services to legacy apps on-premises, in Azure, and in other clouds like AWS or GCP.
 
 ## Understanding Azure AD Identities
+Azure AD can authenticate users in the AAD tenant with applications integrated with the tenant.
 
-## Azure AD tenant types
+Azure AD identities include more than just user objects. Every entitity in Azure can be assigned an identity in Azure AD. This functionality allows Azure resources and applications to access Azure with their own protected identity. In this way, application or Virtual Machine identities can be granted access to APIs protected by Azure AD, like the Microsoft Graph API.
 
-|Type|Users|Identities|Services|
+Azure AD identities, like users, security groups, and managed identities, are also security principals - they can be assigned Azure and Azure AD RBAC roles.
+
+>**Reference**: [Permissions Management in Azure and Azure AD](https://github.com/amasse3/MLZ-Identity-AzureADSetup/blob/main/doc/AAD-Permissions-Management.md)
+
+### What are Azure AD identities used for?
+These identities can be used for any of the following:
+- User authentication to applications
+- Application authentication to protected APIs
+- Azure AD management permissions
+  - Azure AD directory role assignment
+  - Scoped permissions for Microsoft Graph API
+- Licensing for Microsoft products and features, such as Azure AD Premium P2, or M365 E5
+- Management plane access to resources in Azure Resource Manager
+  - Azure resource RBAC permission assignment
+- Data plane access to Azure resources via data plane RBAC roles
+  - Azure Key Vault data access
+  - Azure Storage Account access
+  - Azure VM login
+  - Windows Admin Center
+- User or System-Assigned Managed Identities
+  - Configure management or data plane access to an Azure resource for a different resource (VM or App identity accessing Key Vault secret)
+- Management plane access to other clouds
+  - AWS
+  - Google Cloud
+  - SaaS apps like Service Now, Box, etc.
+- Data plane access outside of Azure
+  - Azure Arc agent and managed identity
+    - Deploy other agents and extensions
+    - Microsoft Defender for Endpoint
+    - Update Management
+  - SSH to non-Azure Linux server with Azure Arc
+  
+While an Azure AD tenant can contain identies for every use case mentioned in this section (and more), not every tenant will be used for all possible purposes. Some Azure AD tenants may provide identity for M365 services and other SaaS applications, but not have any Azure subscriptions attached. For these tenants, managed resource identities and Azure RBAC assignments will not exist. Other Azure AD tenants have attached Azure subscriptions, but not support identity for any enterprise services or applications. These tenants may only include a select few adminstrators and developers with cloud-only acounts.
+
+### Azure AD tenant types
+
+|Tenant Type|Identities|Hybrid Configuration|Supported services|
 |----|-----|-------------|--------|
-|Enterprise|All employees, contractors, guests|hybrid (synced)|Microsoft 365, Azure, enterprise apps|
-|Standalone Azure Platform|Azure admins and developers|cloud-only|Azure subscriptions|
+|Enterprise|All employees, contractors, guests|hybrid (synced)|Microsoft 365, Azure, SaaS applications, other enterprise LOB apps|
+|Standalone Azure Platform|Azure admins and developers|cloud-only|Azure Resource Manager (subscriptions, IaaS and PaaS services)|
+
+>**Important**: Understanding which tenant type MLZ subscriptions are attached to will determine whether the local Azure AD tenant should be used for modern apps, or if apps running on infrastructure in the MLZ tenant will be Enterprise Applications within some other enterprise tenant (usally used for M365. 
+
+Apps running on infrastructure in one tenant can use a different AAD as an identity provider. If apps are integrated with the enterprise / M365 tenant, users will have the most consistent sign-in experience. Any zero trust security policies configured with Conditional Access can apply, even if applications are hosted in subscriptions attached to a different tenant, or within a different cloud environment or on-premises datacenter.
+>**Reference**: [Choosing your identity authority](https://docs.microsoft.com/en-us/azure/azure-government/documentation-government-plan-identity#choosing-your-identity-authority)
 
 ## Enterprise Azure AD tenant
 An organization's Azure AD that contains all users and licenses is an **Enterprise Azure AD Tenant**. These tenants are often configured for hybrid identity with users and groups synchronized from an on-Premises Active Directory enviornment using Azure AD Connect, or provisioned into Azure AD directly from a support HR SaaS Provider. All non-Microsoft applications, including applications running on-premises, in other clouds, SaaS apps, or Azure subscriptions pinned to *other* non-Enterprise AAD should use the **Enterprise Azure AD** for identity.
