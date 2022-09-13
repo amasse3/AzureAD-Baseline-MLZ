@@ -25,7 +25,39 @@ This document contains identity guidance for applications running in Mission Lan
 ## Azure AD - the everything identity platform
 Azure Active Directory is not just the Microsoft cloud Identity as a Service (IDaaS) platform, but the everything identity platform for all enterprise applications.
 
-While AAD is the identity platform for Azure and M365, it also directly supports identity for applications that implement industry-standard modern authentication protocols, like OpenID Connect, OAuth, and SAML. Azure AD Application Proxy and Secure Hybrid Access partner integrations allow Azure AD to also provide identity services to legacy apps on-premises, in Azure, and in other clouds like AWS or GCP.
+While AAD is the identity platform for Azure and M365, it also directly supports identity for applications that implement industry-standard modern authentication protocols, like OpenID Connect, OAuth, and SAML. Azure AD Application Proxy and Secure Hybrid Access partner integrations allow Azure AD to also provide identity services to legacy apps, even when they are deployed to an on-premises environment or in another cloud.
+
+Azure AD authentication support:
+- ✅ Software as a Service applications like Service Now, Box, Google Cloud Platform, AWS
+- ✅ Line-of-Business apps that implement SAML 2.0, WS-Federation, OAuth 2.0, or OpenID Connect protocols
+- https://docs.microsoft.com/en-us/azure/active-directory/app-provisioning/tutorial-ecma-sql-connector
+- ✅ Legacy applications that use Kerberos or NTLM authentication
+- ✅ Legacy applications that use header-based authentication
+- ✅ On-premises applications that use SAML or WS-Federation
+- ✅ Applications that use [password-based sign-in](https://docs.microsoft.com/en-us/azure/active-directory/manage-apps/configure-password-single-sign-on-non-gallery-applications)
+- ✅ Applications that use an identity broker like F5, NetScaler, KeyCloak, Ping, Okta, or ADFS
+- ✅ Login for Azure VMs, On-Premises Linux VMs with Azure Arc
+- ✅ Azure PaaS services like Azure SQL App Service, Azure Functions
+- ✅ PowerApps Portals
+- ❌ Applications that use non-standard authentication protocols
+- ❌ Applications that implement standard protocols without TLS (HTTPS)
+- ❌ Applications that use legacy protocols without Application Proxy or Secure Hybrid Access Partner
+- ❌ Applications with some rare protocol requirements like SAML Holder-of-Key support
+  
+Azure AD user provisioning support:
+- ✅ Applications that use SCIM 2.0 identity management protocol
+- ✅ Applications that use SQL or AD LDS via [Azure AD ECMA connector (preview)](https://docs.microsoft.com/en-us/azure/active-directory/app-provisioning/tutorial-ecma-sql-connector)
+- ✅ Applications that use SAML-Based provisioning using IDP-Initiated sign in
+- ❌ Provisioning users from one Azure AD to another
+- ❌ Provisioning users to AD DS environment from Azure AD source
+- ❌ Provisioning users to Microsoft server-based products like Microsoft Identity Manager or the user profile service in SharePoint Server
+
+>>**Reference**:
+>> [Getting started with Azure AD Applications](https://docs.microsoft.com/en-us/azure/active-directory/manage-apps/plan-an-application-integration)
+>> [How application provisioning works in Azure AD](https://docs.microsoft.com/en-us/azure/active-directory/app-provisioning/how-provisioning-works)
+
+## Azure Active Directory and Zero Trust
+Discuss Conditional Access and why it is important to put Azure AD in the path of authentication.
 
 ## Understanding Azure AD Identities
 Azure AD can authenticate users in the AAD tenant with applications integrated with the tenant.
