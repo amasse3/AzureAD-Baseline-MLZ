@@ -28,8 +28,8 @@ Azure Active Directory is not just the Microsoft cloud Identity as a Service (ID
 While AAD is the identity platform for Azure and M365, it also directly supports identity for applications that implement industry-standard modern authentication protocols, like OpenID Connect, OAuth, and SAML. Azure AD Application Proxy and Secure Hybrid Access partner integrations allow Azure AD to also provide identity services to legacy apps, even when they are deployed to an on-premises environment or in another cloud.
 
 Azure AD authentication support:
-- ✅ Software as a Service applications like Service Now, Box, Google Cloud Platform, AWS
-- ✅ Line-of-Business apps that implement SAML 2.0, WS-Federation, OAuth 2.0, or OpenID Connect protocols
+- [x] Software as a Service applications like Service Now, Box, Google Cloud Platform, AWS
+- [ ] Line-of-Business apps that implement SAML 2.0, WS-Federation, OAuth 2.0, or OpenID Connect protocols
 - https://docs.microsoft.com/en-us/azure/active-directory/app-provisioning/tutorial-ecma-sql-connector
 - ✅ Legacy applications that use Kerberos or NTLM authentication
 - ✅ Legacy applications that use header-based authentication
