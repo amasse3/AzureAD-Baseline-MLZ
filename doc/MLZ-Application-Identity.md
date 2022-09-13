@@ -29,7 +29,7 @@ While AAD is the identity platform for Azure and M365, it also directly supports
 
 Azure AD authentication support:
 - [x] Software as a Service applications like Service Now, Box, Google Cloud Platform, AWS
-- [ ] Line-of-Business apps that implement SAML 2.0, WS-Federation, OAuth 2.0, or OpenID Connect protocols
+- [x] Line-of-Business apps that implement SAML 2.0, WS-Federation, OAuth 2.0, or OpenID Connect protocols
 - https://docs.microsoft.com/en-us/azure/active-directory/app-provisioning/tutorial-ecma-sql-connector
 - [x] Legacy applications that use Kerberos or NTLM authentication
 - [x] Legacy applications that use header-based authentication
@@ -62,7 +62,7 @@ Azure AD user provisioning support:
 Discuss Conditional Access and why it is important to put Azure AD in the path of authentication.
 
 > [!IMPORTANT]
-> Standarding around Azure AD as an enterprise identity platform is the most important step an organization can take in adopting zero trust principles. Bring Azure AD into the authentication path to every app.
+> Standardizing on Azure AD as the organization's enterprise identity platform is the most important step in adopting zero trust principles. Bring Azure AD into the authentication path to every app.
 
 ## Understanding Azure AD Identities
 Azure AD can authenticate users in the AAD tenant with applications integrated with the tenant.
