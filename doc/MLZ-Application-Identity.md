@@ -53,7 +53,7 @@ Azure AD user provisioning support:
 - ❌ Provisioning users to Microsoft server-based products like Microsoft Identity Manager or the user profile service in SharePoint Server
 
 > **Reference**: [Getting started with Azure AD Applications](https://docs.microsoft.com/en-us/azure/active-directory/manage-apps/plan-an-application-integration)
-> [How application provisioning works in Azure AD](https://docs.microsoft.com/en-us/azure/active-directory/app-provisioning/how-provisioning-works)
+> **Reference**: [How application provisioning works in Azure AD](https://docs.microsoft.com/en-us/azure/active-directory/app-provisioning/how-provisioning-works)
 
 ## Azure Active Directory and Zero Trust
 Discuss Conditional Access and why it is important to put Azure AD in the path of authentication.
