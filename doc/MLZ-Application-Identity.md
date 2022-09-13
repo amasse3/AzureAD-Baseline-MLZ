@@ -31,43 +31,32 @@ Azure AD authentication support:
 - [x] Software as a Service applications like Service Now, Box, Google Cloud Platform, AWS
 - [ ] Line-of-Business apps that implement SAML 2.0, WS-Federation, OAuth 2.0, or OpenID Connect protocols
 - https://docs.microsoft.com/en-us/azure/active-directory/app-provisioning/tutorial-ecma-sql-connector
-- ✅ Legacy applications that use Kerberos or NTLM authentication
-- ✅ Legacy applications that use header-based authentication
-- ✅ On-premises applications that use SAML or WS-Federation
-- ✅ Applications that use [password-based sign-in](https://docs.microsoft.com/en-us/azure/active-directory/manage-apps/configure-password-single-sign-on-non-gallery-applications)
-- ✅ Applications that use an identity broker like F5, NetScaler, KeyCloak, Ping, Okta, or ADFS
-- ✅ Login for Azure VMs, On-Premises Linux VMs with Azure Arc
-- ✅ Azure PaaS services like Azure SQL App Service, Azure Functions
-- ✅ PowerApps Portals
-- ❌ Applications that use non-standard authentication protocols
-- ❌ Applications that implement standard protocols without TLS (HTTPS)
-- ❌ Applications that use legacy protocols without Application Proxy or Secure Hybrid Access Partner
-- ❌ Applications with some rare protocol requirements like SAML Holder-of-Key support
+- [x] Legacy applications that use Kerberos or NTLM authentication
+- [x] Legacy applications that use header-based authentication
+- [x] On-premises applications that use SAML or WS-Federation
+- [x] Applications that use [password-based sign-in](https://docs.microsoft.com/en-us/azure/active-directory/manage-apps/configure-password-single-sign-on-non-gallery-applications)
+- [x] Applications that use an identity broker like F5, NetScaler, KeyCloak, Ping, Okta, or ADFS
+- [x] Login for Azure VMs, On-Premises Linux VMs with Azure Arc
+- [x] Azure PaaS services like Azure SQL App Service, Azure Functions
+- [x] PowerApps Portals
+- [ ] Applications that use non-standard authentication protocols
+- [ ] Applications that implement standard protocols without TLS (HTTPS)
+- [ ] Applications that use legacy protocols without Application Proxy or Secure Hybrid Access Partner
+- [ ] Applications with some rare protocol requirements like SAML Holder-of-Key support
   
 Azure AD user provisioning support:
-- ✅ Applications that use SCIM 2.0 identity management protocol
-- ✅ Applications that use SQL or AD LDS via [Azure AD ECMA connector (preview)](https://docs.microsoft.com/en-us/azure/active-directory/app-provisioning/tutorial-ecma-sql-connector)
-- ✅ Applications that use SAML-Based provisioning using IDP-Initiated sign in
-- ❌ Provisioning users from one Azure AD to another
-- ❌ Provisioning users to AD DS environment from Azure AD source
-- ❌ Provisioning users to Microsoft server-based products like Microsoft Identity Manager or the user profile service in SharePoint Server
+- [x] Applications that use SCIM 2.0 identity management protocol
+- [x] Applications that use SQL or AD LDS via [Azure AD ECMA connector (preview)](https://docs.microsoft.com/en-us/azure/active-directory/app-provisioning/tutorial-ecma-sql-connector)
+- [x] Applications that use SAML-Based provisioning using IDP-Initiated sign in
+- [ ] Provisioning users from one Azure AD to another
+- [ ] Provisioning users to AD DS environment from Azure AD source
+- [ ] Provisioning users to Microsoft server-based products like Microsoft Identity Manager or the user profile service in SharePoint Server
 
 > **Reference**: [Getting started with Azure AD Applications](https://docs.microsoft.com/en-us/azure/active-directory/manage-apps/plan-an-application-integration)
 > [How application provisioning works in Azure AD](https://docs.microsoft.com/en-us/azure/active-directory/app-provisioning/how-provisioning-works)
 
-> [!NOTE]
+> **Note**:
 > Azure AD application features and partner integrations are constantly improving. Feature availability may differ between commercial and other Azure AD instances.
-
-> [!TIP]
-> Optional information to help a user be more successful.
-
-
-
-> [!CAUTION]
-> Negative potential consequences of an action.
-
-> [!WARNING]
-> Dangerous certain consequences of an action.
 
 ## Azure Active Directory and Zero Trust
 Discuss Conditional Access and why it is important to put Azure AD in the path of authentication.
