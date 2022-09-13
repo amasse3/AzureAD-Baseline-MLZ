@@ -52,10 +52,28 @@ Azure AD user provisioning support:
 - ❌ Provisioning users to AD DS environment from Azure AD source
 - ❌ Provisioning users to Microsoft server-based products like Microsoft Identity Manager or the user profile service in SharePoint Server
 
-> **Reference**: - [Getting started with Azure AD Applications](https://docs.microsoft.com/en-us/azure/active-directory/manage-apps/plan-an-application-integration) - [How application provisioning works in Azure AD](https://docs.microsoft.com/en-us/azure/active-directory/app-provisioning/how-provisioning-works)
+> **Reference**: [Getting started with Azure AD Applications](https://docs.microsoft.com/en-us/azure/active-directory/manage-apps/plan-an-application-integration)
+> [How application provisioning works in Azure AD](https://docs.microsoft.com/en-us/azure/active-directory/app-provisioning/how-provisioning-works)
+
+> [!NOTE]
+> Azure AD application features and partner integrations are constantly improving. Feature availability may differ between commercial and other Azure AD instances.
+
+> [!TIP]
+> Optional information to help a user be more successful.
+
+
+
+> [!CAUTION]
+> Negative potential consequences of an action.
+
+> [!WARNING]
+> Dangerous certain consequences of an action.
 
 ## Azure Active Directory and Zero Trust
 Discuss Conditional Access and why it is important to put Azure AD in the path of authentication.
+
+> [!IMPORTANT]
+> Standarding around Azure AD as an enterprise identity platform is the most important step an organization can take in adopting zero trust principles. Bring Azure AD into the authentication path to every app.
 
 ## Understanding Azure AD Identities
 Azure AD can authenticate users in the AAD tenant with applications integrated with the tenant.
