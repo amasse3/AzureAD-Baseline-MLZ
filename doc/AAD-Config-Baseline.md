@@ -15,25 +15,25 @@ Some steps require Azure AD P2 licensing for privileged users within the environ
   7. [Configure Tenant Settings](#7-configure-user-group-and-external-collaboration-settings)
   8. [Add a Custom Domain to Azure AD](#8-optional-add-a-custom-domain-to-azure-ad)
   9. [Evaluate Hybrid Identity Configuration](#9-evaluate-hybrid-identity-needs-identity-synchronization)
-  10. [Configure Group-Based Licensing](#10-configure-group-based-licensing)
+  10. [Configure Additional Features](#10-configure-additional-features)
 
-## 1. [ ] Prepare to manage Azure AD
+## 1. Prepare to manage Azure AD
 The first user in an Azure AD tenant will have super user / root access to the entire Azure tenant. These permissions are assigned by the Global Administrator Azure AD role.
 
-### A. [ ] Prepare a secure workstation for managing Azure AD
+### A. Prepare a secure workstation for managing Azure AD
 There are several client tools for managing Azure AD configuration. Make sure you are managing Azure and Azure AD from a secure workstation. Ensure these privileged access devices include the Azure management tools outlined in this section. 
 
 > **Reference**: [Privileged Access Devices](https://docs.microsoft.com/en-us/security/compass/privileged-access-devices)
 
 > **Note**:
-The practice of securing access with privileged access devices applies to any IT systems, not just the Azure cloud. 
+Using privileged access devices is best practice for managing any sensitive information system, not just the Azure cloud. 
 
-### B. [ ] Install Azure CLI
+### B. Install Azure CLI
 Azure Command Line Interface (CLI) is a powerful suite of command line tools for managing Azure. Install Azure CLI on your workstation by following instructions from the Azure CLI documentation.
 
 >**Reference**: [Install Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli)
 
-### C. [ ] Install MS Graph PowerShell
+### C. Install MS Graph PowerShell
 The Microsoft Graph PowerShell module is used for managing Azure AD and other services that expose configuration through the Microsoft Graph. 
 To install the module, launch PowerShell and run: `Install Module Microsoft.Graph`
 
@@ -111,12 +111,14 @@ Creation and secure storage for Emergency Access credentials is useless if the e
 
 > **Note**: Consult your Information Systems Security Officer (ISSO) for proper handling procedures for Emergency Access accounts.
 
-**Recommendations**:(
+**Recommendations**:
 - Record passwords for Emergency Access accounts legibly by hand (do not type or send to a printer)
 - Store passwords for Emergency Access accounts in a safe that resides in a physically secure location.
 - Do not save passwords to an Enterprise password vault or Privleged Access Management (PAM) system
 - Do not save passwords to a personal password vault (LastPass, Apple Keychain, Google, OnePassword, Microsoft Authenticator, etc.)
 - Store backup copies for Emergency Access account credentials in a geographic distant location.
+- Exclude at least 1 Emergency Access account from Azure MFA
+- Monitor and alert on Emergency Access account usage
 
 > **Reference**: [Manage Emergency Access Accounts in Azure AD](https://docs.microsoft.com/en-us/azure/active-directory/roles/security-emergency-access)
 
@@ -137,7 +139,7 @@ The Microsoft Authenticator app for iOS and Android lets users authenticate / co
 - Notification
 - Time-based One Time Password (TOTP) code
 
->**Reference**: [Microsoft Authenticator app](https://docs.microsoft.com/en-us/azure/active-directory/authentication/concept-authentication-authenticator-app)
+> **Reference**: [Microsoft Authenticator app](https://docs.microsoft.com/en-us/azure/active-directory/authentication/concept-authentication-authenticator-app)
 
 ### B. Enable FIDO2 security keys
 FIDO2 security keys are an unphishable standards-based passwordless authentication method that come in different form factors. Most security keys resemble a USB thumb drive and communicate with device over USB.
@@ -156,7 +158,19 @@ This capability is in Public Preview. If Certificate-Based Authentication will b
 Use this set of Azure AD Security Groups and RBAC role assignments as a baseline.
 
 ### A. Azure Resource RBAC
-Roles for Azure resource management are assigned within Azure RBAC. When using the Azure Portal, RBAC roles are assigned using the IAM button on the desired Azure resource. Permissions granted by RBAC role assignments scoped at the Reso 
+Permissions for Azure resource management are granted through assignments to an Azure RBAC role. In the Azure Portal, RBAC role assignments can be created or viewed by selecting the IAM link. Azure RBAC assignments can apply to users (members and guests), security groups, service principals, and managed identities. 
+
+- **Recommendation** : 
+
+Azure RBAC can be assigned at any of the following scopes:
+ - Management Group
+   - Subscription
+     - Resource Group
+       - Resource
+<html>
+<p style=\"border: solid; padding: 5pt\"><b>📘 Reference</b>: \r\n",
+"For more information about Zero Trust, visit the <a href=\"https://docs.microsoft.com/en-us/security/zero-trust/\">Zero Trust Guidance Center</a>.\r\n"
+</html>
 
 |Name|Usage|RBAC Role |Role Type|Scope|
 |----|-----|----------|---------|--------------|
@@ -332,7 +346,7 @@ MLZ AAD baseline will set the following Azure AD external collaboration settings
 
 `script`
 
-> **Reference**:[Default user permissins in Azure AD](https://docs.microsoft.com/en-us/azure/active-directory/fundamentals/users-default-permissions)
+> **Reference**:[Default user permissions in Azure AD](https://docs.microsoft.com/en-us/azure/active-directory/fundamentals/users-default-permissions)
 
 ## 8. Optional: Add a custom domain to Azure AD
 When an Azure AD tenant is created, a default domain is assigned that looks like *tenantname.onmicrosoft.com* (*tenantname.onmicrosoft.us* for Azure AD Government). By default, all users in Azure AD get a UserPrincipalName (UPN) with the default domain suffix.
@@ -358,6 +372,7 @@ Hybrid identity should be configured if an organization uses Active Directory Do
 Which tool you should use varies depending on the hybrid identity needs for the environment. Use Cloud Sync for simple scenarios if it supports the features your organization needs. For a full breakdown of feature support between the tools, see [Comparison between Azure AD Conect and Cloud Sync](https://docs.microsoft.com/en-us/azure/active-directory/cloud-sync/what-is-cloud-sync#comparison-between-azure-ad-connect-and-cloud-sync).
 
 > **Note**: Synchronizing all identities to Azure AD helps establish an enterprise identity and zero trust surface for all applications. If hybrid identity is already configured for a different tenant, treat that tenant as the enterprise Azure AD for the organization. Review the tenant types.
+
 
 #### i. Azure AD Connect v2
 [Azure AD Connect Synchronization Service v2](https://docs.microsoft.com/en-us/azure/active-directory/hybrid/whatis-azure-ad-connect-v2) is the latest version of Microsoft's on-premises infrastructure based synchronization tool. 
@@ -395,12 +410,30 @@ Pass-Through Authentication (PTA) and federation with ADFS are not recommended. 
 
 >**Recommendation**: Use Azure AD native strong authentication method, like FIDO2 security keys or native certificate-based authentication, for administration of Azure and Azure AD.
 
-## 10. Configure Group-Based Licensing
+## 10. Configure Additional Features
+
+### A. Group-Based Licensing
 Group-based licensing is an Azure AD Premium feauture that automatically applied licenses to members of a security group. Creating [dynamic groups](https://docs.microsoft.com/en-us/azure/active-directory/enterprise-users/groups-create-rule) can further automate this process, since these groups are populated based on user attribute values. To use group-based licensing, follow steps in [assign licenses to a group](https://docs.microsoft.com/en-us/azure/active-directory/enterprise-users/licensing-groups-assign).
 
 > **Reference**: [Group-based licensing with PowerShell and Microsoft Graph](https://docs.microsoft.com/en-us/azure/active-directory/enterprise-users/licensing-ps-examples)
 
-# Deployment Guides
+### B. Custom Azure AD Roles
+
+### C. Administrative Units
+
+### D. Identity Governance
+
+#### i. Privileged Identity Management
+
+#### ii. Entitlements Managmement
+
+#### iii. Access Reviews
+
+### iv. Connected Orgs
+
+### E. Cross-Cloud Collaboration
+
+# See Also: Azure AD Deployment Guides
 - [Azure Active Directory deployment plans](https://docs.microsoft.com/en-us/azure/active-directory/fundamentals/active-directory-deployment-plans)
 - [Azure Security Operations Guide](https://docs.microsoft.com/en-us/azure/active-directory/fundamentals/security-operations-introduction)
 - [Security Baseline for Azure AD](https://docs.microsoft.com/en-us/security/benchmark/azure/baselines/aad-security-baseline)
