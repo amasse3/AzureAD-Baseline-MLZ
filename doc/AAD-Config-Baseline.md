@@ -160,17 +160,13 @@ Use this set of Azure AD Security Groups and RBAC role assignments as a baseline
 ### A. Azure Resource RBAC
 Permissions for Azure resource management are granted through assignments to an Azure RBAC role. In the Azure Portal, RBAC role assignments can be created or viewed by selecting the IAM link. Azure RBAC assignments can apply to users (members and guests), security groups, service principals, and managed identities. 
 
-- **Recommendation** : 
+- **💡Recommendation** : Assign permissions to Azure AD security groups. If Azure AD Premium P2 licesing is available, configure the security groups eligble for the Azure RBAC role assignments.
 
 Azure RBAC can be assigned at any of the following scopes:
  - Management Group
    - Subscription
      - Resource Group
        - Resource
-<html>
-<p style=\"border: solid; padding: 5pt\"><b>📘 Reference</b>: \r\n",
-"For more information about Zero Trust, visit the <a href=\"https://docs.microsoft.com/en-us/security/zero-trust/\">Zero Trust Guidance Center</a>.\r\n"
-</html>
 
 |Name|Usage|RBAC Role |Role Type|Scope|
 |----|-----|----------|---------|--------------|
@@ -183,7 +179,14 @@ Azure RBAC can be assigned at any of the following scopes:
 |Application Owners (DevOps)|Contributor role granted at resource group.|DevOpsAppOps|Custom|Resource Group|
 
 ### B. Azure AD RBAC
-In addition to Azure AD roles, there are several Azure AD Directory roles that may be needed. 
+In addition to Azure AD roles, there are several Azure AD Directory roles that may be needed. These roles can be assigned to users, groups (if group is role-assignable), and service principals.
+
+Azure AD RBAC can be assigned at any of the following scopes:
+ - Directory (default)
+   - Administrative Unit
+   - Azure AD Resource (Group or Application Owner)
+
+ **💡 Recommendation**: Start by assigning Global Administrator role for Emergency Access accounts and tenant admins. When other Azure AD permissions are required, assign users using [least-privileged role by task](https://docs.microsoft.com/en-us/azure/active-directory/roles/delegate-by-task)
 
 |Name|Usage|
 |----|-----|
@@ -192,7 +195,7 @@ In addition to Azure AD roles, there are several Azure AD Directory roles that m
 |Hybrid Identity Administrator|Configure Azure AD Connect to synchronize identities from AD DS to Azure AD|
 
 **Azure AD Free or Premium P1**
-Assign users directly to Azure AD roles using the [least-privileged role by task](https://docs.microsoft.com/en-us/azure/active-directory/roles/delegate-by-task).
+Assign users directly to Azure AD roles.
 
 **Azure AD Premium P2**
 Create [Role-Assignable Groups]() and assign eligibility to Azure AD directory roles using Privileged Identity Management (PIM).
@@ -209,24 +212,28 @@ The following role-assignable groups are used in the AAD Configuration Baseline:
 These security group and role assignments represent baseline configuration. Modify with additional roles as needed, starting with built-in roles when possible.
 
 ### C. Create Azure AD Security Groups
-`Script that creates security groups`
+Run the script below to create Azure AD security groups:
+`$groups = @() #Update for all groups`
+`New-MGGroup -Example`
+
 ### D. Map MLZ RBAC Security Groups to Azure RBAC Roles
+Once the groups are created, map them to the relevant RBAC role.
 
 **Azure AD Free or Premium P1**
 `Script`
 
 **Azure AD Premium P2**
-Azure AD Premium P2 customers should map security groups as eligible for roles using Privileged Identity Management (PIM). Choose an elevation duration and access review interval.
+Azure AD Premium P2 customers should map security groups eligible for roles using Privileged Identity Management (PIM). Choose an elevation duration and access review interval.
 
-**Recommended Settings**:
+**💡 Recommended Settings**:
 - Global Administrator
-    - Elevation Duration: 2 hours
-    - Approvals Required: Yes
-    - Notification: Yes
+    - **Elevation Duration:** 2 hours
+    - **Approvals Required:** Yes
+    - **Notification:** Yes
 - Other Roles
-    - Duration: 4 hours
-    - Approval Required: No
-    - Notification: Yes
+    - **Duration:** 4 hours
+    - **Approval Required:** No
+    - **Notification:** Yes
 
 `Script`
 
@@ -238,7 +245,7 @@ Familiarize yourself with the Securing Privileged Access guidance for Azure AD a
 ## 5. Create Named Administrator Accounts
 Day-to-day operations requiring administrative privileges should be performed by named administrator accounts, assigned to individual users (not shared), separate from accounts used to access productivity services like Email, SharePoint, and Teams.
 
-**Recommendations**:
+**💡 Recommendations**:
 - Administration for Azure and Azure AD should use cloud-only identities and Azure AD native authentication mechanism, like FIDO2 security keys.
 - Limit the number of Global Administrators, referring to [least privileged roles by task](https://docs.microsoft.com/en-us/azure/active-directory/roles/delegate-by-task) to assign the proper limited administrator role
 - Assign permissions Just-In-Time using [Azure AD Privileged Identity Management](https://docs.microsoft.com/en-us/azure/active-directory/privileged-identity-management/pim-configure)
