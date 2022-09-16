@@ -31,7 +31,7 @@ Using privileged access devices is best practice for managing any sensitive info
 ### B. Install Azure CLI
 Azure Command Line Interface (CLI) is a powerful suite of command line tools for managing Azure. Install Azure CLI on your workstation by following instructions from the Azure CLI documentation.
 
->**Reference**: [Install Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli)
+> **Reference**: [Install Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli)
 
 ### C. Install MS Graph PowerShell
 The Microsoft Graph PowerShell module is used for managing Azure AD and other services that expose configuration through the Microsoft Graph. 
@@ -40,7 +40,7 @@ To install the module, launch PowerShell and run: `Install Module Microsoft.Grap
 > **Note**:
 Azure AD PowerShell module is deprecated as of June 2022. Microsoft Graph PowerShell should be used going forward.
 
-Reference: [Install Microsoft Graph PowerShell](https://docs.microsoft.com/en-us/powershell/microsoftgraph/installation?view=graph-powershell-1.0)
+> **Reference**: [Install Microsoft Graph PowerShell](https://docs.microsoft.com/en-us/powershell/microsoftgraph/installation?view=graph-powershell-1.0)
 
 Log in with an account that is a [Global Administrator](https://docs.microsoft.com/en-us/azure/active-directory/roles/permissions-reference#global-administrator) within the tenant.
 
@@ -49,8 +49,8 @@ Log in with an account that is a [Global Administrator](https://docs.microsoft.c
 
 If the signed in account is not a **member** type, follow the steps below:
 1. [Add a new user in Azure AD](https://docs.microsoft.com/en-us/azure/active-directory/fundamentals/add-users-azure-active-directory#add-a-new-user)
-  - Record the username, including the domain suffix
-  - Note the temporary password
+   a. Record the username, including the domain suffix
+   b. Note the temporary password
 2. [Assign Global Administrator role to the new user](https://docs.microsoft.com/en-us/azure/active-directory/roles/manage-roles-portal)
 3. Sign out of the portal or click the profile in the top right and select **sign in with a different account**
 4. Enter the username and temporary password for the first member administrator account.
