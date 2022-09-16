@@ -17,10 +17,10 @@ Some steps require Azure AD P2 licensing for privileged users within the environ
   9. [Evaluate Hybrid Identity Configuration](#9-evaluate-hybrid-identity-needs-identity-synchronization)
   10. [Configure Group-Based Licensing](#10-configure-group-based-licensing)
 
-## 1. Prepare to manage Azure AD
+## 1. [ ] Prepare to manage Azure AD
 The first user in an Azure AD tenant will have super user / root access to the entire Azure tenant. These permissions are assigned by the Global Administrator Azure AD role.
 
-### A. Prepare a secure workstation for managing Azure AD
+### A. [ ] Prepare a secure workstation for managing Azure AD
 There are several client tools for managing Azure AD configuration. Make sure you are managing Azure and Azure AD from a secure workstation. Ensure these privileged access devices include the Azure management tools outlined in this section. 
 
 > **Reference**: [Privileged Access Devices](https://docs.microsoft.com/en-us/security/compass/privileged-access-devices)
@@ -28,12 +28,12 @@ There are several client tools for managing Azure AD configuration. Make sure yo
 > **Note**:
 The practice of securing access with privileged access devices applies to any IT systems, not just the Azure cloud. 
 
-### B. Install Azure CLI
+### B. [ ] Install Azure CLI
 Azure Command Line Interface (CLI) is a powerful suite of command line tools for managing Azure. Install Azure CLI on your workstation by following instructions from the Azure CLI documentation.
 
 >**Reference**: [Install Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli)
 
-### C. Install MS Graph PowerShell
+### C. [ ] Install MS Graph PowerShell
 The Microsoft Graph PowerShell module is used for managing Azure AD and other services that expose configuration through the Microsoft Graph. 
 To install the module, launch PowerShell and run: `Install Module Microsoft.Graph`
 
