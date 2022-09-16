@@ -118,39 +118,43 @@ Apps running on infrastructure in one tenant can use a different AAD as an ident
 ## Enterprise Azure AD tenant
 An organization's Azure AD that contains all users and licenses is an **Enterprise Azure AD Tenant**. These tenants are often configured for hybrid identity with users and groups synchronized from an on-Premises Active Directory enviornment using Azure AD Connect, or provisioned into Azure AD directly from a support HR SaaS Provider. All non-Microsoft applications, including applications running on-premises, in other clouds, SaaS apps, or Azure subscriptions pinned to *other* non-Enterprise AAD should use the **Enterprise Azure AD** for identity.
 
-## The MyApps Portal
-[My Apps](https://docs.microsoft.com/en-us/azure/active-directory/manage-apps/myapps-overview) is a customizable portal that offers a launchpad for accessing enterprise applications integrated with Azure AD.
+## Enterprise Apps
 
-## Application Types
+### The MyApps Portal
+Any enterprise application [My Apps](https://docs.microsoft.com/en-us/azure/active-directory/manage-apps/myapps-overview) is a customizable portal that offers a launchpad for accessing enterprise applications integrated with Azure AD.
+
+### Modern and Legacy Apps
 Applications used within the enterprise should use standard protocols for authentication and authorization that offer integration with most identity provider systems. To simplify the conversation, apps can be categorized based on the type of identity protocols they use. 
 - [Modern applications](#legacy-apps)
 - [Legacy applications](#modern-apps)
 
-### Modern Apps
+#### Modern Apps
 **Modern applications** use identity protocols that build on top of Hypertext Transfer Protocol and TLS-secured communications over the internet on port 443.
 
 Authentication to these apps uses a passive client, like a web browser, to perform sign-in with an identity provider that is also accessible over the internet. After successful authentication to the identity provider, the identity provider sends an HTTP response with 302-redirect back to the application sign-in endpoint with a cryptographically signed (and sometimes encrypted) token. Once the application verifies the token, the application sign-in is complete.
 
 Common protocols for modern apps include [OpenID-Connect](https://docs.microsoft.com/en-us/azure/active-directory/fundamentals/auth-oidc), [OAuth 2.0](https://docs.microsoft.com/en-us/azure/active-directory/fundamentals/auth-oauth2), [SAML](https://docs.microsoft.com/en-us/azure/active-directory/fundamentals/auth-saml), [WS-Federation](https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-adfsod/204de335-ea34-4f9b-ae73-8b7d4c8152d1).
 
-**Example Modern App**
-- Realm: internet
-- Protocol: OpenID Connect
-- Token: JWT
-- Authorization: Role claim
-- SDK: MS Authentication Library (MSAL)
+|**Example**|Modern Application|
+|-------|-----------------------|
+|**Realm**|Internet|
+|**AuthN Protocol**|OpenID Connect, OAuth 2.0, SAML 2.0, WS-Federation|
+|**Token**|ID and Access Tokens (JWT), Code, SAML Token|
+|**Authorization**|Role claim from AAD|
+|**Development Library**|Microsoft Authentication Library (MSAL)|
 
-### Legacy Apps
+#### Legacy Apps
 **Legacy applications** use protocols intended for client-server authentication within a trusted realm such as a corporate network. Authentication happens using credentials supplied directly to the application. These applications often use [Kerberos](https://docs.microsoft.com/en-us/windows-server/security/kerberos/kerberos-authentication-overview) ([Windows Authentication](https://docs.microsoft.com/en-us/windows-server/security/windows-authentication/windows-authentication-overview)), [NTLM](https://docs.microsoft.com/en-us/windows-server/security/kerberos/ntlm-overview), [LDAP](https://docs.microsoft.com/en-us/azure/active-directory/fundamentals/auth-ldap), or [header-based](https://docs.microsoft.com/en-us/azure/active-directory/fundamentals/auth-header-based) authentication.
 
-**Example Legacy App**
-- Realm: Active Directory (Kerberos Domain)
-- Protocol: Kerberos
-- Token: Kerberos ticket
-- Authorization: Privileged Attribute Certificate (PAC)
-- SDK: Windows Identity Framework
+|**Example**|Legacy Application|
+|-------|-----------------------|
+|**Realm**|AD Forest (Kerberos domain), enterprise network|
+|**AuthN Protocol**|Kerberos, NTLM, header-based|
+|**Token**|Kerberos ticket, AuthZ Header|
+|**Authorization**|Kerberos PAC (AD security group), within application|
+|**Development Library**|Windows Identity Foundation|
 
-## Azure AD and on-premises applications
+## Azure AD and On-Premises Applications
 
 > **Note**: The location of the application hosting infrastructure has no bearing on whether or not Azure AD can be an identity provider. Azure AD can be used for modern apps as long as authenticating clients have internet access and a network path to the application. 
 > Azure AD can be used for legacy apps as long as Azure AD Application Proxy or Secure Hybrid Access Partner broker is used.
