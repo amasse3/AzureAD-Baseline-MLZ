@@ -36,9 +36,9 @@ flowchart BT
     userPrincipalName
     mail
     end
-    userPrincipalName-->OnPremisesUserPrincipalName
-    mail-->UserPrincipalName
-    mail-->Mail
+    userPrincipalName--sync-->OnPremisesUserPrincipalName
+    mail--sync-->UserPrincipalName
+    mail--sync-->Mail
 ````
 
 ### UserCertificateIds (cloud-only Users)
