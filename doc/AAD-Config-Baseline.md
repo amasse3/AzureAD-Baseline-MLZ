@@ -28,24 +28,14 @@ There are several client tools for managing Azure AD configuration. Make sure yo
 > **Note**:
 Using privileged access devices is best practice for managing any sensitive information system, not just the Azure cloud. 
 
-### B. Install Azure CLI
-Azure Command Line Interface (CLI) is a powerful suite of command line tools for managing Azure. Install Azure CLI on your workstation by following instructions from the Azure CLI documentation.
+### B. Install Azure Management Tools
+- [Azure Command-Line-Interface (CLI)](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli)
+- [Azure Az PowerShell](https://learn.microsoft.com/en-us/powershell/azure/install-az-ps?view=azps-9.0.1): `Install-Module Az`
+- [Microsoft Graph PowerShell](https://docs.microsoft.com/en-us/powershell/microsoftgraph/installation?view=graph-powershell-1.0): `Install-Module Microsoft.Graph`
+- [Azure AD PowerShell v2](https://learn.microsoft.com/en-us/powershell/azure/active-directory/install-adv2?view=azureadps-2.0): `Install-Module AzureADPreview`
 
-> **Reference**: [Install Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli)
-
-### C. Install MS Graph PowerShell
-The Microsoft Graph PowerShell module is used for managing Azure AD and other services that expose configuration through the Microsoft Graph. 
-To install the module, launch PowerShell and run: `Install Module Microsoft.Graph`
-
-> **Note**:
-Azure AD PowerShell module is deprecated as of June 2022. Microsoft Graph PowerShell should be used going forward.
-
-> **Reference**: [Install Microsoft Graph PowerShell](https://docs.microsoft.com/en-us/powershell/microsoftgraph/installation?view=graph-powershell-1.0)
-
-Log in with an account that is a [Global Administrator](https://docs.microsoft.com/en-us/azure/active-directory/roles/permissions-reference#global-administrator) within the tenant.
-
-### D. Log in to the Azure Portal and license the first Global Administrator
-Log in with an account that is a [Global Administrator](https://docs.microsoft.com/en-us/azure/active-directory/roles/permissions-reference#global-administrator) within the tenant. In some cases, the first user that created the Azure AD tenant will be a guest / external user. This can be verified by navigating to the Users blade in the Azure AD Portal and investigating the **User Type** field. 
+### C. Log in to the Azure Portal and license the first Global Administrator
+Log in with an account that is a [Global Administrator](https://docs.microsoft.com/en-us/azure/active-directory/roles/permissions-reference#global-administrator) within the tenant. Usually, the first user that created the Azure AD tenant will be a guest / external user. This can be verified by navigating to the Users blade in the Azure AD Portal and investigating the **User Type** field. 
 
 If the signed in account is not a **member** type, follow the steps below:
 1. [Add a new user in Azure AD](https://docs.microsoft.com/en-us/azure/active-directory/fundamentals/add-users-azure-active-directory#add-a-new-user)
@@ -59,7 +49,7 @@ If the signed in account is not a **member** type, follow the steps below:
 
 > **Reference**: [Azure AD Setup Guide](https://go.microsoft.com/fwlink/p/?linkid=2183427)
 
-### E. Log in to the Azure Portal and license the first Global Administrator
+### D. Log in to the Azure Portal and license the first Global Administrator
 1. Log in to the Azure Portal (https://portal.azure.com | https://portal.azure.us) as the first Global Administrator
 2. Search for "Azure Active Directory" and click the Azure AD icon to open the AAD Administration "blade" in the Azure Portal.
 3. Click **Licenses** and then **All Products**
@@ -68,7 +58,7 @@ If the signed in account is not a **member** type, follow the steps below:
 
 > **Reference**: [Assign or remove licenses in the Azure AD Portal](https://docs.microsoft.com/en-us/azure/active-directory/fundamentals/license-users-groups?)
 
-### F. Connect to the Azure AD Tenant with Microsoft Graph PowerShell
+### E. Connect to the Azure AD Tenant with Microsoft Graph PowerShell
 Open PowerShell and run the following command to connect to Azure AD:
 - Azure AD Commercial
   - `Connect-MgGraph -scope TBD`
@@ -144,15 +134,10 @@ The Microsoft Authenticator app for iOS and Android lets users authenticate / co
 ### B. Enable FIDO2 security keys
 FIDO2 security keys are an unphishable standards-based passwordless authentication method that come in different form factors. Most security keys resemble a USB thumb drive and communicate with device over USB.
 
-### C. Pilot Azure AD Native Certificate-Based Authentication
+### C. Configure Azure AD Native Certificate-Based Authentication
 Organizations that need to use smartcard (certificate-based) authentication with Azure AD should configure Azure AD Native Certificate-Based Authentication settings in Azure AD. This feature is in Public Preview and is subject to change. Follow the latest documentation to configure from the reference below.
 
 > **Reference**: [Azure AD Native Certificate-Based Authentication](https://docs.microsoft.com/en-us/azure/active-directory/authentication/how-to-certificate-based-authentication)
-
-> **Note**:
-This capability is in Public Preview. If Certificate-Based Authentication will be used with certificates that have a large CRL size, a support ticket must be opened via the Azure Portal.
-
-> **Note**: As of August 2022, user certificates can only be mapped using Principal Name and RFC822 Name values on certificates, and UserPrincipalName or OnPremisesUserPrincipalName values in Azure AD. This restricts using certificates with non-routable suffix for the Principal Name / RFC822 values for cloud-only Azure AD accounts (Azure AD UserPrincipalName must be a routable, [verified domain](#7-optional-add-a-custom-domain-to-azure-ad) in Azure AD)'
 
 ## 4. Create MLZ RBAC Security Groups
 Use this set of Azure AD Security Groups and RBAC role assignments as a baseline.
@@ -186,7 +171,7 @@ Azure AD RBAC can be assigned at any of the following scopes:
    - Administrative Unit
    - Azure AD Resource (Group or Application Owner)
 
- **💡 Recommendation**: Start by assigning Global Administrator role for Emergency Access accounts and tenant admins. When other Azure AD permissions are required, assign users using [least-privileged role by task](https://docs.microsoft.com/en-us/azure/active-directory/roles/delegate-by-task)
+ **💡 Recommendation**: Start by assigning Global Administrator role for Emergency Access accounts and tenant admins. When other Azure AD permissions are required, assign users using [least-privileged role by task](https://docs.microsoft.com/en-us/azure/active-directory/roles/delegate-by-task). Review the insights and recommendations provided by Azure AD Privileged Identity Management.
 
 |Name|Usage|
 |----|-----|
@@ -198,7 +183,7 @@ Azure AD RBAC can be assigned at any of the following scopes:
 Assign users directly to Azure AD roles.
 
 **Azure AD Premium P2**
-Create [Role-Assignable Groups]() and assign eligibility to Azure AD directory roles using Privileged Identity Management (PIM).
+Create [Role-Assignable Groups](https://learn.microsoft.com/en-us/azure/active-directory/roles/groups-concept) and assign eligibility to Azure AD directory roles using Privileged Identity Management (PIM).
 
 The following role-assignable groups are used in the AAD Configuration Baseline:
 |Name|Usage|AAD Role|Role Type|Scope|
@@ -246,7 +231,7 @@ Familiarize yourself with the Securing Privileged Access guidance for Azure AD a
 Day-to-day operations requiring administrative privileges should be performed by named administrator accounts, assigned to individual users (not shared), separate from accounts used to access productivity services like Email, SharePoint, and Teams.
 
 **💡 Recommendations**:
-- Administration for Azure and Azure AD should use cloud-only identities and Azure AD native authentication mechanism, like FIDO2 security keys.
+- Administration for Azure and Azure AD should use cloud-only identities and Azure AD native authentication mechanism, like FIDO2 security keys or smartcard certificates.
 - Limit the number of Global Administrators, referring to [least privileged roles by task](https://docs.microsoft.com/en-us/azure/active-directory/roles/delegate-by-task) to assign the proper limited administrator role
 - Assign permissions Just-In-Time using [Azure AD Privileged Identity Management](https://docs.microsoft.com/en-us/azure/active-directory/privileged-identity-management/pim-configure)
 - Periodically review role eligibility
@@ -276,10 +261,11 @@ These methods are not phishing-resistant or passwordless. In either case, a pass
 Passwordless, but not phishing-resistant. This required registration of an iOS or Android mobile device with the Azure AD tenant.
 - **Best:** Phishing-Resistant MFA FIDO2 Security Key or Azure AD native Certificate-Based Authentication (CBA)
   - FIDO2 Security Key
-  - Certificate-Based Authentication
+  - Azure AD Native Certificate-Based Authentication
+  - Windows Hello for Business
 
 > **Note**:
-Microsoft Authenticator App is considered phishing-resistant when deployed to a managed mobile device. Since this guide assumes a new tenant, it assumes Microsoft Endpoint Manager is not configured to manage mobile devices.
+Microsoft Authenticator App is considered phishing-resistant when deployed to a managed mobile device. Since this guide is for setting up a new tenant, it assumes Microsoft Endpoint Manager is not configured to manage mobile devices.
 
 > **Reference**: [Phishing-resistant methods](https://docs.microsoft.com/en-us/azure/active-directory/standards/memo-22-09-multi-factor-authentication#phishing-resistant-methods)
 
@@ -360,11 +346,13 @@ When an Azure AD tenant is created, a default domain is assigned that looks like
 
 [Custom domains](https://docs.microsoft.com/en-us/azure/active-directory/fundamentals/add-custom-domain) let tenant administrators change the UPN suffix by verifying ownership of an organization's DNS domain via TXT record.
 
+`script`
+
 > **Note**:
 Sometimes when custom domains are added to an Azure AD tenant, users who signed up for trial Microsoft services with their organization email address will appear in the tenant once the domain is verified. Do not be alarmed by this. To verify no other users have privileges within the tenant, [view the Azure AD role members](https://docs.microsoft.com/en-us/azure/active-directory/roles/view-assignments).
 
 
-## 9. Evaluate Hybrid Identity Configuration
+## 9. Choose a Hybrid Identity Configuration
 Microsoft’s identity solutions span on-premises and cloud-based capabilities. These solutions create a common user identity for authentication and authorization to all resources. This configuration has 2 parts:
 - [Synchronization](#a-synchronization)
 - [Authentication](#b-authentication)
@@ -411,7 +399,7 @@ Use Azure AD Connect Cloud Sync if:
 Once a synchronization tool is configured, you should see initial synchronization fails due to single-factor authentication. Ensure this account is excluded from any MFA requirements set by Conditional Access policy. See [user exclusions](https://docs.microsoft.com/en-us/azure/active-directory/conditional-access/howto-conditional-access-policy-all-users-mfa#user-exclusions).
 
 ### B. Authentication
-Hybrid identity configuration can include [Password Hash Synchronization (PHS)](placeholder) where passwords are replicated from Active Directory to Azure AD. This is only applicable for AD environments where users have and use a password. If users access AD-protected resources with a smartcard (CAC/PIV), there is no reason to set up password hash sync.
+Hybrid identity configuration can include [Password Hash Synchronization (PHS)](https://learn.microsoft.com/en-us/azure/active-directory/hybrid/whatis-phs) where passwords are replicated from Active Directory to Azure AD. This is only applicable for AD environments where users have and use a password. If users access AD-protected resources with a smartcard (CAC/PIV), there is no need to set up password hash sync.
 
 Pass-Through Authentication (PTA) and federation with ADFS are not recommended. Hybrid authentication is less secure than Azure AD native methods, as the on-premises environment represents a significant identity attack surface.
 
@@ -424,21 +412,61 @@ Group-based licensing is an Azure AD Premium feauture that automatically applied
 
 > **Reference**: [Group-based licensing with PowerShell and Microsoft Graph](https://docs.microsoft.com/en-us/azure/active-directory/enterprise-users/licensing-ps-examples)
 
-### B. Custom Azure AD Roles
+### B. Authentication Strength (Preview)
+Authentication Strengths is a feature that allows a tenant administrator to label authenticators (and combinations) according to the strength of the credential. Out-of-Box settings include:
+- Multifactor Authentication
+- Passwordless Multifactor Authentication
+- Phishing-Resistant MFA
 
-### C. Administrative Units
+Additional strengths, like NIST Authenticator Assurance Levels, can be configured by an administrator.
 
-### D. Identity Governance
+> **Recommendation**: [Configure Authentication Strength](https://learn.microsoft.com/en-us/azure/active-directory/authentication/concept-authentication-strengths) and require MFA of particular strength within Conditional Access Policies.
+
+### C. Cross-Tenant Access Policies (XTAP) and B2B Cross-Cloud Collaboration
+Review [Cross-tenant access with Azure AD external identities](https://learn.microsoft.com/en-us/azure/active-directory/external-identities/cross-tenant-access-overview) and determine if XTAP policies are required.
+
+B2B cross-cloud collaboration requires Inbound and Outbound settings on both tenants.
+### D. Administrative Units and Custom Roles
+[Administrative Units (AUs)](https://learn.microsoft.com/en-us/azure/active-directory/roles/administrative-units) provide a mechanism for scoping Azure AD roles to a particular set of resources. AUs can be scoped to users, groups, and devices. Resources can be assigned to an AU manually, or the AU can be configured with dynamic rules.
+
+> **Note**: Not all out-of-box Azure AD roles can be scoped to an AU. Review the [limitations](https://learn.microsoft.com/en-us/azure/active-directory/roles/administrative-units#groups) for Administrative Units.
+> 
+### E. Identity Governance
+Identity Governance defines a set of capabilities provided by Azure AD Premium P2 licensing.
 
 #### i. Privileged Identity Management
+[Enable Privileged Identity Management](https://learn.microsoft.com/en-us/azure/active-directory/privileged-identity-management/pim-deployment-plan) for all highly privileged roles, or [Privileged Access Groups](https://learn.microsoft.com/en-us/azure/active-directory/privileged-identity-management/groups-features) that grant permissions to any of the following Azure AD roles:
+- Global administrator
+- Application administrator
+- Authentication Administrator
+- Billing administrator
+- Cloud application administrator
+- Conditional Access administrator
+- Exchange administrator
+- Helpdesk administrator
+- Hybrid Identity Administrator
+- Password administrator
+- Privileged authentication administrator
+- Privileged Role Administrator
+- Security administrator
+- SharePoint administrator
+- User administrator
 
+Enable PIM for the following [Azure RBAC roles](https://learn.microsoft.com/en-us/azure/active-directory/privileged-identity-management/pim-resource-roles-assign-roles), or any [Privileged Access Groups](https://learn.microsoft.com/en-us/azure/active-directory/privileged-identity-management/groups-features) that grant permissons to these roles at subscription scope:
+- Owner (subscription)
+- Contributor (subscription)
+- User Access Administrator (subscriti)
+- Security Admin
+- Security Manager
+ 
 #### ii. Entitlements Managmement
+Review [Entitlements Management](https://learn.microsoft.com/en-us/azure/active-directory/governance/entitlement-management-overview) capability and understand how Azure AD can assign access to groups, applications, and M365 resources.
 
 #### iii. Access Reviews
+Review [Access Reviews](https://learn.microsoft.com/en-us/azure/active-directory/governance/access-reviews-overview) and understand how access granted to memebers and guests can be periodically reviewed to maintain least-privilege.
 
 ### iv. Connected Orgs
-
-### E. Cross-Cloud Collaboration
+Guest user lifecycle can be managed automatically using Entitlements Management when a [Connected Org](https://learn.microsoft.com/en-us/azure/active-directory/governance/entitlement-management-organization) is established for a partner organization. Review the capability and establish a connected organization with partner organizations with users that will be invited for collaboration and application access.
 
 # See Also: Azure AD Deployment Guides
 - [Azure Active Directory deployment plans](https://docs.microsoft.com/en-us/azure/active-directory/fundamentals/active-directory-deployment-plans)
