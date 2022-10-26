@@ -34,9 +34,12 @@ There are several client tools for managing Azure AD configuration. Make sure yo
 ## Install Azure Management Tools
 Install the following tools locally to the Azure management workstation:
 - [Azure Command-Line-Interface (CLI)](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli)
-- [Azure Az PowerShell](https://learn.microsoft.com/en-us/powershell/azure/install-az-ps?view=azps-9.0.1): `Install-Module Az`
-- [Microsoft Graph PowerShell](https://docs.microsoft.com/en-us/powershell/microsoftgraph/installation?view=graph-powershell-1.0): `Install-Module Microsoft.Graph`
-- [Azure AD PowerShell v2](https://learn.microsoft.com/en-us/powershell/azure/active-directory/install-adv2?view=azureadps-2.0): `Install-Module AzureADPreview`
+- [Azure Az PowerShell](https://learn.microsoft.com/en-us/powershell/azure/install-az-ps?view=azps-9.0.1): 
+  - `Install-Module Az`
+- [Microsoft Graph PowerShell](https://docs.microsoft.com/en-us/powershell/microsoftgraph/installation?view=graph-powershell-1.0):
+  - `Install-Module Microsoft.Graph`
+- [Azure AD PowerShell v2](https://learn.microsoft.com/en-us/powershell/azure/active-directory/install-adv2?view=azureadps-2.0):
+  - `Install-Module AzureADPreview`
 
 ## Create the first Global Administrator
 Log in with an account that is a [Global Administrator](https://docs.microsoft.com/en-us/azure/active-directory/roles/permissions-reference#global-administrator) within the tenant. Usually, the first user that created the Azure AD tenant will be a guest / external user. This can be verified by navigating to the Users blade in the Azure AD Portal and investigating the **User Type** field. 
