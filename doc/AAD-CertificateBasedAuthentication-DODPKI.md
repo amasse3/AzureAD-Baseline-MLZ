@@ -27,14 +27,14 @@ flowchart TB
     userPrincipalName-->OnPremisesUserPrincipalName
     mail-->UserPrincipalName
     mail-->Mail
-    subgraph ADDS
-    userPrincipalName
-    mail
-    end
     subgraph AzureAD
     UserPrincipalName
     OnPremisesUserPrincipalName
     Mail
+    end
+    subgraph ADDS
+    userPrincipalName
+    mail
     end
 ````
 > 📘 **Reference**: [Configure authentication binding policy](https://learn.microsoft.com/en-us/azure/active-directory/authentication/how-to-certificate-based-authentication#step-3-configure-authentication-binding-policy)
