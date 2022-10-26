@@ -19,10 +19,23 @@ This document provides step-by-step guidance for configuring DoD PKI with Azure 
 
 Placeholder
 
-### OnPremisesSamAccountName
+### OnPremisesSamAccountName (Synchronized Users)
+When Alternate Login ID is configured with Azure AD Connect Sync, the Active Directory `userPrincipalName` is automatically sent to Azure AD as the `OnPremisesUserPrincipalName` attribute. In this case, binding can be configured for this attribute.
 
-### UserCertificateIds
+```mermaid
+graph TD;
+    AD DS userPrincipalName-->AAD OnPremisesUserPrincipalName;
+    AD DS mail-->AADuserPrincipalName;
 
+```
+> 📘 **Reference**: [Configure authentication binding policy](https://learn.microsoft.com/en-us/azure/active-directory/authentication/how-to-certificate-based-authentication#step-3-configure-authentication-binding-policy)
+
+### UserCertificateIds (Cloud-Only Users)
+Cloud-only users authenticating with DoD CAC need the Principal Name Subject Alternative Name (SAN) value on the CAC certificate to match an Azure AD user attribute. Since @mil value is non-routable, it cannnot be a `UserPrincipalName` value in Azure AD. `OnPremisesUserPrincipalName` attribute is reserved for synchronized identities, and cannot be modified. An alternative attribute called `userCertificateIds` can be used for this purpose. Configure using the Azure Portal following the reference below.
+
+> 📘 **Reference**: [Certificate user IDs](https://learn.microsoft.com/en-us/azure/active-directory/authentication/concept-certificate-based-authentication-certificateuserids)
+
+Programatic updates to userCertificateIds attribute can be perfomed using Microsoft Graph API. See sample script:
 <details><summary><b>Show Script</b></summary>
 <p>
 
@@ -74,8 +87,9 @@ New-MgGroup -DisplayName $DisplayName -MailEnabled:$false -MailNickname $MailNic
 </details>
 
 ## 3. Optional: Enable Staged Rollout
+If the user domain is federated, staged rollout feature must be enabled to interrupt automatic re-direct to the federation service during user sign in. To configure staged rollout for the Azure AD CBA Pilot group created in the previous step, follow the Microsoft documentation below.
 
-Script
+> 📘 **Reference**: [Migrate to cloud authentication using Staged Rollout](https://learn.microsoft.com/en-us/azure/active-directory/hybrid/how-to-connect-staged-rollout)
 
 ## 4. Download DoD PKI Certificates
 
