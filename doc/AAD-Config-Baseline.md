@@ -29,7 +29,7 @@ The first user in an Azure AD tenant will have super user / root access to the e
 ### Prepare a secure workstation for managing Azure AD
 There are several client tools for managing Azure AD configuration. Make sure you are managing Azure and Azure AD from a secure workstation. Ensure these privileged access devices include the Azure management tools outlined in this section. 
 
-> **Reference**: [Privileged Access Devices](https://docs.microsoft.com/en-us/security/compass/privileged-access-devices)
+📘 **Reference**: [Privileged Access Devices](https://docs.microsoft.com/en-us/security/compass/privileged-access-devices)
 
 ### Install Azure Management Tools
 Install the following tools locally to the Azure management workstation:
@@ -51,8 +51,8 @@ If the signed in account is not a **member** type, follow the steps below:
 5. Change the password to a [strong password value](https://www.nist.gov/video/password-guidance-nist-0)
 6. Register security information when prompted. This will secure the administrator account and provide a means for resetting the password.
 
-> **Reference**: [Azure AD Setup Guide](https://go.microsoft.com/fwlink/p/?linkid=2183427)
-
+> 📘 **Reference**: 
+> - [Azure AD Setup Guide](https://go.microsoft.com/fwlink/p/?linkid=2183427)
 ### License the first Global Administrator
 1. Log in to the Azure Portal (https://portal.azure.com | https://portal.azure.us) as the first Global Administrator
 2. Search for "Azure Active Directory" and click the Azure AD icon to open the AAD Administration "blade" in the Azure Portal.
@@ -60,7 +60,7 @@ If the signed in account is not a **member** type, follow the steps below:
 4. Make sure you see the expected licenses.
 5. Assign the first administrator an Azure AD Premium license.
 
-> **Reference**: [Assign or remove licenses in the Azure AD Portal](https://docs.microsoft.com/en-us/azure/active-directory/fundamentals/license-users-groups?)
+> 📘 **Reference**: [Assign or remove licenses in the Azure AD Portal](https://docs.microsoft.com/en-us/azure/active-directory/fundamentals/license-users-groups?)
 
 ### Connect to the Azure AD Tenant with Microsoft Graph PowerShell
 Open PowerShell and run the following command to connect to Azure AD:
