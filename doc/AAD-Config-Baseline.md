@@ -413,7 +413,7 @@ When an Azure AD tenant is created, a default domain is assigned that looks like
 
 [Custom domains](https://docs.microsoft.com/en-us/azure/active-directory/fundamentals/add-custom-domain) let tenant administrators change the UPN suffix by verifying ownership of an organization's DNS domain via TXT record.
 
-<details><summary>**Show Content**</summary>
+<details><summary><b>Show Content</b></summary>
 <p>
 
 `script`
