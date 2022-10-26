@@ -23,7 +23,7 @@ Placeholder
 When Alternate Login ID is configured with Azure AD Connect Sync, the Active Directory `userPrincipalName` is automatically sent to Azure AD as the `OnPremisesUserPrincipalName` attribute. In this case, binding can be configured for this attribute.
 
 ````mermaid
-flowchart TB
+flowchart BT
     subgraph AzureAD
     UserPrincipalName
     OnPremisesUserPrincipalName
