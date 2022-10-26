@@ -17,8 +17,6 @@ Some steps require Azure AD P2 licensing for privileged users within the environ
 10. [Connect Applications to Azure AD](#10-connect-applications-to-azure-ad)
 
 # 1. Prepare to Manage Azure AD
-<details><summary>Display Content</summary>
-<p>
 The first user in an Azure AD tenant will have super user / root access to the entire Azure tenant. These permissions are assigned by the Global Administrator Azure AD role.
 
 - [ ] [Prepare a secure workstation for managing Azure AD](#prepare-a-secure-workstation-for-managing-azure-ad)
@@ -26,6 +24,9 @@ The first user in an Azure AD tenant will have super user / root access to the e
 - [ ] [Create the first Global Administrator](#create-the-first-global-administrator)
 - [ ] [License the first Global Administrator](#license-the-first-global-administrator)
 - [ ] [Connect to Azure AD with MS Graph PowerShell](#connect-to-the-azure-ad-tenant-with-microsoft-graph-powershell)
+
+<details><summary>Display Content</summary>
+<p>
 
 ## Prepare a secure workstation for managing Azure AD
 There are several client tools for managing Azure AD configuration. Make sure you are managing Azure and Azure AD from a secure workstation. Ensure these privileged access devices include the Azure management tools outlined in this section. 
@@ -77,11 +78,15 @@ Open PowerShell and run the following command to connect to Azure AD:
 
 </p>
 </details>
+
 # 2. Create Accounts for Azure Management
 This section covers account creation for Emergency Access and day-to-day Azure AD administration.
 
 - [ ] [Emergency Access Accounts](#emergency-access-accounts)
 - [ ] [Named Administrators](#named-administrator-accounts)
+
+<details><summary>Display Content</summary>
+<p>
 
 ## Emergency Access Accounts
 When a new Azure AD tenant is created, the user who created the tenant is the only user in the directory with administrative privileges. The first thing we need to do is create 2 Emergency Access accounts, 1 of which will be excluded from multi-factor authentication in case the Azure MFA service is degrated.
@@ -183,6 +188,9 @@ Passwordless, but not phishing-resistant. This required registration of an iOS o
 
 > 📘 **Reference**: [Phishing-resistant methods](https://docs.microsoft.com/en-us/azure/active-directory/standards/memo-22-09-multi-factor-authentication#phishing-resistant-methods)
 
+</p>
+</details>
+
 # 3. Configure Authentication Methods
 Azure AD authenticaton methods allow an administrator to configure how users can authenticate to Azure AD.
 
@@ -191,6 +199,9 @@ Azure AD authenticaton methods allow an administrator to configure how users can
 - [ ] [Configure Azure AD Certificate-Based Authentication](#configure-azure-ad-native-certificate-based-authentication)
 
 > 📘 **Reference**: [What authentication verification methods are available in Azure AD](https://docs.microsoft.com/en-us/azure/active-directory/authentication/concept-authentication-methods)
+
+<details><summary>Display Content</summary>
+<p>
 
 ## Enable Microsoft Authenticator app
 The Microsoft Authenticator app for iOS and Android lets users authenticate / complete MFA challenges when Azure AD configuration (Conditional Access or Security Defaults) needs an additional factor. The Microsoft Authenticator app can be used in the following ways:
@@ -208,6 +219,9 @@ Organizations that need to use smartcard (certificate-based) authentication with
 
 > 📘 **Reference**: [Azure AD Native Certificate-Based Authentication](https://docs.microsoft.com/en-us/azure/active-directory/authentication/how-to-certificate-based-authentication)
 
+</p>
+</details>
+
 # 4. Create MLZ RBAC Security Groups
 Use this set of Azure AD Security Groups and RBAC role assignments as a baseline.
 - [ ] [Azure Resource RBAC](#azure-resource-rbac)
@@ -215,6 +229,9 @@ Use this set of Azure AD Security Groups and RBAC role assignments as a baseline
 - [ ] [Create Security Groups](#create-azure-ad-security-groups)
 - [ ] [Map MLZ RBAC Security Groups to Azure RBAC Roles](#map-mlz-rbac-security-groups-to-azure-rbac-roles)
 - [ ] [Review Securing Privileged Access in Azure AD](#review-securing-privileged-access-in-azure-ad)
+
+<details><summary>Display Content</summary>
+<p>
 
 ## Azure Resource RBAC
 Permissions for Azure resource management are granted through assignments to an Azure RBAC role. In the Azure Portal, RBAC role assignments can be created or viewed by selecting the IAM link. Azure RBAC assignments can apply to users (members and guests), security groups, service principals, and managed identities. 
@@ -300,8 +317,14 @@ Familiarize yourself with the Securing Privileged Access guidance for Azure AD a
 
 > **Reference**: [Securing privileged access for hybrid and cloud deployments in Azure AD](https://docs.microsoft.com/en-us/azure/active-directory/roles/security-planning)
 
+</p>
+</details>
+
 # 5. Enforce Multi-Factor Authentication and disable Legacy Authentication Protocols
 This section enables key recommended access policies for all apps protected by Azure AD. This includes the Azure portal, Microsoft Graph, Azure Resource Manager, M365 applications, and any future applications integrated with Azure AD.
+
+<details><summary>Display Content</summary>
+<p>
 
 **Azure AD Free - Turn on Security Defaults**
 Azure AD Free offers a feature called Security Defaults. This feature performs basic security configuration for the Azure AD platform. To enable security defaults, see [Enable Security Defaults](https://docs.microsoft.com/en-us/azure/active-directory/fundamentals/concept-fundamentals-security-defaults).
@@ -325,12 +348,18 @@ Enable the following [risk-based Conditional Access Policies](https://docs.micro
 
 > **Note**: If Microsoft Endpoint Manager (Intune) will be deployed for the Azure AD tenant used by MLZ, enroll privileged access devices and use [Conditional Access](https://docs.microsoft.com/en-us/mem/intune/protect/create-conditional-access-intune) to require a compliant device for Azure Management.
 
+</p>
+</details>
+
 # 6. Configure User, Group, and External Collaboration Settings
 This section contains basic tenant-level settings applicable to all Azure AD versions. The MLZ baseline AAD script will set these configuration items according to the defaults outlined in each section. This configuration can be changed at any time. The baseline settings represent a starting point, and may not be functional for certain scenarios. For example, tenants that will be accessed by guests from another tenant must set the External Collaboration settings accordingly. The baseline offers a most restrictive experience, which turns off these collaboration features.
 
 - [ ] [User Settings](#user-settings)
 - [ ] [Group Settings](#group-settings)
 - [ ] [External Collaboration Settings](#external-collaboration-settings)
+
+<details><summary>Display Content</summary>
+<p>
 
 ## User Settings
 The MLZ AAD baseline will set the following Azure AD user settings:
@@ -376,15 +405,24 @@ MLZ AAD baseline will set the following Azure AD external collaboration settings
 
 > 📘 **Reference**: [Default user permissions in Azure AD](https://docs.microsoft.com/en-us/azure/active-directory/fundamentals/users-default-permissions)
 
+</p>
+</details>
+
 # 7. Optional: Add a custom domain to Azure AD
 When an Azure AD tenant is created, a default domain is assigned that looks like *tenantname.onmicrosoft.com* (*tenantname.onmicrosoft.us* for Azure AD Government). By default, all users in Azure AD get a UserPrincipalName (UPN) with the default domain suffix.
 
 [Custom domains](https://docs.microsoft.com/en-us/azure/active-directory/fundamentals/add-custom-domain) let tenant administrators change the UPN suffix by verifying ownership of an organization's DNS domain via TXT record.
 
+<details><summary>Display Content</summary>
+<p>
+
 `script`
 
 > **Note**:
 Sometimes when custom domains are added to an Azure AD tenant, users who signed up for trial Microsoft services with their organization email address will appear in the tenant once the domain is verified. Do not be alarmed by this. To verify no other users have privileges within the tenant, [view the Azure AD role members](https://docs.microsoft.com/en-us/azure/active-directory/roles/view-assignments).
+
+</p>
+</details>
 
 # 8. Choose a Hybrid Identity Configuration
 Microsoft’s identity solutions span on-premises and cloud-based capabilities. These solutions create a common user identity for authentication and authorization to all resources. This configuration has 2 parts:
@@ -392,6 +430,9 @@ Microsoft’s identity solutions span on-premises and cloud-based capabilities. 
 - [ ] [Authentication](#authentication)
 
 > 📘 **Reference**: [What is hybrid identity with Azure AD?](https://docs.microsoft.com/en-us/azure/active-directory/hybrid/whatis-hybrid-identity)
+
+<details><summary>Display Content</summary>
+<p>
 
 ## Synchronization
 Hybrid identity should be configured if an organization uses Active Directory Domain Services and wishes to synchronize users and groups to Azure AD. Microsoft offers 2 tools (named very similarly) to accomolish this function:
@@ -439,11 +480,17 @@ Pass-Through Authentication (PTA) and federation with ADFS are not recommended. 
 
 > 💡 **Recommendation**: Use Azure AD native strong authentication method, like FIDO2 security keys or native certificate-based authentication, for administration of Azure and Azure AD.
 
+</p>
+</details>
+
 # 9. Configure Additional Features
 - [ ] [Group-Based Licenensing](#group-based-licensing)
 - [ ] [Authentication Strength](#authentication-strength-preview)
 - [ ] [Cross-Tenant Access Policies (XTAP)](#cross-tenant-access-policies-xtap-and-b2b-cross-cloud-collaboration)
 - [ ] [Identity Governance (IGA)](#identity-governance)
+
+<details><summary>Display Content</summary>
+<p>
 
 ## Group-Based Licensing
 Group-based licensing is an Azure AD Premium feauture that automatically applied licenses to members of a security group. Creating [dynamic groups](https://docs.microsoft.com/en-us/azure/active-directory/enterprise-users/groups-create-rule) can further automate this process, since these groups are populated based on user attribute values. To use group-based licensing, follow steps in [assign licenses to a group](https://docs.microsoft.com/en-us/azure/active-directory/enterprise-users/licensing-groups-assign).
@@ -518,6 +565,9 @@ Guest user lifecycle can be managed automatically using Entitlements Management 
 
 > 📘 **Reference**: [Connected Organizations in Entitlements Management](https://learn.microsoft.com/en-us/azure/active-directory/governance/entitlement-management-organization)
 
+</p>
+</details>
+
 # 10. Connect Applications to Azure AD
 One of the first steps an organization can take in adopting zero trust principals is consolidating around a single cloud-based Identity as a Service (IdaaS) platform like Azure Active Directory. This section describes steps to integrate applications with Azure AD.
 
@@ -525,6 +575,9 @@ One of the first steps an organization can take in adopting zero trust principal
 - [ ] [Add Enterprise Applications to Azure AD](#add-enterprise-applications-to-azure-ad)
 - [ ] [Develop New Applications for Azure AD](#develop-new-applications-for-azure-ad)
 - [ ] [Add On-Premises Applications to Azure AD](#add-on-premises-applications-to-azure-ad)
+
+<details><summary>Display Content</summary>
+<p>
 
 ## Consolidate around an Azure AD tenant
 Standardizing around a common identity platform often requires changes to IT policy mandating new applications (procured and developed in house) targets Azure Active Directory. The Azure AD tenant containing all users in the organization, especially if it is used for M365, is a good choice because the same zero trust access and device management policies for M365 can be re-used for any application in the organization.
@@ -563,6 +616,9 @@ Azure AD Application Proxy is an on-premises agent and cloud service that [secur
 > - [Optimize traffic flow with Azure Active Directory Application Proxy](https://learn.microsoft.com/en-us/azure/active-directory/app-proxy/application-proxy-network-topology)
 > - [Security Benefits for Azure AD Application Proxy](https://learn.microsoft.com/en-us/azure/active-directory/app-proxy/what-is-application-proxy#security-benefits)
 > - [Secure Hybrid Access Partner Integrations](https://learn.microsoft.com/en-us/azure/active-directory/manage-apps/secure-hybrid-access#secure-hybrid-access-through-azure-ad-partner-integrations)
+
+</p>
+</details>
 
 # See Also: Azure AD Deployment Guides
 - [Azure Active Directory deployment plans](https://docs.microsoft.com/en-us/azure/active-directory/fundamentals/active-directory-deployment-plans)
