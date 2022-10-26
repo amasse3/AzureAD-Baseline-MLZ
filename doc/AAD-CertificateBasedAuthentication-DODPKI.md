@@ -25,8 +25,11 @@ Placeholder
 
 ## 2. Create a Pilot Group
 
-````shell
-$Sample Script
+````PowerShell
+$Sample = "abc"
+if ($sample.Length() -gt 2) {
+    Write-Host "hello this string is $($sample.length())"
+}
 ````
 
 ## 3. Optional: Enable Staged Rollout
