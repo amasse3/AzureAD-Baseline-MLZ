@@ -7,15 +7,15 @@ Some steps require Azure AD P2 licensing for privileged users within the environ
 # Table of Contents
 
   1. [Prepare to manage Azure AD](#1-prepare-to-manage-azure-ad)  
-  2. [Create Emergency Access Accounts](#2-create-emergency-access-accounts)
+  2. [Create Accounts for Azure Management](#2-create-accounts-for-azure-management)
   3. [Configure Authentication Methods](#3-configure-authentication-methods)
   4. [Create Groups for MLZ RBAC](#4-create-mlz-rbac-security-groups)
-  5. [Create Named Admin Accounts](#5-create-named-administrator-accounts)
-  6. [Enforce Multi-Factor Authentication](#6-enforce-multi-factor-authentication-and-disable-legacy-authentication-protocols)
-  7. [Configure Tenant Settings](#7-configure-user-group-and-external-collaboration-settings)
-  8. [Add a Custom Domain to Azure AD](#8-optional-add-a-custom-domain-to-azure-ad)
-  9. [Evaluate Hybrid Identity Configuration](#9-evaluate-hybrid-identity-needs-identity-synchronization)
-  10. [Configure Additional Features](#10-configure-additional-features)
+  5. [Enforce Multi-Factor Authentication](#5-enforce-multi-factor-authentication-and-disable-legacy-authentication-protocols)
+  6. [Configure Tenant Settings](#6-configure-user-group-and-external-collaboration-settings)
+  7. [Add a Custom Domain to Azure AD](#7-optional-add-a-custom-domain-to-azure-ad)
+  8. [Evaluate Hybrid Identity Configuration](#8-choose-a-hybrid-identity-configuration)
+  9. [Configure Additional Features](#9-configure-additional-features)
+  10. [Connect Applications to Azure AD](#10-connect-applications-to-azure-ad)
 
 # 1. Prepare to manage Azure AD
 The first user in an Azure AD tenant will have super user / root access to the entire Azure tenant. These permissions are assigned by the Global Administrator Azure AD role.
@@ -71,7 +71,13 @@ Open PowerShell and run the following command to connect to Azure AD:
 - Azure AD Government - DoD
   - `Connect-MgGraph -Environment UsGovDoD -scope TBD`
 
-# 2. Create Emergency Access Accounts
+# 2. Create Accounts for Azure Management
+This section covers account creation for Emergency Access and day-to-day Azure AD administration.
+
+- [ ] [Emergency Access Accounts](#emergency-access-accounts)
+- [ ] [Named Administrators](#named-administrator-accounts)
+
+## Emergency Access Accounts
 When a new Azure AD tenant is created, the user who created the tenant is the only user in the directory with administrative privileges. The first thing we need to do is create 2 Emergency Access accounts, 1 of which will be excluded from multi-factor authentication in case the Azure MFA service is degrated.
 
 - [ ] [Set Password Protection Policy](#set-password-protection-policy)
@@ -81,11 +87,11 @@ When a new Azure AD tenant is created, the user who created the tenant is the on
 
 > 📘 **Reference:** [Manage emergency access accounts in Azure AD](https://docs.microsoft.com/en-us/azure/active-directory/roles/security-emergency-access)
 
-## Set Password Protection Policy
+### Set Password Protection Policy
 Configure banned password list using [Azure AD Password Protection](https://docs.microsoft.com/en-us/azure/active-directory/authentication/concept-password-ban-bad)
 `Placeholder Script to set policy to whatever the STIG is`
 
-## Create Accounts
+### Create Accounts
 Add cloud-only user accounts for initial Global Administrators.
 `Placeholder Script to create the accounts with random complex password`
 
@@ -105,7 +111,7 @@ If Azure AD Premium P2 is available in the tenant, activate the premium features
 
 `Placeholder Script to Assign Global Administrator role with PIM`
 
-## Document and Test Emergency Access Procedures
+### Document and Test Emergency Access Procedures
 Creation and secure storage for Emergency Access credentials is useless if the emergency procedures to retrieve and use the Emergency Access accounts is not properly documented and disseminated to all individuals who may be tasked with using the accounts.
 
 > **Note**: Consult your Information Systems Security Officer (ISSO) for proper handling procedures for Emergency Access accounts.
@@ -121,11 +127,55 @@ Creation and secure storage for Emergency Access credentials is useless if the e
 
 > 📘 **Reference**: [Manage Emergency Access Accounts in Azure AD](https://docs.microsoft.com/en-us/azure/active-directory/roles/security-emergency-access)
 
-## Connect Azure AD Logs to Microsoft Sentinel and set up alerts
+### Connect Azure AD Logs to Microsoft Sentinel and set up alerts
 If you are configuring Azure AD for MLZ after the MLZ deployment, leverage the existing Microsoft Sentinel deployment in the Operations subscription to alert on Emergency Account usage.
 
 1. [Connect Azure AD Sign-In Logs to Microsoft Sentinel](https://docs.microsoft.com/en-us/azure/sentinel/connect-azure-active-directory)
 2. [Configure an Analytics Rule to alert when Emergency Access account is used](https://docs.microsoft.com/en-us/azure/active-directory/roles/security-emergency-access#monitor-sign-in-and-audit-logs)
+
+## Named Administrator Accounts
+Day-to-day operations requiring administrative privileges should be performed by named administrator accounts, assigned to individual users (not shared), separate from accounts used to access productivity services like Email, SharePoint, and Teams.
+- [ ] [Choose a naming convention](#choose-a-naming-convention)
+- [ ] [Create cloud-only identities](#create-azure-ad-cloud-only-identities)
+- [ ] [Configure phishing-resistant MFA](#configure-phishing-resistant-mfa)
+
+> 💡 **Recommendations**:
+> - Administration for Azure and Azure AD should use cloud-only identities and Azure AD native authentication mechanism, like FIDO2 security keys or smartcard certificates.
+> - Limit the number of Global Administrators, referring to [least privileged roles by task](https://docs.microsoft.com/en-us/azure/active-directory/roles/delegate-by-task) to assign the proper limited administrator role
+> - Assign permissions Just-In-Time using [Azure AD Privileged Identity Management](https://docs.microsoft.com/en-us/azure/active-directory/privileged-identity-management/pim-configure)
+> - Periodically review role eligibility
+> - Leverage PIM [insights](https://docs.microsoft.com/en-us/azure/active-directory/privileged-identity-management/pim-security-wizard) and [alerts](https://docs.microsoft.com/en-us/azure/active-directory/privileged-identity-management/pim-how-to-configure-security-alerts) to further secure your organization
+> - Review [Privileged Access Groups](https://docs.microsoft.com/en-us/azure/active-directory/privileged-identity-management/groups-features) and [Administrative Units](https://docs.microsoft.com/en-us/azure/active-directory/roles/administrative-units)
+
+### Choose a naming convention
+Choose a naming convention for cloud-only administrative accounts:
+- FirstName+"."+LastName+@tenant.onmicrosoft.com
+- FirstInitial+LastName+@tenant.onmicrosoft.com
+- "adm." + FirstInitial+LastName@tenant.onmicrosoft.com
+- other
+
+### Create Azure AD cloud-only identities
+1. Create users in the Azure Portal or using Microsoft Graph PowerShell. 
+2. Provide the temporary password for each new admin.
+3. Instruct the admin to change password and [register security info](https://support.microsoft.com/en-us/account-billing/set-up-the-microsoft-authenticator-app-as-your-verification-method-33452159-6af9-438f-8f82-63ce94cf3d29) by setting Microsoft Authenticator App as a verification method.
+
+### Configure phishing-resistant MFA
+Configure phishing-resistant strong authentication with Azure AD. Review the list below:
+
+- **Bad:** SMS or TwoWayPhone
+Some MFA is better than no MFA, but phone-based MFA is the weakest option available. SMS is especially egregious since it is susceptable to [SIM swapping attacks](https://en.wikipedia.org/wiki/SIM_swap_scam).
+- **Good:** Authenticator App TOTP Code or Push notification
+These methods are not phishing-resistant or passwordless. In either case, a password is used, followed by an Azure MFA prompt.
+- **Better:** Passwordless Phone Sign-In on Registered Device
+Passwordless, but not phishing-resistant. This required registration of an iOS or Android mobile device with the Azure AD tenant.
+- **Best:** Phishing-Resistant MFA FIDO2 Security Key or Azure AD native Certificate-Based Authentication (CBA)
+  - FIDO2 Security Key
+  - Azure AD Native Certificate-Based Authentication
+  - Windows Hello for Business
+
+> **Note**: Microsoft Authenticator App is considered phishing-resistant when deployed to a managed mobile device. Since this guide is for setting up a new tenant, it assumes Microsoft Endpoint Manager is not configured to manage mobile devices.
+
+> 📘 **Reference**: [Phishing-resistant methods](https://docs.microsoft.com/en-us/azure/active-directory/standards/memo-22-09-multi-factor-authentication#phishing-resistant-methods)
 
 # 3. Configure Authentication Methods
 Azure AD authenticaton methods allow an administrator to configure how users can authenticate to Azure AD.
@@ -244,51 +294,7 @@ Familiarize yourself with the Securing Privileged Access guidance for Azure AD a
 
 > **Reference**: [Securing privileged access for hybrid and cloud deployments in Azure AD](https://docs.microsoft.com/en-us/azure/active-directory/roles/security-planning)
 
-# 5. Create Named Administrator Accounts
-Day-to-day operations requiring administrative privileges should be performed by named administrator accounts, assigned to individual users (not shared), separate from accounts used to access productivity services like Email, SharePoint, and Teams.
-- [ ] [Choose a naming convention](#choose-a-naming-convention)
-- [ ] [Create cloud-only identities](#create-azure-ad-cloud-only-identities)
-- [ ] [Configure phishing-resistant MFA](#configure-phishing-resistant-mfa)
-
-> 💡 **Recommendations**:
-> - Administration for Azure and Azure AD should use cloud-only identities and Azure AD native authentication mechanism, like FIDO2 security keys or smartcard certificates.
-> - Limit the number of Global Administrators, referring to [least privileged roles by task](https://docs.microsoft.com/en-us/azure/active-directory/roles/delegate-by-task) to assign the proper limited administrator role
-> - Assign permissions Just-In-Time using [Azure AD Privileged Identity Management](https://docs.microsoft.com/en-us/azure/active-directory/privileged-identity-management/pim-configure)
-> - Periodically review role eligibility
-> - Leverage PIM [insights](https://docs.microsoft.com/en-us/azure/active-directory/privileged-identity-management/pim-security-wizard) and [alerts](https://docs.microsoft.com/en-us/azure/active-directory/privileged-identity-management/pim-how-to-configure-security-alerts) to further secure your organization
-> - Review [Privileged Access Groups](https://docs.microsoft.com/en-us/azure/active-directory/privileged-identity-management/groups-features) and [Administrative Units](https://docs.microsoft.com/en-us/azure/active-directory/roles/administrative-units)
-
-## Choose a naming convention
-Choose a naming convention for cloud-only administrative accounts:
-- FirstName+"."+LastName+@tenant.onmicrosoft.com
-- FirstInitial+LastName+@tenant.onmicrosoft.com
-- "adm." + FirstInitial+LastName@tenant.onmicrosoft.com
-- other
-
-## Create Azure AD cloud-only identities
-1. Create users in the Azure Portal or using Microsoft Graph PowerShell. 
-2. Provide the temporary password for each new admin.
-3. Instruct the admin to change password and [register security info](https://support.microsoft.com/en-us/account-billing/set-up-the-microsoft-authenticator-app-as-your-verification-method-33452159-6af9-438f-8f82-63ce94cf3d29) by setting Microsoft Authenticator App as a verification method.
-
-## Configure phishing-resistant MFA
-Configure phishing-resistant strong authentication with Azure AD. Review the list below:
-
-- **Bad:** SMS or TwoWayPhone
-Some MFA is better than no MFA, but phone-based MFA is the weakest option available. SMS is especially egregious since it is susceptable to [SIM swapping attacks](https://en.wikipedia.org/wiki/SIM_swap_scam).
-- **Good:** Authenticator App TOTP Code or Push notification
-These methods are not phishing-resistant or passwordless. In either case, a password is used, followed by an Azure MFA prompt.
-- **Better:** Passwordless Phone Sign-In on Registered Device
-Passwordless, but not phishing-resistant. This required registration of an iOS or Android mobile device with the Azure AD tenant.
-- **Best:** Phishing-Resistant MFA FIDO2 Security Key or Azure AD native Certificate-Based Authentication (CBA)
-  - FIDO2 Security Key
-  - Azure AD Native Certificate-Based Authentication
-  - Windows Hello for Business
-
-> **Note**: Microsoft Authenticator App is considered phishing-resistant when deployed to a managed mobile device. Since this guide is for setting up a new tenant, it assumes Microsoft Endpoint Manager is not configured to manage mobile devices.
-
-> 📘 **Reference**: [Phishing-resistant methods](https://docs.microsoft.com/en-us/azure/active-directory/standards/memo-22-09-multi-factor-authentication#phishing-resistant-methods)
-
-# 6. Enforce Multi-Factor Authentication and disable Legacy Authentication Protocols
+# 5. Enforce Multi-Factor Authentication and disable Legacy Authentication Protocols
 This section enables key recommended access policies for all apps protected by Azure AD. This includes the Azure portal, Microsoft Graph, Azure Resource Manager, M365 applications, and any future applications integrated with Azure AD.
 
 **Azure AD Free - Turn on Security Defaults**
@@ -313,7 +319,7 @@ Enable the following [risk-based Conditional Access Policies](https://docs.micro
 
 > **Note**: If Microsoft Endpoint Manager (Intune) will be deployed for the Azure AD tenant used by MLZ, enroll privileged access devices and use [Conditional Access](https://docs.microsoft.com/en-us/mem/intune/protect/create-conditional-access-intune) to require a compliant device for Azure Management.
 
-# 7. Configure User, Group, and External Collaboration Settings
+# 6. Configure User, Group, and External Collaboration Settings
 This section contains basic tenant-level settings applicable to all Azure AD versions. The MLZ baseline AAD script will set these configuration items according to the defaults outlined in each section. This configuration can be changed at any time. The baseline settings represent a starting point, and may not be functional for certain scenarios. For example, tenants that will be accessed by guests from another tenant must set the External Collaboration settings accordingly. The baseline offers a most restrictive experience, which turns off these collaboration features.
 
 - [ ] [User Settings](#user-settings)
@@ -364,7 +370,7 @@ MLZ AAD baseline will set the following Azure AD external collaboration settings
 
 > 📘 **Reference**: [Default user permissions in Azure AD](https://docs.microsoft.com/en-us/azure/active-directory/fundamentals/users-default-permissions)
 
-# 8. Optional: Add a custom domain to Azure AD
+# 7. Optional: Add a custom domain to Azure AD
 When an Azure AD tenant is created, a default domain is assigned that looks like *tenantname.onmicrosoft.com* (*tenantname.onmicrosoft.us* for Azure AD Government). By default, all users in Azure AD get a UserPrincipalName (UPN) with the default domain suffix.
 
 [Custom domains](https://docs.microsoft.com/en-us/azure/active-directory/fundamentals/add-custom-domain) let tenant administrators change the UPN suffix by verifying ownership of an organization's DNS domain via TXT record.
@@ -374,8 +380,7 @@ When an Azure AD tenant is created, a default domain is assigned that looks like
 > **Note**:
 Sometimes when custom domains are added to an Azure AD tenant, users who signed up for trial Microsoft services with their organization email address will appear in the tenant once the domain is verified. Do not be alarmed by this. To verify no other users have privileges within the tenant, [view the Azure AD role members](https://docs.microsoft.com/en-us/azure/active-directory/roles/view-assignments).
 
-
-# 9. Choose a Hybrid Identity Configuration
+# 8. Choose a Hybrid Identity Configuration
 Microsoft’s identity solutions span on-premises and cloud-based capabilities. These solutions create a common user identity for authentication and authorization to all resources. This configuration has 2 parts:
 - [ ] [Synchronization](#synchronization)
 - [ ] [Authentication](#authentication)
@@ -428,7 +433,7 @@ Pass-Through Authentication (PTA) and federation with ADFS are not recommended. 
 
 > 💡 **Recommendation**: Use Azure AD native strong authentication method, like FIDO2 security keys or native certificate-based authentication, for administration of Azure and Azure AD.
 
-# 10. Configure Additional Features
+# 9. Configure Additional Features
 - [ ] [Group-Based Licenensing](#group-based-licensing)
 - [ ] [Authentication Strength](#authentication-strength-preview)
 - [ ] [Cross-Tenant Access Policies (XTAP)](#cross-tenant-access-policies-xtap-and-b2b-cross-cloud-collaboration)
@@ -463,7 +468,6 @@ Administrative Units provide a mechanism for scoping Azure AD roles to a particu
 
 > 📘 **Reference**: [Administrative Units (AUs)](https://learn.microsoft.com/en-us/azure/active-directory/roles/administrative-units)
 
-
 ## Identity Governance
 Identity Governance defines a set of capabilities provided by Azure AD Premium P2 licensing.
 
@@ -494,7 +498,6 @@ Enable PIM for the following [Azure RBAC roles](https://learn.microsoft.com/en-u
 
 > 📘 **Reference**: [What is Privileged Identity Management in Azure AD](https://learn.microsoft.com/en-us/azure/active-directory/privileged-identity-management/pim-configure)
 
- 
 ### Entitlements Managmement
 Learn about Entitlements Management in Azure AD and understand how identity governance can help with permissions and application access.
 
@@ -509,7 +512,7 @@ Guest user lifecycle can be managed automatically using Entitlements Management 
 
 > 📘 **Reference**: [Connected Organizations in Entitlements Management](https://learn.microsoft.com/en-us/azure/active-directory/governance/entitlement-management-organization)
 
-# 11. Connect Applications to Azure AD
+# 10. Connect Applications to Azure AD
 One of the first steps an organization can take in adopting zero trust principals is consolidating around a single cloud-based Identity as a Service (IdaaS) platform like Azure Active Directory. This section describes steps to integrate applications with Azure AD.
 
 - [ ] [Consolidate around an Azure AD tenant](#consolidate-around-an-azure-ad-tenant)
