@@ -22,11 +22,21 @@ Placeholder
 ### OnPremisesSamAccountName (Synchronized Users)
 When Alternate Login ID is configured with Azure AD Connect Sync, the Active Directory `userPrincipalName` is automatically sent to Azure AD as the `OnPremisesUserPrincipalName` attribute. In this case, binding can be configured for this attribute.
 
-```mermaid
-graph TD;
-    AD.userPrincipalName-->AAD.OnPremisesUserPrincipalName;
-    AD.mail-->AAD.userPrincipalName;
-```
+````mermaid
+flowchart TB
+    userPrincipalName-->OnPremisesUserPrincipalName
+    mail-->UserPrincipalName
+    mail-->Mail
+    subgraph ADDS
+    userPrincipalName
+    mail
+    end
+    subgraph AzureAD
+    UserPrincipalName
+    OnPremisesUserPrincipalName
+    Mail
+    end
+````
 > 📘 **Reference**: [Configure authentication binding policy](https://learn.microsoft.com/en-us/azure/active-directory/authentication/how-to-certificate-based-authentication#step-3-configure-authentication-binding-policy)
 
 ### UserCertificateIds (Cloud-Only Users)
