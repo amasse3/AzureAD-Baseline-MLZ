@@ -16,7 +16,9 @@ Some steps require Azure AD P2 licensing for privileged users within the environ
 9. [Configure Additional Features](#9-configure-additional-features)
 10. [Connect Applications to Azure AD](#10-connect-applications-to-azure-ad)
 
-# 1. Prepare to manage Azure AD
+<details><summary># 1. Prepare to manage Azure AD</summary>
+<p>
+ 1. Prepare to manage Azure AD
 The first user in an Azure AD tenant will have super user / root access to the entire Azure tenant. These permissions are assigned by the Global Administrator Azure AD role.
 
 - [ ] [Prepare a secure workstation for managing Azure AD](#prepare-a-secure-workstation-for-managing-azure-ad)
@@ -73,6 +75,8 @@ Open PowerShell and run the following command to connect to Azure AD:
 - Azure AD Government - DoD
   - `Connect-MgGraph -Environment UsGovDoD -scope TBD`
 
+</p>
+</details>
 # 2. Create Accounts for Azure Management
 This section covers account creation for Emergency Access and day-to-day Azure AD administration.
 
