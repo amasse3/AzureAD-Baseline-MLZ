@@ -24,9 +24,6 @@ When Alternate Login ID is configured with Azure AD Connect Sync, the Active Dir
 
 ````mermaid
 flowchart TB
-    userPrincipalName-->OnPremisesUserPrincipalName
-    mail-->UserPrincipalName
-    mail-->Mail
     subgraph AzureAD
     UserPrincipalName
     OnPremisesUserPrincipalName
@@ -36,6 +33,9 @@ flowchart TB
     userPrincipalName
     mail
     end
+    userPrincipalName-->OnPremisesUserPrincipalName
+    mail-->UserPrincipalName
+    mail-->Mail
 ````
 > 📘 **Reference**: [Configure authentication binding policy](https://learn.microsoft.com/en-us/azure/active-directory/authentication/how-to-certificate-based-authentication#step-3-configure-authentication-binding-policy)
 
