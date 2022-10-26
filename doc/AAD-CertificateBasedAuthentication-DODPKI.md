@@ -8,18 +8,21 @@ This document provides step-by-step guidance for configuring DoD PKI with Azure 
   - `Install-Module Microsoft.Graph`
 
 ## Table of contents
-
-1. Determine username mapping policy
-2. Create a Pilot Group
-3. Optional: Enable Staged Rolout
-4. Download DoD PKI Certificates
-5. Upload DoD PKI Certificates
+1. [Determine username mapping policy](#1-determine-username-mapping-policy)
+2. [Create a Pilot Group](#2-create-a-pilot-group)
+3. [Optional: Enable Staged Rolout](#3-optional-enable-staged-rollout)
+4. [Download DoD PKI Certificates](#4-download-dod-pki-certificates)
+5. [Upload DoD PKI Certificates](#5-upload-dod-pki-certificates)
+6. [Configure AAD Authentication Method](#6-configure-the-cba-authentication-method)
 
 ## 1. Determine username mapping policy
+For DOD Common Access Card (CAC) certificates, the `Principal Name` Subject Alternative Name (SAN) value needs to be mapped to an Azure AD attribute. Depending on the hybrid identity configuration, this value can be stored on either:
+- [OnPremisesUserPrincipalName (synchronized)](#onpremisessamaccountname-synchronized-users)
+- [UserCertificateIds (cloud-only)](#usercertificateids-cloud-only-users)
 
-Placeholder
+> 📘 **Reference**: [Configure authentication binding policy](https://learn.microsoft.com/en-us/azure/active-directory/authentication/how-to-certificate-based-authentication#step-3-configure-authentication-binding-policy)
 
-### OnPremisesSamAccountName (Synchronized Users)
+### OnPremisesSamAccountName (synchronized users)
 When Alternate Login ID is configured with Azure AD Connect Sync, the Active Directory `userPrincipalName` is automatically sent to Azure AD as the `OnPremisesUserPrincipalName` attribute. In this case, binding can be configured for this attribute.
 
 ````mermaid
@@ -37,9 +40,8 @@ flowchart BT
     mail-->UserPrincipalName
     mail-->Mail
 ````
-> 📘 **Reference**: [Configure authentication binding policy](https://learn.microsoft.com/en-us/azure/active-directory/authentication/how-to-certificate-based-authentication#step-3-configure-authentication-binding-policy)
 
-### UserCertificateIds (Cloud-Only Users)
+### UserCertificateIds (cloud-only Users)
 Cloud-only users authenticating with DoD CAC need the Principal Name Subject Alternative Name (SAN) value on the CAC certificate to match an Azure AD user attribute. Since @mil value is non-routable, it cannnot be a `UserPrincipalName` value in Azure AD. `OnPremisesUserPrincipalName` attribute is reserved for synchronized identities, and cannot be modified. An alternative attribute called `userCertificateIds` can be used for this purpose. Configure using the Azure Portal following the reference below.
 
 > 📘 **Reference**: [Certificate user IDs](https://learn.microsoft.com/en-us/azure/active-directory/authentication/concept-certificate-based-authentication-certificateuserids)
@@ -100,7 +102,10 @@ If the user domain is federated, staged rollout feature must be enabled to inter
 
 > 📘 **Reference**: [Migrate to cloud authentication using Staged Rollout](https://learn.microsoft.com/en-us/azure/active-directory/hybrid/how-to-connect-staged-rollout)
 
-## 4. Download DoD PKI Certificates
+## 4. Configure Certification Authorities
+
+### Download DOD PKI Certificates
+Manually download the certificate files in *.cer format from https://public.cyber.mil/pki-pke/tools-configuration-files/ or write a PowerShell script using the sample below.
 
 <details><summary><b>Show Script</b></summary>
 <p>
@@ -120,15 +125,18 @@ function GetCertificateFiles {
 
 $zip = GetCertificateFiles -CertFileURL $CertFileURL -WorkingDirectory $WorkingDirectory
 Expand-Archive -Path $zip -DestinationPath $WorkingDirectory
+
 $p7bfile = Get-ChildItem -Path $WorkingDirectory -Include *.der.p7b -Recurse -ErrorAction SilentlyContinue | ?{$_.Name -notmatch "Root"}
 $DoDCerts = Import-Certificate -FilePath $p7bfile -CertStoreLocation Cert:\CurrentUser\My
 $IDCerts = $DoDCerts | ?{$_.Subject -match "^(CN=DOD ID CA)" -or $_.Subject -match "^(CN=DOD Root CA)"}
+
 Write-Host -ForegroundColor Green "Certificates Downloaded Successfully"
 ````
 </p>
 </details>
 
 ## 5. Upload DoD PKI Certificates
+Manually upload the DOD PKI certificate authorities using the [Azure Portal](https://learn.microsoft.com/en-us/azure/active-directory/authentication/how-to-certificate-based-authentication#configure-certification-authorities-using-the-azure-portal) or [PowerShell](https://learn.microsoft.com/en-us/azure/active-directory/authentication/how-to-certificate-based-authentication#configure-certification-authorities-using-powershell).
 
 <details><summary><b>Show Script</b></summary>
 <p>
@@ -198,5 +206,28 @@ Write-Host -ForegroundColor Green "Certificates Uploaded Successfully"
 ````
 </p>
 </details>
+
+## 6. Configure the CBA Authentication Method
+Enable the CBA on the Azure AD tenant following the reference below. Use the following settings:
+
+|Setting|Value|
+|-------|-----|
+|Enable | Yes |
+|Target |Select Users - Azure AD CBA Pilot|
+|Protection Level|Multi-Factor Authentication|
+|Binding Policy | [See step 1.](#1-determine-username-mapping-policy)|
+
+> 📘 **Reference**: [Enable CBA on the tenant](https://learn.microsoft.com/en-us/azure/active-directory/authentication/how-to-certificate-based-authentication#step-2-enable-cba-on-the-tenant)
+
+## 7. Test signing in with a certificate
+1. Add a user to the `Azure AD CBA Pilot` group. 
+2. For cloud-only users, ensure `UserCertificateIds` value is populated with the [appropriate value](https://learn.microsoft.com/en-us/azure/active-directory/authentication/concept-certificate-based-authentication-technical-deep-dive#achieve-higher-security-with-certificate-bindings).
+3. Open a web browser and navigate to https://portal.azure.us
+4. Sign in with the test user, choosing **certificate authentication**
+5. Select the CAC certificate and enter the PIN
+6. Verify the user signed in successfully. Reference the [documentation](https://learn.microsoft.com/en-us/azure/active-directory/authentication/concept-certificate-based-authentication-technical-deep-dive#understanding-the-certificate-based-authentication-error-page) to troubleshoot any issues.
+
+> 📘 **Reference**: [How Azure AD CBA Works](https://learn.microsoft.com/en-us/azure/active-directory/authentication/concept-certificate-based-authentication-technical-deep-dive)
+
 
 
