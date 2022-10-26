@@ -38,12 +38,11 @@ function UpdateUserCertIDs {
             )
         }
     }
-    
     write-host -ForegroundColor Yellow "UPDATE: Adding userCertificateIds for $UPN. New Value: $CACPrincipalName"
     Update-MgUser -UserId $UPN -BodyParameter $body
 }
 
-# Update single user
+##### UPDATE PARAMETERS #####
 [string]$UPN = "mytestuser@contoso.onmicrosoft.us"
 [string]$PrincipalName = "123456789101112@mil"
 
@@ -67,7 +66,6 @@ $user.AuthorizationInfo.CertificateUserIds
 ##### UPDATE PARAMETERS #####
 $DisplayName = "Azure AD CBA Pilot"
 $MailNickname = "AzureADCBAPilot"
-
 Connect-MGGraph -Environment USGov -Scopes Group.ReadWrite.All
 New-MgGroup -DisplayName $DisplayName -MailEnabled:$false -MailNickname $MailNickname -SecurityEnabled:$true
 ````
@@ -90,7 +88,6 @@ $Environment = "USGov"
 $CertFileURL = "https://dl.dod.cyber.mil/wp-content/uploads/pki-pke/zip/certificates_pkcs7_DoD.zip"
 $WorkingDirectory = "$env:USERPROFILE"+"\DoDPKI\"
 
-#region functions
 function GetCertificateFiles {
     Param($CertFileURL,$WorkingDirectory)
     $outfile = $("$WorkingDirectory/certificates_pkcs7_DOD.zip")
@@ -98,16 +95,11 @@ function GetCertificateFiles {
     Return $outfile
 }
 
-#endregion
-
 $zip = GetCertificateFiles -CertFileURL $CertFileURL -WorkingDirectory $WorkingDirectory
 Expand-Archive -Path $zip -DestinationPath $WorkingDirectory
-
-# Isolate the .der file
 $p7bfile = Get-ChildItem -Path $WorkingDirectory -Include *.der.p7b -Recurse -ErrorAction SilentlyContinue | ?{$_.Name -notmatch "Root"}
 $DoDCerts = Import-Certificate -FilePath $p7bfile -CertStoreLocation Cert:\CurrentUser\My
 $IDCerts = $DoDCerts | ?{$_.Subject -match "^(CN=DOD ID CA)" -or $_.Subject -match "^(CN=DOD Root CA)"}
-
 Write-Host -ForegroundColor Green "Certificates Downloaded Successfully"
 ````
 </p>
