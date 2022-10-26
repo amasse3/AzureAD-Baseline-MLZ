@@ -1,7 +1,41 @@
 # Configure DoD PKI for Azure AD native certificate-based authentication
+This document provides step-by-step guidance for configuring DoD PKI with Azure AD Native CBA.
 
-# Contents
+## Prerequisites
+- Azure AD PowerShell v2
+  - `Install-Module AzureADPreview`
+- Microsoft Graph PowerShell
+  - `Install-Module Microsoft.Graph`
 
-# Deployment Steps
+## Table of contents
+
+1. Determine username mapping policy
+2. Create a Pilot Group
+3. Optional: Enable Staged Rolout
+4. Download DoD PKI Certificates
+5. Upload DoD PKI Certificates
+
+## 1. Determine username mapping policy
 
 Placeholder
+
+### OnPremisesSamAccountName
+
+### UserCertificateIds
+
+## 2. Create a Pilot Group
+
+````shell
+$Sample Script
+````
+
+## 3. Optional: Enable Staged Rollout
+
+Script
+
+## 4. Download DoD PKI Certificates
+
+## 5. Upload DoD PKI Certificates
+
+
+
