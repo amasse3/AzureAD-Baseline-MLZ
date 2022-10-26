@@ -20,11 +20,11 @@ Some steps require Azure AD P2 licensing for privileged users within the environ
 ## 1. Prepare to manage Azure AD
 The first user in an Azure AD tenant will have super user / root access to the entire Azure tenant. These permissions are assigned by the Global Administrator Azure AD role.
 
-- [Prepare a secure workstation for managing Azure AD](#prepare-a-secure-workstation-for-managing-azure-ad)
-- [Install Azure Management Tools](#install-azure-management-tools)
-- [Create the first Global Administrator](#create-the-first-global-administrator)
-- [License the first Global Administrator](#license-the-first-global-administrator)
-- [Connect to Azure AD with MS Graph PowerShell](#connect-to-the-azure-ad-tenant-with-microsoft-graph-powershell)
+[ ] [Prepare a secure workstation for managing Azure AD](#prepare-a-secure-workstation-for-managing-azure-ad)
+[ ] [Install Azure Management Tools](#install-azure-management-tools)
+[ ] [Create the first Global Administrator](#create-the-first-global-administrator)
+[ ] [License the first Global Administrator](#license-the-first-global-administrator)
+[ ] [Connect to Azure AD with MS Graph PowerShell](#connect-to-the-azure-ad-tenant-with-microsoft-graph-powershell)
 
 ### Prepare a secure workstation for managing Azure AD
 There are several client tools for managing Azure AD configuration. Make sure you are managing Azure and Azure AD from a secure workstation. Ensure these privileged access devices include the Azure management tools outlined in this section. 
@@ -251,7 +251,7 @@ Day-to-day operations requiring administrative privileges should be performed by
 - [Create cloud-only identities](#create-azure-ad-cloud-only-identities)
 - [Configure phishing-resistant MFA](#configure-phishing-resistant-mfa)
 
-**💡 Recommendations**:
+💡**Recommendations**:
 - Administration for Azure and Azure AD should use cloud-only identities and Azure AD native authentication mechanism, like FIDO2 security keys or smartcard certificates.
 - Limit the number of Global Administrators, referring to [least privileged roles by task](https://docs.microsoft.com/en-us/azure/active-directory/roles/delegate-by-task) to assign the proper limited administrator role
 - Assign permissions Just-In-Time using [Azure AD Privileged Identity Management](https://docs.microsoft.com/en-us/azure/active-directory/privileged-identity-management/pim-configure)
