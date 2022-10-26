@@ -24,12 +24,12 @@ When Alternate Login ID is configured with Azure AD Connect Sync, the Active Dir
 
 ````mermaid
 flowchart BT
-    subgraph AzureAD
+    subgraph 'Azure AD User Object'
     UserPrincipalName
     OnPremisesUserPrincipalName
     Mail
     end
-    subgraph ADDS
+    subgraph 'AD User Object''
     userPrincipalName
     mail
     end
