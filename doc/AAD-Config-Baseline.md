@@ -45,8 +45,8 @@ Log in with an account that is a [Global Administrator](https://docs.microsoft.c
 
 If the signed in account is not a **member** type, follow the steps below:
 1. [Add a new user in Azure AD](https://docs.microsoft.com/en-us/azure/active-directory/fundamentals/add-users-azure-active-directory#add-a-new-user)
-   a. Record the username, including the domain suffix
-   b. Note the temporary password
+   1. Record the username, including the domain suffix
+   2. Note the temporary password
 2. [Assign Global Administrator role to the new user](https://docs.microsoft.com/en-us/azure/active-directory/roles/manage-roles-portal)
 3. Sign out of the portal or click the profile in the top right and select **sign in with a different account**
 4. Enter the username and temporary password for the first member administrator account.
