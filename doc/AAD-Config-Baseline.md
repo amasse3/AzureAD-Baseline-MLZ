@@ -16,9 +16,9 @@ Some steps require Azure AD P2 licensing for privileged users within the environ
 9. [Configure Additional Features](#9-configure-additional-features)
 10. [Connect Applications to Azure AD](#10-connect-applications-to-azure-ad)
 
-<details><summary>1. Prepare to manage Azure AD</summary>
+# 1. Prepare to Manage Azure AD
+<details><summary>Display Content</summary>
 <p>
-#  1. Prepare to manage Azure AD
 The first user in an Azure AD tenant will have super user / root access to the entire Azure tenant. These permissions are assigned by the Global Administrator Azure AD role.
 
 - [ ] [Prepare a secure workstation for managing Azure AD](#prepare-a-secure-workstation-for-managing-azure-ad)
