@@ -576,7 +576,7 @@ One of the first steps an organization can take in adopting zero trust principal
 - [ ] [Develop New Applications for Azure AD](#develop-new-applications-for-azure-ad)
 - [ ] [Add On-Premises Applications to Azure AD](#add-on-premises-applications-to-azure-ad)
 
-<details><summary>**Show Content**</summary>
+<details><summary><b>Show Content</b></summary>
 <p>
 
 ### Consolidate around an Azure AD tenant
