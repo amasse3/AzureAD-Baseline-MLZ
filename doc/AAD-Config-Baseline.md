@@ -25,7 +25,7 @@ The first user in an Azure AD tenant will have super user / root access to the e
 - [ ] [License the first Global Administrator](#license-the-first-global-administrator)
 - [ ] [Connect to Azure AD with MS Graph PowerShell](#connect-to-the-azure-ad-tenant-with-microsoft-graph-powershell)
 
-<details><summary>**Show Content**</summary>
+<details><summary><b>Show Content</b></summary>
 <p>
 
 ### Prepare a secure workstation for managing Azure AD
@@ -85,7 +85,7 @@ This section covers account creation for Emergency Access and day-to-day Azure A
 - [ ] [Emergency Access Accounts](#emergency-access-accounts)
 - [ ] [Named Administrators](#named-administrator-accounts)
 
-<details><summary>**Show Content**</summary>
+<details><summary><b>Show Content</b></summary>
 <p>
 
 ### Emergency Access Accounts
@@ -200,7 +200,7 @@ Azure AD authenticaton methods allow an administrator to configure how users can
 
 > 📘 **Reference**: [What authentication verification methods are available in Azure AD](https://docs.microsoft.com/en-us/azure/active-directory/authentication/concept-authentication-methods)
 
-<details><summary>**Show Content**</summary>
+<details><summary><b>Show Content</b></summary>
 <p>
 
 ### Enable Microsoft Authenticator app
@@ -230,7 +230,7 @@ Use this set of Azure AD Security Groups and RBAC role assignments as a baseline
 - [ ] [Map MLZ RBAC Security Groups to Azure RBAC Roles](#map-mlz-rbac-security-groups-to-azure-rbac-roles)
 - [ ] [Review Securing Privileged Access in Azure AD](#review-securing-privileged-access-in-azure-ad)
 
-<details><summary>**Show Content**</summary>
+<details><summary><b>Show Content</b></summary>
 <p>
 
 ### Azure Resource RBAC
@@ -323,7 +323,7 @@ Familiarize yourself with the Securing Privileged Access guidance for Azure AD a
 ## 5. Enforce Multi-Factor Authentication and disable Legacy Authentication Protocols
 This section enables key recommended access policies for all apps protected by Azure AD. This includes the Azure portal, Microsoft Graph, Azure Resource Manager, M365 applications, and any future applications integrated with Azure AD.
 
-<details><summary>**Show Content**</summary>
+<details><summary><b>Show Content</b></summary>
 <p>
 
 **Azure AD Free - Turn on Security Defaults**
@@ -358,7 +358,7 @@ This section contains basic tenant-level settings applicable to all Azure AD ver
 - [ ] [Group Settings](#group-settings)
 - [ ] [External Collaboration Settings](#external-collaboration-settings)
 
-<details><summary>**Show Content**</summary>
+<details><summary><b>Show Content</b></summary>
 <p>
 
 ### User Settings
@@ -431,7 +431,7 @@ Microsoft’s identity solutions span on-premises and cloud-based capabilities. 
 
 > 📘 **Reference**: [What is hybrid identity with Azure AD?](https://docs.microsoft.com/en-us/azure/active-directory/hybrid/whatis-hybrid-identity)
 
-<details><summary>**Show Content**</summary>
+<details><summary><b>Show Content</b></summary>
 <p>
 
 ### Synchronization
@@ -489,7 +489,7 @@ Pass-Through Authentication (PTA) and federation with ADFS are not recommended. 
 - [ ] [Cross-Tenant Access Policies (XTAP)](#cross-tenant-access-policies-xtap-and-b2b-cross-cloud-collaboration)
 - [ ] [Identity Governance (IGA)](#identity-governance)
 
-<details><summary>**Show Content**</summary>
+<details><summary><b>Show Content</b></summary>
 <p>
 
 ### Group-Based Licensing
