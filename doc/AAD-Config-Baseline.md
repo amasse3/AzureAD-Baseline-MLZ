@@ -5,16 +5,16 @@ This document provides key steps for deploying and securing Azure Active Directo
 Some steps require Azure AD P2 licensing for privileged users within the environment. Alternative steps are included in case licenses are not available during initial configuration.
 
 # Table of Contents
- -  1. [Prepare to manage Azure AD](#1-prepare-to-manage-azure-ad)  
- -  2. [Create Accounts for Azure Management](#2-create-accounts-for-azure-management)
- -  3. [Configure Authentication Methods](#3-configure-authentication-methods)
- -  4. [Create Groups for MLZ RBAC](#4-create-mlz-rbac-security-groups)
- -  5. [Enforce Multi-Factor Authentication](#5-enforce-multi-factor-authentication-and-disable-legacy-authentication-protocols)
- -  6. [Configure Tenant Settings](#6-configure-user-group-and-external-collaboration-settings)
- -  7. [Add a Custom Domain to Azure AD](#7-optional-add-a-custom-domain-to-azure-ad)
- -  8. [Evaluate Hybrid Identity Configuration](#8-choose-a-hybrid-identity-configuration)
- -  9. [Configure Additional Features](#9-configure-additional-features)
- -  10. [Connect Applications to Azure AD](#10-connect-applications-to-azure-ad)
+ - [1. Prepare to manage Azure AD](#1-prepare-to-manage-azure-ad)  
+ - [2. Create Accounts for Azure Management](#2-create-accounts-for-azure-management)
+ - [3. Configure Authentication Methods](#3-configure-authentication-methods)
+ - [4. Create Groups for MLZ RBAC](#4-create-mlz-rbac-security-groups)
+ - [5. Enforce Multi-Factor Authentication](#5-enforce-multi-factor-authentication-and-disable-legacy-authentication-protocols)
+ - [6. Configure Tenant Settings](#6-configure-user-group-and-external-collaboration-settings)
+ - [7. Add a Custom Domain to Azure AD](#7-optional-add-a-custom-domain-to-azure-ad)
+ - [8. Evaluate Hybrid Identity Configuration](#8-choose-a-hybrid-identity-configuration)
+ - [9. Configure Additional Features](#9-configure-additional-features)
+ - [10. Connect Applications to Azure AD](#10-connect-applications-to-azure-ad)
 
 # 1. Prepare to manage Azure AD
 The first user in an Azure AD tenant will have super user / root access to the entire Azure tenant. These permissions are assigned by the Global Administrator Azure AD role.
