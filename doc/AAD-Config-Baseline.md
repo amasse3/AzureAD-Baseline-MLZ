@@ -163,7 +163,7 @@ Use this set of Azure AD Security Groups and RBAC role assignments as a baseline
 ## Azure Resource RBAC
 Permissions for Azure resource management are granted through assignments to an Azure RBAC role. In the Azure Portal, RBAC role assignments can be created or viewed by selecting the IAM link. Azure RBAC assignments can apply to users (members and guests), security groups, service principals, and managed identities. 
 
-> 💡 **Recommendation** : Assign permissions to Azure AD security groups. If Azure AD Premium P2 licesing is available, configure the security groups eligble for the Azure RBAC role assignments.
+> 💡 **Recommendation**: Assign permissions to Azure AD security groups. If Azure AD Premium P2 licesing is available, configure the security groups eligble for the Azure RBAC role assignments.
 
 Azure RBAC can be assigned at any of the following scopes:
  - Management Group
@@ -211,8 +211,7 @@ The following role-assignable groups are used in the AAD Configuration Baseline:
 |Application Developers|Azure AD role assignment for app registration|Application Developers|Built-in AAD Role|Global|
 |Hybrid Identity Admins|Configure Azure AD Connect to synchronize identities from AD DS to Azure AD|Global
 
-> **Note**:
-These security group and role assignments represent baseline configuration. Modify with additional roles as needed, starting with built-in roles when possible.
+> **Note**: These security group and role assignments represent baseline configuration. Modify with additional roles as needed, starting with built-in roles when possible.
 
 ## Create Azure AD Security Groups
 Run the script below to create Azure AD security groups:
@@ -229,14 +228,14 @@ Once the groups are created, map them to the relevant RBAC role.
 Azure AD Premium P2 customers should map security groups eligible for roles using Privileged Identity Management (PIM). Choose an elevation duration and access review interval.
 
 > 💡 **Recommended Settings**:
-- Global Administrator
-    - **Elevation Duration:** 2 hours
-    - **Approvals Required:** Yes
-    - **Notification:** Yes
-- Other Roles
-    - **Duration:** 4 hours
-    - **Approval Required:** No
-    - **Notification:** Yes
+> - Global Administrator
+>    - **Elevation Duration:** 2 hours
+>    - **Approvals Required:** Yes
+>    - **Notification:** Yes
+>- Other Roles
+>    - **Duration:** 4 hours
+>    - **Approval Required:** No
+>    - **Notification:** Yes
 
 `Script`
 
@@ -285,8 +284,7 @@ Passwordless, but not phishing-resistant. This required registration of an iOS o
   - Azure AD Native Certificate-Based Authentication
   - Windows Hello for Business
 
-> **Note**:
-Microsoft Authenticator App is considered phishing-resistant when deployed to a managed mobile device. Since this guide is for setting up a new tenant, it assumes Microsoft Endpoint Manager is not configured to manage mobile devices.
+> **Note**: Microsoft Authenticator App is considered phishing-resistant when deployed to a managed mobile device. Since this guide is for setting up a new tenant, it assumes Microsoft Endpoint Manager is not configured to manage mobile devices.
 
 > 📘 **Reference**: [Phishing-resistant methods](https://docs.microsoft.com/en-us/azure/active-directory/standards/memo-22-09-multi-factor-authentication#phishing-resistant-methods)
 
@@ -364,7 +362,7 @@ MLZ AAD baseline will set the following Azure AD external collaboration settings
 
 `script`
 
-> 📘 **Reference**:[Default user permissions in Azure AD](https://docs.microsoft.com/en-us/azure/active-directory/fundamentals/users-default-permissions)
+> 📘 **Reference**: [Default user permissions in Azure AD](https://docs.microsoft.com/en-us/azure/active-directory/fundamentals/users-default-permissions)
 
 # 8. Optional: Add a custom domain to Azure AD
 When an Azure AD tenant is created, a default domain is assigned that looks like *tenantname.onmicrosoft.com* (*tenantname.onmicrosoft.us* for Azure AD Government). By default, all users in Azure AD get a UserPrincipalName (UPN) with the default domain suffix.
