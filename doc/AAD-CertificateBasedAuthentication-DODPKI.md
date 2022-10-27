@@ -31,14 +31,19 @@ flowchart BT
     UserPrincipalName
     OnPremisesUserPrincipalName
     Mail
+    ImmutableID
     end
     subgraph AD User Object
     userPrincipalName
     mail
+    objectGUID
+    ms-DS-ConsistencyGUID
     end
     userPrincipalName--sync-->OnPremisesUserPrincipalName
     mail--sync-->UserPrincipalName
     mail--sync-->Mail
+    objectGUID--sync-->ImmutableID
+    ms-DS-ConsistencyGUID<--sync--ImmutableID
 ````
 
 ### UserCertificateIds (cloud-only Users)
