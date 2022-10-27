@@ -39,10 +39,10 @@ flowchart BT
     objectGUID
     ms-DS-ConsistencyGUID
     end
-    ImmutableID--sync-->ms-DS-ConsistencyGUID
     userPrincipalName--sync-->OnPremisesUserPrincipalName
     mail--sync-->UserPrincipalName
     mail--sync-->Mail
+    ImmutableID--sync-->ms-DS-ConsistencyGUID
     objectGUID--sync-->ImmutableID
     
 ````
