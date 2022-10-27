@@ -28,7 +28,6 @@ When Alternate Login ID is configured with Azure AD Connect Sync, the Active Dir
 ````mermaid
 flowchart LR
     subgraph Azure AD User Object
-    direction TB
     UserPrincipalName
     OnPremisesUserPrincipalName
     Mail
