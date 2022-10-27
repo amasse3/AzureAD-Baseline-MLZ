@@ -43,7 +43,7 @@ flowchart BT
     mail--sync-->UserPrincipalName
     mail--sync-->Mail
     objectGUID--sync-->ImmutableID
-    ms-DS-ConsistencyGUID<--sync--ImmutableID
+    ImmutableID--sync-->ms-DS-ConsistencyGUID
 ````
 
 ### UserCertificateIds (cloud-only Users)
