@@ -82,7 +82,9 @@ $user.AuthorizationInfo.CertificateUserIds
 </details>
 
 ## 2. Create a Pilot Group
+Create a pilot group for targetting the certificate-based authentication method to an Azure AD security group. For this document, the name `Azure AD CBA Pilot` is used. Use the Azure Portal or Microsoft Graph PowerShell like the example below.
 
+> 📘 **Reference**: [Manage groups in the Azure AD Portal](https://learn.microsoft.com/en-us/azure/active-directory/fundamentals/how-to-manage-groups)
 <details><summary><b>Show Script</b></summary>
 <p>
 
