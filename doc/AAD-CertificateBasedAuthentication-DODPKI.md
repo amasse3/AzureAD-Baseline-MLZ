@@ -42,7 +42,7 @@ flowchart TD
     userPrincipalName--sync-->OnPremisesUserPrincipalName
     mail--sync-->UserPrincipalName
     mail--sync-->Mail
-    ImmutableID--sync-->ms-DS-ConsistencyGUID
+    ImmutableID--sync back-->ms-DS-ConsistencyGUID
     objectGUID--sync-->ImmutableID
     
 ````
