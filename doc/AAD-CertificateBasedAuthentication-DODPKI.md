@@ -36,8 +36,8 @@ flowchart BT
     subgraph AD User Object
     userPrincipalName
     mail
-    objectGUID
     ms-DS-ConsistencyGUID
+    objectGUID
     end
     userPrincipalName--sync-->OnPremisesUserPrincipalName
     mail--sync-->UserPrincipalName
