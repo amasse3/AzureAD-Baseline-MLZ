@@ -35,7 +35,6 @@ flowchart LR
     ImmutableID
     end
     subgraph AD User Object
-    direction TB
     userPrincipalName
     mail
     ms-DS-ConsistencyGUID
