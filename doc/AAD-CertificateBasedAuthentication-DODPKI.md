@@ -27,7 +27,7 @@ When Alternate Login ID is configured with Azure AD Connect Sync, the Active Dir
 
 ````mermaid
 flowchart BT
-    ImmutableID--sync-->ms-DS-ConsistencyGUID
+    ImmutableID<--sync--ms-DS-ConsistencyGUID
     subgraph Azure AD User Object
     UserPrincipalName
     OnPremisesUserPrincipalName
