@@ -33,13 +33,13 @@ flowchart LR
     Mail
     ImmutableID
     end
-    ImmutableID--sync-->ms-DS-ConsistencyGUID
     subgraph AD User Object
     userPrincipalName
     mail
     objectGUID
     ms-DS-ConsistencyGUID
     end
+    ImmutableID--sync-->ms-DS-ConsistencyGUID
     userPrincipalName--sync-->OnPremisesUserPrincipalName
     mail--sync-->UserPrincipalName
     mail--sync-->Mail
