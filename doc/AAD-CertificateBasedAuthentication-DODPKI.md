@@ -44,7 +44,7 @@ flowchart LR
     userPrincipalName--sync-->OnPremisesUserPrincipalName
     mail--sync-->UserPrincipalName
     mail--sync-->Mail
-    ms-DS-ConsistencyGUID<--sync-->ObjectGUID<--sync-->ImmutableID
+    ms-DS-ConsistencyGUID<--sync-->objectGUID<--sync-->ImmutableID
 ````
 
 ### UserCertificateIds (cloud-only Users)
