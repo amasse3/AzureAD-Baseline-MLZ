@@ -42,9 +42,7 @@ flowchart TD
     userPrincipalName--sync-->OnPremisesUserPrincipalName
     mail--sync-->UserPrincipalName
     mail--sync-->Mail
-    ImmutableID--sync back-->ms-DS-ConsistencyGUID
-    objectGUID--sync-->ImmutableID
-    
+    objectGUID--sync-->ImmutableID--writeback-->ms-DS-ConsistencyGUID
 ````
 
 ### UserCertificateIds (cloud-only Users)
