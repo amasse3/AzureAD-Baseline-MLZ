@@ -43,8 +43,8 @@ flowchart BT
     mail-->|sync|UserPrincipalName
     mail-->|sync|Mail
     objectGUID-->|sync|ImmutableID
-    <-- ImmutableID-->|writeback|ms-DS-ConsistencyGUID !-->
 ````
+<-- ImmutableID-->|writeback|ms-DS-ConsistencyGUID !-->
 
 ### UserCertificateIds (cloud-only Users)
 Cloud-only users authenticating with DoD CAC need the Principal Name Subject Alternative Name (SAN) value on the CAC certificate to match an Azure AD user attribute. Since @mil value is non-routable, it cannnot be a `UserPrincipalName` value in Azure AD. `OnPremisesUserPrincipalName` attribute is reserved for synchronized identities, and cannot be modified. An alternative attribute called `userCertificateIds` can be used for this purpose. Configure using the Azure Portal following the reference below.
