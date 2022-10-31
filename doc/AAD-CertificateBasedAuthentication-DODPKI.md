@@ -42,8 +42,8 @@ flowchart BT
     userPrincipalName-->|sync|OnPremisesUserPrincipalName
     mail-->|sync|UserPrincipalName
     mail-->|sync|Mail
-    ImmutableID-->|writeback|ms-DS-ConsistencyGUID
     objectGUID-->|sync|ImmutableID
+    <-- ImmutableID-->|writeback|ms-DS-ConsistencyGUID !-->
 ````
 
 ### UserCertificateIds (cloud-only Users)
