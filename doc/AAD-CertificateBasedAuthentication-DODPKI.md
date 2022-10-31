@@ -42,6 +42,7 @@ flowchart BT
     userPrincipalName--sync-->OnPremisesUserPrincipalName
     mail--sync-->UserPrincipalName
     mail--sync-->Mail
+    objectGUID--sync-->ImmutableID
 ````
 
 ### UserCertificateIds (cloud-only Users)
