@@ -3,7 +3,7 @@ Placholder
 ## Table of contents
 Placholder
 
-## Type 1: blah blah
+## Type 1: Mission Landing Zone Subscriptions
 
 ## Type 2: blah blah
 
