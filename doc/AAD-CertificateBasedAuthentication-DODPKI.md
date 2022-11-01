@@ -43,7 +43,7 @@ flowchart BT
     mail-->|sync|UserPrincipalName
     mail-->|sync|Mail
     objectGUID-->|sync|ImmutableID
-    ImmutableID->>|writeback|ms-DS-ConsistencyGUID
+    ImmutableID<-.->|writeback|ms-DS-ConsistencyGUID
 ````
 <-- ms-DS-ConsistencyGUID<-->|writeback|ImmutableID !-->
 
