@@ -43,12 +43,53 @@ There are 3 common deployment patterns for MLZ.
 > - [What is Azure AD Connect cloud sync](https://learn.microsoft.com/en-us/azure/active-directory/cloud-sync/what-is-cloud-sync)
 
 ## Type 1: MLZ deployed to existing enterprise M365 Tenant
+Type 1 is the most straightforward scenario for deploying Azure, since an enterprise Azure Active Directory tenant already exists and is in use for M365. This is a standard, single-tenant topology that Microsoft recommends whenever possible.
+
+Microsoft Azure services that use Azure AD identities expect to use Azure AD identities within the same tenant that the subscription is pinned. The single tenant topology offers the most compatibility and best experience for accessing Azure services.
+
 ![Type 1](../img/type1.png)
 
+### Summary
+This table outlines the design elements for Type 1 MLZ deployment.
+
+| Design Area | Solution |
+|-------------|----------|
+| Identity integration | hybrid with Azure AD Connect (existing) |
+| Application identity | same tenant |
+| Management identity | same tenant (cloud-only) |
+| Licensing considerations | re-use existing |
+| Authentication | cloud-native, phishing-resistant |
+| Conditional Access | re-use existing baseline | 
+
 ## Type 2: MLZ deployed to standalone Azure platform tenant
+Type 2 is also quite common.This topology should be chosen if a separate security boundary is needed for MLZ Azure subscriptions.
 ![Type 2](../img/type2.png)
+
+### Summary
+This table outlines the design elements for Type 2 MLZ deployment.
+
+| Design Area | Solution |
+|-------------|----------|
+| Identity integration | none (cloud-only) |
+| Application identity | enterprise tenant |
+| Management identity | same tenant (cloud-only) |
+| Licensing considerations | AADP2 for admins |
+| Authentication | cloud-native, phishing-resistant |
+| Conditional Access | New CA baseline | 
 
 ## Type 3: MLZ deployed to an enterprise Azure platform tenant
 ![Type 3](../img/type3.png)
+
+### Summary
+This table outlines the design elements for Type 2 MLZ deployment.
+
+| Design Area | Solution |
+|-------------|----------|
+| Identity integration | A. Hybrid with new AADC, B. None (guests), C. None (cloud-only) |
+| Application identity | same tenant |
+| Management identity | same tenant (cloud-only) |
+| Licensing considerations | AADP2 for A. all users, B. admins, C. admins |
+| Authentication | cloud-native, phishing-resistant |
+| Conditional Access | New CA baseline | 
 
 ## See Also:
