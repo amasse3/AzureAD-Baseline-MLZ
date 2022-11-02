@@ -85,10 +85,10 @@ This table outlines the design elements for Type 2 MLZ deployment.
 
 | Design Area | Solution |
 |-------------|----------|
-| Identity integration | A. Hybrid with new AADC, B. None (guests), C. None (cloud-only) |
+| Identity integration | A. Hybrid with new AADC<br />B. None (guests)<br />C. None (cloud-only)|
 | Application identity | same tenant |
 | Management identity | same tenant (cloud-only) |
-| Licensing considerations | AADP2 for A. all users, B. admins, C. admins |
+| Licensing considerations | A. AADP2 for all users<br />B. AADP2 for admins<br />C. AADP2 for admins |
 | Authentication | cloud-native, phishing-resistant |
 | Conditional Access | New CA baseline | 
 
