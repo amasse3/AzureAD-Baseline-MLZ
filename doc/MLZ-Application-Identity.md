@@ -61,8 +61,7 @@ Azure AD user provisioning support:
 ## Azure Active Directory and Zero Trust
 Discuss Conditional Access and why it is important to put Azure AD in the path of authentication.
 
-> [!IMPORTANT]
-> Standardizing on Azure AD as the organization's enterprise identity platform is the most important step in adopting zero trust principles. Bring Azure AD into the authentication path to every app.
+> :warning: **Important**: Standardizing on Azure AD as the organization's enterprise identity platform is the most important step in adopting zero trust principles. Bring Azure AD into the authentication path to every app.
 
 ## Understanding Azure AD Identities
 Azure AD can authenticate users in the AAD tenant with applications integrated with the tenant.
@@ -71,7 +70,7 @@ Azure AD identities include more than just user objects. Every entitity in Azure
 
 Azure AD identities, like users, security groups, and managed identities, are also security principals - they can be assigned Azure and Azure AD RBAC roles.
 
->**Reference**: [Permissions Management in Azure and Azure AD](https://github.com/amasse3/MLZ-Identity-AzureADSetup/blob/main/doc/AAD-Permissions-Management.md)
+> 📘 **Reference**: [Permissions Management in Azure and Azure AD](https://github.com/amasse3/MLZ-Identity-AzureADSetup/blob/main/doc/AAD-Permissions-Management.md)
 
 ### What are Azure AD identities used for?
 These identities can be used for any of the following:
@@ -110,7 +109,7 @@ While an Azure AD tenant can contain identies for every use case mentioned in th
 |Enterprise|All employees, contractors, guests|hybrid (synced)|Microsoft 365, Azure, SaaS applications, other enterprise LOB apps|
 |Standalone Azure Platform|Azure admins and developers|cloud-only|Azure Resource Manager (subscriptions, IaaS and PaaS services)|
 
->**Important**: Understanding which tenant type MLZ subscriptions are attached to will determine whether the local Azure AD tenant should be used for modern apps, or if apps running on infrastructure in the MLZ tenant will be Enterprise Applications within some other enterprise tenant (usally used for M365. 
+> :warning: **Important**: Understanding which tenant type MLZ subscriptions are attached to will determine whether the local Azure AD tenant should be used for modern apps, or if apps running on infrastructure in the MLZ tenant will be Enterprise Applications within some other enterprise tenant (usally used for M365. 
 
 Apps running on infrastructure in one tenant can use a different AAD as an identity provider. If apps are integrated with the enterprise / M365 tenant, users will have the most consistent sign-in experience. Any zero trust security policies configured with Conditional Access can apply, even if applications are hosted in subscriptions attached to a different tenant, or within a different cloud environment or on-premises datacenter.
 >**Reference**: [Choosing your identity authority](https://docs.microsoft.com/en-us/azure/azure-government/documentation-government-plan-identity#choosing-your-identity-authority)
@@ -159,7 +158,7 @@ Common protocols for modern apps include [OpenID-Connect](https://docs.microsoft
 > **Note**: The location of the application hosting infrastructure has no bearing on whether or not Azure AD can be an identity provider. Azure AD can be used for modern apps as long as authenticating clients have internet access and a network path to the application. 
 > Azure AD can be used for legacy apps as long as Azure AD Application Proxy or Secure Hybrid Access Partner broker is used.
 
-> **Reference**: [Secure Hybrid Access with Azure AD](https://docs.microsoft.com/en-us/azure/active-directory/manage-apps/secure-hybrid-access)
+> 📘 **Reference**: [Secure Hybrid Access with Azure AD](https://docs.microsoft.com/en-us/azure/active-directory/manage-apps/secure-hybrid-access)
 
 ### Azure AD Application Proxy
 ### Secure Hybrid Access Partners
