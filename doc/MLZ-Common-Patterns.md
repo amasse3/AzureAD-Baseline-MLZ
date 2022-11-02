@@ -1,7 +1,8 @@
 # Identity Deployment Patterns for Mission Landing Zone
 Azure is more than a cloud platform for IaaS and PaaS services. Core to Azure's functionality is the identity platform, Azure Active Directory. Azure AD is the required identity platform for Azure and M365 services. Zero Trust, management, application protocol support, and identity governance capabilities baked in for M365 make Azure AD a truly enterprise-ready modern identity platform, even for organizations that plan to only use Azure AD for their Azure subscriptions.
 
-> 💡 **Goal**: Consolidate around Azure Active Directory as the enterprise identity platform. Determining which Azure AD tenant will serve as the organization's "enterprise" identity platform help clarify which deployment pattern should be used for the organization.
+> 💡 **Goal**:
+> Consolidate around Azure Active Directory as the enterprise identity platform. Determining which Azure AD tenant will serve as the organization's "enterprise" identity platform help clarify which deployment pattern should be used for MLZ applications.
 
 This document outlines common identity deployment patterns for Mission Landing Zone.
 
@@ -42,9 +43,12 @@ There are 3 common deployment patterns for MLZ.
 > - [What is Azure AD Connect cloud sync](https://learn.microsoft.com/en-us/azure/active-directory/cloud-sync/what-is-cloud-sync)
 
 ## Type 1: MLZ deployed to existing enterprise M365 Tenant
+![Type 1](../img/type1.png)
 
 ## Type 2: MLZ deployed to standalone Azure platform tenant
+![Type 2](../img/type2.png)
 
 ## Type 3: MLZ deployed to an enterprise Azure platform tenant
+![Type 3](../img/type3.png)
 
 ## See Also:
