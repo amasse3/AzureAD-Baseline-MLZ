@@ -16,10 +16,12 @@ This document outlines common identity deployment patterns for Mission Landing Z
 There are 3 common deployment patterns for MLZ.
 - Type 1: MLZ deployed to existing enterprise M365 tenant
 - Type 2: MLZ deployed to a standalone Azure platform tenant
+  - (a) Cloud-only management model: standalone Azure tenant with **cloud-only identities**
+  - (b) Guest management model: **External identities** for Azure AD and Azure management (guest management model)
 - Type 3: MLZ deployed to an enterprise Azure platform tenant
-  - (a) **Hybrid identity** with existing enterprise AD DS
-  - (b) **External identities** for Azure AD and Azure management
-  - (b) Standalone Azure tenant with **cloud-only identities** (broker model)
+  - (a) **Hybrid identity** model: synchornized from existing enterprise AD DS
+  - (b) **External identities** model: cross-tenant synchronization, connected organizations / identity governance
+  
 
 ### Definitions
 | Term | Description |
@@ -47,6 +49,12 @@ Type 1 is the most straightforward scenario for deploying Azure, since an enterp
 
 Microsoft Azure services that use Azure AD identities expect to use Azure AD identities within the same tenant that the subscription is pinned. The single tenant topology offers the most compatibility and best experience for accessing Azure services.
 
+**Choose Type 1 if:**
+- [x] The organization already has an Azure AD tenant containing all users
+- [x] The organization plans to deploy M365 services and license users in the existing tenant
+- [x] Microsoft 365 tenant Global Administrators are trusted to manage the Azure environment
+
+### Architecture Diagram
 ![Type 1](../img/type1.png)
 
 ### Summary
@@ -63,6 +71,13 @@ This table outlines the design elements for Type 1 MLZ deployment.
 
 ## Type 2: MLZ deployed to standalone Azure platform tenant
 Type 2 is also quite common.This topology should be chosen if a separate security boundary is needed for MLZ Azure subscriptions.
+
+**Choose Type 2 if:**
+- [x] Microsoft 365 tenant Global Administrators are not trusted to manage the Azure environment
+- [x] Security boundary is needed between MLZ Azure workloads and the M365 environment
+- [x] Azure Virtual Desktop and other PaaS services that do not support guest identities can be hosted in subscriptions attached to the enterprise tenant.
+
+### Architecture Diagram
 ![Type 2](../img/type2.png)
 
 ### Summary
@@ -72,12 +87,19 @@ This table outlines the design elements for Type 2 MLZ deployment.
 |-------------|----------|
 | **Identity integration** | none (cloud-only) |
 | **Application identity** | enterprise tenant |
-| **Management identity** | same tenant (cloud-only) |
-| **Licensing considerations** | AADP2 for admins |
+| **Management identity** | A. cloud-only<br />B. B2B guest users |
+| **Licensing considerations** | AADP2 for Admins|
 | **Authentication** | cloud-native, phishing-resistant |
 | **Conditional Access** | New CA baseline | 
 
 ## Type 3: MLZ deployed to an enterprise Azure platform tenant
+
+**Choose Type 3 if:**
+- [x] No other Azure Active Directory is managed by the organization
+- [x] MLZ Azure AD will be the enterprise Identity as a Service platform for the organization
+- [x] M365 services are managed by a service provider in a different tenant
+
+### Architecture Diagram
 ![Type 3](../img/type3.png)
 
 ### Summary
@@ -85,10 +107,10 @@ This table outlines the design elements for Type 2 MLZ deployment.
 
 | Design Area | Solution |
 |-------------|----------|
-| **Identity integration** | A. Hybrid with new AADC<br />B. None (guests)<br />C. None (cloud-only)|
+| **Identity integration** | A. Hybrid with new AADC<br />B. None (guests)|
 | **Application identity** | same tenant |
 | **Management identity** | same tenant (cloud-only) |
-| **Licensing considerations** | A. AADP2 for all users<br />B. AADP2 for admins<br />C. AADP2 for admins |
+| **Licensing considerations** | A. AADP2 for all users<br />B. AADP2 for admins<br /> |
 | **Authentication** | cloud-native, phishing-resistant |
 | **Conditional Access** | New CA baseline | 
 
