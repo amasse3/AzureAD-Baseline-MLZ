@@ -14,6 +14,8 @@ This document provides step-by-step guidance for configuring DoD PKI with Azure 
 4. [Download DoD PKI Certificates](#4-download-dod-pki-certificates)
 5. [Upload DoD PKI Certificates](#5-upload-dod-pki-certificates)
 6. [Configure AAD Authentication Method](#6-configure-the-cba-authentication-method)
+7. [Test signing in with certificate](#7-test-signing-in-with-a-certificate)
+8. [Preview - Sign in with certificate on mobile device](#8-preview---sign-in-with-certificate-on-mobile-device)
 
 ## 1. Determine username mapping policy
 For DOD Common Access Card (CAC) certificates, the `Principal Name` Subject Alternative Name (SAN) value needs to be mapped to an Azure AD attribute. Depending on the hybrid identity configuration, this value can be stored on either:
@@ -236,5 +238,18 @@ Enable the CBA on the Azure AD tenant following the reference below. Use the fol
 
 > 📘 **Reference**: [How Azure AD CBA Works](https://learn.microsoft.com/en-us/azure/active-directory/authentication/concept-certificate-based-authentication-technical-deep-dive)
 
+## 8. Preview - Sign in with certificate on mobile device
+Mobile devices now support certificate-based authentication in the native browser using certificate stored in the PIV app for Yubikey devices. This new capability differs from previous mobile CBA implementations becuase A) ADFS is not required, B) it is true MFA since PIN / private key is used.
 
+**Useful information**
+| Platform | Yubikey Type | OS Requirement | Application Requirement | Behavior |
+|----------|--------------|----------------|-------------------------|----------|
+| iOS      | NFC, Lightning | iOS 14.2+       | Safari, Yubico Authenticator 17 | Use Yubico Authenticator to load the public key for the certificate into iOS Keychain. After tapping sign-in with certificate, a notification banner for Yubico Authenticaotr will appear. Tap it to provide PIN in the Yubico Authenticator app. Use the breadcrumb in the top left to navigate back to the browser.*|
+| iPadOS  | Lightning, USB-C | iPadOS 16 | Safari, Yubico Authentciator | Use Yubico Authenticator to load the public key for the certificate into iOS Keychain. After tapping sign-in with certificate, Safari will launch a PIN prompt in the same browser window. Once PIN is entered and certificate is verified, sign-in will succeed.|
+| Android | USB-C | No prerequisites. After tapping sign-in with certificate, Chrome will launch a PIN prompt in the same browser window. Once PIN is entered and certificate is verified, sign-in will succeed.|
 
+> **Warning**: iOS requires notifications enabled for Yubico Authenticator app. Ensure that Focus Modes include Yubico Authenticator to bypass the notification block. When the notification does not succeed, the certificate authentication page (certauth.login.microsoftonline) will hang and time out with TLS error.
+
+> 📘 **Reference**:
+> - [Android devices - Support for certificates on hardware security key (preview)](https://learn.microsoft.com/en-us/azure/active-directory/authentication/concept-certificate-based-authentication-mobile-android#support-for-certificates-on-hardware-security-key-preview)
+> - [iOS devices- Support for certificates on hardware security key (preview)](https://learn.microsoft.com/en-us/azure/active-directory/authentication/concept-certificate-based-authentication-mobile-ios#support-for-certificates-on-hardware-security-key-preview)
