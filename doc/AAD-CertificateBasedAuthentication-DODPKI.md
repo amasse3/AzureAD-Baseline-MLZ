@@ -246,7 +246,7 @@ Mobile devices now support certificate-based authentication in the native browse
 |----------|--------------|----------------|-------------------------|----------|
 | iOS      | NFC, Lightning | iOS 14.2+       | Safari, Yubico Authenticator 17 | Use Yubico Authenticator to load the public key for the certificate into iOS Keychain. After tapping sign-in with certificate, a notification banner for Yubico Authenticaotr will appear. Tap it to provide PIN in the Yubico Authenticator app. Use the breadcrumb in the top left to navigate back to the browser.*|
 | iPadOS  | Lightning, USB-C | iPadOS 16 | Safari, Yubico Authentciator | Use Yubico Authenticator to load the public key for the certificate into iOS Keychain. After tapping sign-in with certificate, Safari will launch a PIN prompt in the same browser window. Once PIN is entered and certificate is verified, sign-in will succeed.|
-| Android | USB-C | No prerequisites. After tapping sign-in with certificate, Chrome will launch a PIN prompt in the same browser window. Once PIN is entered and certificate is verified, sign-in will succeed.|
+| Android | USB-C (NFC not supported currently) | Android 12 (earlier versions may work) | Chrome |No prerequisites. After tapping sign-in with certificate, Chrome will launch a PIN prompt in the same browser window. Once PIN is entered and certificate is verified, sign-in will succeed.|
 
 > **Warning**: iOS requires notifications enabled for Yubico Authenticator app. Ensure that Focus Modes include Yubico Authenticator to bypass the notification block. When the notification does not succeed, the certificate authentication page (certauth.login.microsoftonline) will hang and time out with TLS error.
 
