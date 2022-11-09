@@ -79,7 +79,7 @@ Open PowerShell and run the following command to connect to Azure AD:
 </p>
 </details>
 
-# 2. Create Accounts for Azure Management
+## 2. Create Accounts for Azure Management
 This section covers account creation for Emergency Access and day-to-day Azure AD administration.
 
 - [ ] [Emergency Access Accounts](#emergency-access-accounts)
