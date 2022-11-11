@@ -7,13 +7,24 @@ Azure is more than a cloud platform for IaaS and PaaS services. Core to Azure's 
 This document outlines common identity deployment patterns for Mission Landing Zone.
 
 ## Table of contents
-- 1. [Common Deployment Types](#common-deployment-types)
-- 2. [Type 1: MLZ deployed to existing enterprise M365 tenant](#type-1-mlz-deployed-to-existing-enterprise-m365-tenant)
-- 3. [Type 2: MLZ deployed to a *standalone* Azure platform tenant](#type-2-mlz-deployed-to-standalone-azure-platform-tenant)
-- 4. [Type 3: MLZ deployed to an *enterprise* Azure platform tenant](#type-3-mlz-deployed-to-an-enterprise-azure-platform-tenant)
+- [Identity Deployment Patterns for Mission Landing Zone](#identity-deployment-patterns-for-mission-landing-zone)
+  - [Table of contents](#table-of-contents)
+  - [Common Deployment Types](#common-deployment-types)
+    - [Decision Tree](#decision-tree)
+    - [Definitions](#definitions)
+  - [Type 1: MLZ deployed to existing enterprise M365 Tenant](#type-1-mlz-deployed-to-existing-enterprise-m365-tenant)
+    - [Architecture Diagram](#architecture-diagram)
+    - [Summary](#summary)
+  - [Type 2: MLZ deployed to standalone Azure platform tenant](#type-2-mlz-deployed-to-standalone-azure-platform-tenant)
+    - [Architecture Diagram](#architecture-diagram-1)
+    - [Summary](#summary-1)
+  - [Type 3: MLZ deployed to an enterprise Azure platform tenant](#type-3-mlz-deployed-to-an-enterprise-azure-platform-tenant)
+    - [Architecture Diagram](#architecture-diagram-2)
+    - [Summary](#summary-2)
+  - [See Also:](#see-also)
 
 ## Common Deployment Types
-There are 3 common deployment patterns for MLZ.
+While each organization has unique needs for Azure and Azure AD, most deployments fall into 3 patterns:
 - Type 1: MLZ deployed to existing enterprise M365 tenant
 - Type 2: MLZ deployed to a standalone Azure platform tenant
   - (a) Cloud-only management model: standalone Azure tenant with **cloud-only identities**
@@ -22,6 +33,23 @@ There are 3 common deployment patterns for MLZ.
   - (a) **Hybrid identity** model: synchornized from existing enterprise AD DS
   - (b) **External identities** model: cross-tenant synchronization, connected organizations / identity governance
   
+### Decision Tree
+Use this decision tree to determine which MLZ tenant type is appropriate.
+
+````mermaid
+graph TD
+    A(Start) -->|Evaluate existing <br>services| B{Organization<br> owns M365?}
+    B -->|Yes| C{Management<br>Contol?}
+    C -->|Managed by<br>organization| D{SoD required?}
+    C -->|Managed by<br>another entity|K
+    D -->|No| I(<b>Use Existing Tenant</b><br>Type 1)
+    D -->|Yes| H(<b>Standalone MLZ</b><br>Type 2)
+
+    B -->|No| J{Existing Enterprise<br>Azure AD?}
+    J -->|No| K[Establish new<br>Enterprise tenant] -->G(<b>Enterprise MLZ</b><br>Type 3)
+    J -->|Yes| L[Deploy MLZ<br>to existing tenant] --> G
+   
+````
 
 ### Definitions
 | Term | Description |
