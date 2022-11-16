@@ -54,6 +54,7 @@ if ($AccountNameBase) {
 if (!($EAGroupName)){$EAGroupName=$DefaultEAGroupName}
 if (!($PWDLength)){$PWDLength=$DefaultPWDLength}
 if (!($Environment)){$Environment=$DefaultEnvironment}
+#endregion
 
 #region functions
 function New-TempPassword {
@@ -136,7 +137,7 @@ $params = @{
 
 New-MgRoleManagementDirectoryRoleEligibilityScheduleRequest -BodyParameter $params
 
-Write-Host -ForegroundColor Cyan "Emergency Access Accounts Created:`n  $($UsserArray[0].UserPrincipalName)`n  $($UsserArray[1].UserPrincipalName)`
+Write-Host -ForegroundColor Cyan "Emergency Access Accounts Created:`n  $($UserArray[0].UserPrincipalName)`n  $($UserArray[1].UserPrincipalName)`
 `nAdded to Group: $($group.DisplayName) (ID = $($group.Id))`n`nAssigned Permanently to Global Administrator Role."
 
 Write-Host -ForegroundColor Green "Script Complete."
