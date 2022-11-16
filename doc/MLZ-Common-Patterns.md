@@ -66,12 +66,10 @@ graph TD
 |Synchronized identity|An Azure AD identity that is synchronized from Active Directory with Azure AD Connect or Azure AD Conenct cloud sync|
 
 > **Note**: Internal/External and member/guest are orthoganal concepts in Azure AD. An internal account, cloud-only or synchronized, can be type guest. An external user can be type member. Members are users that belong to the organization which must be licensed in Azure AD to use premium features.
-
- | |**UserType Property**| 
-:-----:|:-----:|:-----:|:-----:
- | |Guest|Member
-How User Authenticates|Internal|test1|test2
- |External|test3|test4|
+> **External Guest**: Uses an external Azure AD account to authenticate. Most external users fall into this category.
+> **External Member**: Uses an external account to authenticate, but has member level access instead of guest level access. Common for multi-tenant organizations.
+> **Internal Guest**: Has an account in your Azure AD directory, but has guest level access. This is legacy guest user often synchronized using Azure AD Connect.
+> **Internal Member**: Has an account in your Azure AD directory with member level access. All "typical" members of an organization fall into this category.
 
 > 📘 **References**:
 > - [Planning identity for Azure Government applications](https://learn.microsoft.com/en-us/azure/azure-government/documentation-government-plan-identity)
