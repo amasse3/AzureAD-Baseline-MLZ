@@ -1,0 +1,6 @@
+LastName,FirstName,DisplayName,UserPrincipalName,Usagelocation,UserCertificateIds
+Simon,Britta,Britta Simon (MLZ),mlz.bsimon@contoso.onmicrosoft.com,US,012345000678901@mil
+Bischoff,Jimmy,Jimmy Bischoff (MLZ),mlz.jbischoff@contoso.onmicrosoft.com,US,012345000678902@mil
+Parker,McLean,Parker McLean (MLZ),mlz.pmclean@contoso.onmicrosoft.com,US,012345000678903@mil
+Cantrell,Sam,Sam Cantrell (MLZ),mlz.scantrell@contoso.onmicrosoft.com,US,012345000678904@mil
+Gomez,Mateo,Mateo Gomez (MLZ),mlz.mgomez@contoso.onmicrosoft.com,US,012345000678905@mil

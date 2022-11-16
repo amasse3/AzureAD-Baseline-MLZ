@@ -82,45 +82,67 @@ Open PowerShell and run the following command to connect to Azure AD:
 ## 2. Create accounts for Azure management
 This section covers account creation for Emergency Access and day-to-day Azure AD administration.
 
+- [ ] [Initialize the first Administrator](#first-administrator)
 - [ ] [Emergency Access Accounts](#emergency-access-accounts)
 - [ ] [Named Administrators](#named-administrator-accounts)
 
 <details><summary><b>Show Content</b></summary>
 <p>
 
-### Emergency Access accounts
-When a new Azure AD tenant is created, the user who created the tenant is the only user in the directory with administrative privileges. The first thing we need to do is create 2 Emergency Access accounts, 1 of which will be excluded from multi-factor authentication in case the Azure MFA service is degrated.
+### Initialize the first Administrator
+When a new Azure AD tenant is created, the user who created the tenant is the only user in the directory with administrative privileges. This is a "bootstrap" user for setting up emergency access and creating additional admin accounts.
 
-- [ ] [Set Password Protection Policy](#set-password-protection-policy)
+There are 2 scenarios for the first user:
+- The first user is a userType guest originating from another tenant within the organization
+- The first user is a member of the MLZ tenant
+
+If the first user is a guest, we need to create a new administrator homed in the MLZ tenant. To complete this task, follow the steps below:
+1. Sign into the Azure Portal
+  a. **Global**: https://portal.azure.com
+  b. **Government**: https://portal.azure.us
+2. Search **Azure Active Directory**
+3. On the left navigation pane, select **Users** under Manage
+4. Select **+ New user** and choose **Create new user**
+5. Provide information for the **Identity** section.
+6. For **Password**, leave the radio button on the default (Auto-generate password) and select the checkbox next to **Show Password**
+  a. **Important**: Write down this value. We will need to use it to sign in as the first administrator account.
+7. Under **Groups and roles**, click **roles** and assign the Directory Role named **Global Administrator**
+8. Under **Settings**, select **United States** for the Usage location. This is needed to assign a license.
+9. Select **Create** and wait a few moments.
+10. Navigate back to the **Users** page and find the first admin in the user list. Select the hyperlink in the DisplayName column to view user info.
+11. On the first administrator user page, select **Licenses** in the left navigation pane under **Manage**.
+12. Select **Assignments**, choose the appropriate license sku for Azure AD Premium P2 (this may be named M365 E5 or similar), and select **Save**.
+
+Now that the first administrator is initialized, we will sign in with that account.
+1. In the top right of the Azure AD Portal, click on the signed-in user, select **Sign in with a different account**.
+2. Select **Use another account** on the sign-in page.
+3. Enter the username for the first administrator account and click **Next**.
+4. Enter the auto-generated password and click **Sign in**
+5. Choose a new password then complete the prompts to register for Azure MFA.
+6. When the Azure Portal loads, search for **Azure AD Privileged Identity Management**.
+7. Enable PIM by selecting **Azure AD Roles** from the left navigation pane.
+
+The first administrator is successfully initialized and PIM is enabled on the tenant. This admin account can be used for the rest of the configuration.
+> 📘 **References**:
+> - [Add or delete users in Azure AD](https://docs.microsoft.com/en-us/azure/active-directory/fundamentals/add-users-azure-active-directory)
+> - [Assign or remove licenses in the Azure Active Directory portal](https://learn.microsoft.com/en-us/azure/active-directory/fundamentals/license-users-groups)
+
+### Emergency Access accounts
+The first thing we need to do is create Emergency Access Accounts. These accounts will be excluded from Conditional Access and provide a means to access Azure AD if all other admins are locked out due to misconfiguration or service outage.
+
 - [ ] [Create Accounts](#create-accounts)
 - [ ] [Document and Test Emergency Access Procedures](#document-and-test-emergency-access-procedures)
 - [ ] [Connect Azure AD logs to Microsoft Sentinel and set up alerts](#connect-azure-ad-logs-to-microsoft-sentinel-and-set-up-alerts)
 
 > 📘 **Reference:** [Manage emergency access accounts in Azure AD](https://docs.microsoft.com/en-us/azure/active-directory/roles/security-emergency-access)
 
-#### Set password protection policy
-Configure banned password list using [Azure AD Password Protection](https://docs.microsoft.com/en-us/azure/active-directory/authentication/concept-password-ban-bad)
-`Placeholder Script to set policy to whatever the STIG is`
-
 #### Create accounts
-Add cloud-only user accounts for initial Global Administrators.
-`Placeholder Script to create the accounts with random complex password`
+The script `MLZ-Create-BreakGlassAccounts.ps1` will automate the following:
+1. Create 2 Emergency Access Accounts
+2. Create an Emergency Access Privileged Access Group
+3. Assign the Privileged Access Group to the Global Administrator role using PIM
 
-> 📘 **Reference**: [Add or delete users in Azure AD](https://docs.microsoft.com/en-us/azure/active-directory/fundamentals/add-users-azure-active-directory)
-
-**Azure AD Free or Premium P1**
-For Azure AD Free or Premium P1, assign the Global Administrator Azure Active Directory Role.
-
-`Placeholder Script to create accounts and assign Global Administrator role`
-
-**Azure AD Premium P2**
-If Azure AD Premium P2 is available in the tenant, activate the premium features and assign the Global Administrator role using Azure AD Privileged Identity Management
-
-1. Enable Privileged Identity Management
-2. Enable Identity Protection
-3. Assign Global Administrator Role using PIM to the Emergency Access Accounts
-
-`Placeholder Script to Assign Global Administrator role with PIM`
+> 📘 **Reference**: [Management capabilities for Privileged Access Groups](https://learn.microsoft.com/en-us/azure/active-directory/privileged-identity-management/groups-features)
 
 ### Document and test emergency access procedures
 Creation and secure storage for Emergency Access credentials is useless if the emergency procedures to retrieve and use the Emergency Access accounts is not properly documented and disseminated to all individuals who may be tasked with using the accounts.
@@ -139,7 +161,9 @@ Creation and secure storage for Emergency Access credentials is useless if the e
 > 📘 **Reference**: [Manage Emergency Access Accounts in Azure AD](https://docs.microsoft.com/en-us/azure/active-directory/roles/security-emergency-access)
 
 #### Connect Azure AD logs to Microsoft Sentinel and set up alerts
-If you are configuring Azure AD for MLZ after the MLZ deployment, leverage the existing Microsoft Sentinel deployment in the Operations subscription to alert on Emergency Account usage.
+Azure AD logs must be connected to the Microsoft SIEM, Sentinel, to set up automated alerting based on Emergency Access Account usage.
+
+>**Warning**: Remember to revisit these steps once Mission Landing Zone is deployed and Microsoft Sentinel is enabled.
 
 1. [Connect Azure AD Sign-In Logs to Microsoft Sentinel](https://docs.microsoft.com/en-us/azure/sentinel/connect-azure-active-directory)
 2. [Configure an Analytics Rule to alert when Emergency Access account is used](https://docs.microsoft.com/en-us/azure/active-directory/roles/security-emergency-access#monitor-sign-in-and-audit-logs)
@@ -147,6 +171,7 @@ If you are configuring Azure AD for MLZ after the MLZ deployment, leverage the e
 ### Named administrator accounts
 Day-to-day operations requiring administrative privileges should be performed by named administrator accounts, assigned to individual users (not shared), separate from accounts used to access productivity services like Email, SharePoint, and Teams.
 - [ ] [Choose a naming convention](#choose-a-naming-convention)
+- [ ] [Configure Password Protection policy](#set-password-protection-policy)
 - [ ] [Create cloud-only identities](#create-azure-ad-cloud-only-identities)
 - [ ] [Configure phishing-resistant MFA](#configure-phishing-resistant-mfa)
 
@@ -165,14 +190,31 @@ Choose a naming convention for cloud-only administrative accounts:
 - "adm." + FirstInitial+LastName@tenant.onmicrosoft.com
 - other
 
+#### Set password protection policy
+Configure banned password list using [Azure AD Password Protection](https://docs.microsoft.com/en-us/azure/active-directory/authentication/concept-password-ban-bad)
+
+#### Create a CSV for cloud-only administrators
+Download and edit [MLZ-Admin-List.csv](/MLZ-Identity-AzureADSetup/src/MLZ-Admin-List.csv) for your administrators.
+
+>**Note**: The **UserCertificateIds** field is needed for configuring Azure AD Certificate-based authentication. Setting this value upon user creation is optional.
+
 #### Create Azure AD cloud-only identities
-1. Create users in the Azure Portal or using Microsoft Graph PowerShell. 
-2. Provide the temporary password for each new admin.
-3. Instruct the admin to change password and [register security info](https://support.microsoft.com/en-us/account-billing/set-up-the-microsoft-authenticator-app-as-your-verification-method-33452159-6af9-438f-8f82-63ce94cf3d29) by setting Microsoft Authenticator App as a verification method.
+1. Create users in the Portal or using PowerShell.
+  A. Reference `MLZ-Create-NamedAdminAccounts.ps1` or create your own script to automate the process.
+  `PS> ./MLZ-Create-NamedAdminAccounts.ps1 -UserCSV MLZ-Admin-List.csv -Environment USGov`
+2. Once created, manually reset the password from each administrator
+3. Provide the password and instruct the users to complete MFA registration.
+4. Instruct the admin to change password and [register security info](https://support.microsoft.com/en-us/account-billing/set-up-the-microsoft-authenticator-app-as-your-verification-method-33452159-6af9-438f-8f82-63ce94cf3d29) by setting Microsoft Authenticator App as a verification method.
+5. Follow the steps [here](https://learn.microsoft.com/en-us/azure/active-directory/enterprise-users/licensing-groups-assign) to assign licenses to the dynamic group created by `MLZ-Create-NamedAdminAccounts.ps1` PowerShell script.
+
+> 📘 **Reference**: 
+> - [Reset a user's password using Azure Active Directory](https://learn.microsoft.com/en-us/azure/active-directory/fundamentals/active-directory-users-reset-password-azure-portal)
+> - [Assign licenses to users by group membership in Azure Active Directory](https://learn.microsoft.com/en-us/azure/active-directory/enterprise-users/licensing-groups-assign)
 
 #### Configure phishing-resistant MFA
-Configure phishing-resistant strong authentication with Azure AD. Review the list below:
+The script `MLZ-Create-NamedAdminAccounts` automatically enables FIDO2 and CBA methods in the tenant for all users. Modify Authentication Methods policies as needed via Azure Portal or MS Graph.
 
+Review the list below:
 - **Bad:** SMS or TwoWayPhone
 Some MFA is better than no MFA, but phone-based MFA is the weakest option available. SMS is especially egregious since it is susceptable to [SIM swapping attacks](https://en.wikipedia.org/wiki/SIM_swap_scam).
 - **Good:** Authenticator App TOTP Code or Push notification
@@ -186,7 +228,9 @@ Passwordless, but not phishing-resistant. This required registration of an iOS o
 
 > **Note**: Microsoft Authenticator App is considered phishing-resistant when deployed to a managed mobile device. Since this guide is for setting up a new tenant, it assumes Microsoft Endpoint Manager is not configured to manage mobile devices.
 
-> 📘 **Reference**: [Phishing-resistant methods](https://docs.microsoft.com/en-us/azure/active-directory/standards/memo-22-09-multi-factor-authentication#phishing-resistant-methods)
+> 📘 **Reference**: 
+> - [Authentication methods in Azure AD](https://learn.microsoft.com/en-us/azure/active-directory/authentication/concept-authentication-methods)
+> - [Phishing-resistant methods](https://docs.microsoft.com/en-us/azure/active-directory/standards/memo-22-09-multi-factor-authentication#phishing-resistant-methods)
 
 </p>
 </details>
