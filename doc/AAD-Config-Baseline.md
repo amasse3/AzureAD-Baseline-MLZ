@@ -51,10 +51,11 @@ If the signed in account is not a **member** type, follow the steps below:
    1. Record the username, including the domain suffix
    2. Note the temporary password
 2. [Assign Global Administrator role to the new user](https://docs.microsoft.com/en-us/azure/active-directory/roles/manage-roles-portal)
-3. Sign out of the portal or click the profile in the top right and select **sign in with a different account**
-4. Enter the username and temporary password for the first member administrator account.
-5. Change the password to a [strong password value](https://www.nist.gov/video/password-guidance-nist-0)
-6. Register security information when prompted. This will secure the administrator account and provide a means for resetting the password.
+3. Set Usage location value to **United States**. This is required for licensing.
+4. Sign out of the portal or click the profile in the top right and select **sign in with a different account**
+5. Enter the username and temporary password for the first member administrator account.
+6. Change the password to a [strong password value](https://www.nist.gov/video/password-guidance-nist-0)
+7. Register security information when prompted. This will secure the administrator account and provide a means for resetting the password.
 
 > 📘 **Reference**: [Azure AD Setup Guide](https://go.microsoft.com/fwlink/p/?linkid=2183427)
 
@@ -67,14 +68,23 @@ If the signed in account is not a **member** type, follow the steps below:
 
 > 📘 **Reference**: [Assign or remove licenses in the Azure AD Portal](https://docs.microsoft.com/en-us/azure/active-directory/fundamentals/license-users-groups?)
 
+### Activate Privileged Identity Management
+While signed in to the Azure AD portal with the first administrator, perform the following:
+1. Search for **Azure AD Privileged Identity Management**
+2. Select **Azure AD Roles**
+3. Follow the prompts to enable PIM on the tennat.
+
 ### Connect to the Azure AD Tenant with Microsoft Graph PowerShell
-Open PowerShell and run the following command to connect to Azure AD:
+Now we will ensure we can connect using MS Graph PowerShell. 
+
+1. Open PowerShell and run the following command to connect to Azure AD:
 - Azure AD Commercial
-  - `Connect-MgGraph -scope TBD`
+  - `Connect-MgGraph`
 - Azure AD Government
-  - `Connect-MgGraph -Environment UsGov -scope TBD`
+  - `Connect-MgGraph -Environment UsGov`
 - Azure AD Government - DoD
-  - `Connect-MgGraph -Environment UsGovDoD -scope TBD`
+  - `Connect-MgGraph -Environment UsGovDoD`
+2. Sign in with the first administrator account.
 
 </p>
 </details>
@@ -82,50 +92,11 @@ Open PowerShell and run the following command to connect to Azure AD:
 ## 2. Create accounts for Azure management
 This section covers account creation for Emergency Access and day-to-day Azure AD administration.
 
-- [ ] [Initialize the first Administrator](#first-administrator)
 - [ ] [Emergency Access Accounts](#emergency-access-accounts)
 - [ ] [Named Administrators](#named-administrator-accounts)
 
 <details><summary><b>Show Content</b></summary>
 <p>
-
-### Initialize the first Administrator
-When a new Azure AD tenant is created, the user who created the tenant is the only user in the directory with administrative privileges. This is a "bootstrap" user for setting up emergency access and creating additional admin accounts.
-
-There are 2 scenarios for the first user:
-- The first user is a userType guest originating from another tenant within the organization
-- The first user is a member of the MLZ tenant
-
-If the first user is a guest, we need to create a new administrator homed in the MLZ tenant. To complete this task, follow the steps below:
-1. Sign into the Azure Portal
-  a. **Global**: https://portal.azure.com
-  b. **Government**: https://portal.azure.us
-2. Search **Azure Active Directory**
-3. On the left navigation pane, select **Users** under Manage
-4. Select **+ New user** and choose **Create new user**
-5. Provide information for the **Identity** section.
-6. For **Password**, leave the radio button on the default (Auto-generate password) and select the checkbox next to **Show Password**
-  a. **Important**: Write down this value. We will need to use it to sign in as the first administrator account.
-7. Under **Groups and roles**, click **roles** and assign the Directory Role named **Global Administrator**
-8. Under **Settings**, select **United States** for the Usage location. This is needed to assign a license.
-9. Select **Create** and wait a few moments.
-10. Navigate back to the **Users** page and find the first admin in the user list. Select the hyperlink in the DisplayName column to view user info.
-11. On the first administrator user page, select **Licenses** in the left navigation pane under **Manage**.
-12. Select **Assignments**, choose the appropriate license sku for Azure AD Premium P2 (this may be named M365 E5 or similar), and select **Save**.
-
-Now that the first administrator is initialized, we will sign in with that account.
-1. In the top right of the Azure AD Portal, click on the signed-in user, select **Sign in with a different account**.
-2. Select **Use another account** on the sign-in page.
-3. Enter the username for the first administrator account and click **Next**.
-4. Enter the auto-generated password and click **Sign in**
-5. Choose a new password then complete the prompts to register for Azure MFA.
-6. When the Azure Portal loads, search for **Azure AD Privileged Identity Management**.
-7. Enable PIM by selecting **Azure AD Roles** from the left navigation pane.
-
-The first administrator is successfully initialized and PIM is enabled on the tenant. This admin account can be used for the rest of the configuration.
-> 📘 **References**:
-> - [Add or delete users in Azure AD](https://docs.microsoft.com/en-us/azure/active-directory/fundamentals/add-users-azure-active-directory)
-> - [Assign or remove licenses in the Azure Active Directory portal](https://learn.microsoft.com/en-us/azure/active-directory/fundamentals/license-users-groups)
 
 ### Emergency Access accounts
 The first thing we need to do is create Emergency Access Accounts. These accounts will be excluded from Conditional Access and provide a means to access Azure AD if all other admins are locked out due to misconfiguration or service outage.
@@ -137,10 +108,26 @@ The first thing we need to do is create Emergency Access Accounts. These account
 > 📘 **Reference:** [Manage emergency access accounts in Azure AD](https://docs.microsoft.com/en-us/azure/active-directory/roles/security-emergency-access)
 
 #### Create accounts
-The script `MLZ-Create-BreakGlassAccounts.ps1` will automate the following:
-1. Create 2 Emergency Access Accounts
-2. Create an Emergency Access Privileged Access Group
-3. Assign the Privileged Access Group to the Global Administrator role using PIM
+To create emergency access accounts, run the script including the optional parameters:
+`PS> ./MLZ-CreateBreakGlassAccounts.ps1 -AccountNameBase "MLZ-Emergency-Account" -PWDLength 16 -EAGroupName "Emergency Access Accounts" -Environment USGov`The script `MLZ-Create-BreakGlassAccounts.ps1`
+
+This will automate the following:
+- Create 2 Emergency Access Accounts
+  - *MLZ-Emergency-Account01*
+  - *MLZ-Emergency-Account02*
+- Create an Emergency Access Privileged Access Group
+  - *Emergency Access Accounts*
+- Adds the 2 accounts to the group
+- Assign the Privileged Access Group to the Global Administrator role using PIM
+  - Assignment Type = *Assigned*
+  - Duration = *Permanent*
+
+Perform the following manual steps to complete the configuration:
+1. Reset set the password for each Emergency Access account.
+2. Sign in with each account and reset the password (see recommendations in the next section)
+3. Once passwords are set and stored in a secure location, sign out of the Azure Portal.
+4. Sign in with the first administrator account for the remaining configuration.
+3. Follow the steps [here](https://learn.microsoft.com/en-us/azure/active-directory/enterprise-users/licensing-groups-assign) to assign licenses to the *Emergency Access Accounts* group.
 
 > 📘 **Reference**: [Management capabilities for Privileged Access Groups](https://learn.microsoft.com/en-us/azure/active-directory/privileged-identity-management/groups-features)
 
@@ -152,11 +139,11 @@ Creation and secure storage for Emergency Access credentials is useless if the e
 **Recommendations**:
 - Record passwords for Emergency Access accounts legibly by hand (do not type or send to a printer)
 - Store passwords for Emergency Access accounts in a safe that resides in a physically secure location.
-- Do not save passwords to an Enterprise password vault or Privleged Access Management (PAM) system
+- Do not save passwords to an Enterprise password vault or Privleged Access Management (PAM) system.
 - Do not save passwords to a personal password vault (LastPass, Apple Keychain, Google, OnePassword, Microsoft Authenticator, etc.)
 - Store backup copies for Emergency Access account credentials in a geographic distant location.
-- Exclude at least 1 Emergency Access account from Azure MFA
-- Monitor and alert on Emergency Access account usage
+- Exclude at least 1 Emergency Access account from Azure MFA.
+- Monitor and alert on Emergency Access account usage.
 
 > 📘 **Reference**: [Manage Emergency Access Accounts in Azure AD](https://docs.microsoft.com/en-us/azure/active-directory/roles/security-emergency-access)
 
@@ -199,32 +186,46 @@ Download and edit [MLZ-Admin-List.csv](/MLZ-Identity-AzureADSetup/src/MLZ-Admin-
 >**Note**: The **UserCertificateIds** field is needed for configuring Azure AD Certificate-based authentication. Setting this value upon user creation is optional.
 
 #### Create Azure AD cloud-only identities
-1. Create users in the Portal or using PowerShell.
-  A. Reference `MLZ-Create-NamedAdminAccounts.ps1` or create your own script to automate the process.
-  `PS> ./MLZ-Create-NamedAdminAccounts.ps1 -UserCSV MLZ-Admin-List.csv -Environment USGov`
-2. Once created, manually reset the password from each administrator
-3. Provide the password and instruct the users to complete MFA registration.
-4. Instruct the admin to change password and [register security info](https://support.microsoft.com/en-us/account-billing/set-up-the-microsoft-authenticator-app-as-your-verification-method-33452159-6af9-438f-8f82-63ce94cf3d29) by setting Microsoft Authenticator App as a verification method.
-5. Follow the steps [here](https://learn.microsoft.com/en-us/azure/active-directory/enterprise-users/licensing-groups-assign) to assign licenses to the dynamic group created by `MLZ-Create-NamedAdminAccounts.ps1` PowerShell script.
+To create named administrator accounts in the environment, run the script with optional parameters:
+`PS> ./MLZ-Create-NamedAdminAccounts.ps1 -UserCSV ".\MLZ-Admin-List.csv" -LicenseGroupName "MLZ-License-AADP2" -EAGroupName "Emergency Access Accounts"`
+
+This will automate the following:
+- Create named administrator accounts from the CSV
+  - Set Department = *MLZ*
+  - Optional: Set userCertificateIds
+- Create a dynamic group for users with (Departement eq 'MLZ')
+  - *MLZ-License-AADP2*
+- Enable the following authentication methods for all users
+  - Certificate-Based Authentication
+  - FIDO2
+- Target MFA registration campaign
+  - Include *MLZ-License-AADP2*
+  - Exclude *Emergency Access Accounts*
+
+Complete setup for the named administrator accounts:
+1. Manually reset the password from each administrator.
+2. Provide the password to the admin.
+3. Instruct the admin to change password and [register security info](https://support.microsoft.com/en-us/account-billing/set-up-the-microsoft-authenticator-app-as-your-verification-method-33452159-6af9-438f-8f82-63ce94cf3d29) by setting Microsoft Authenticator App as a verification method.
+4. Follow the steps [here](https://learn.microsoft.com/en-us/azure/active-directory/enterprise-users/licensing-groups-assign) to assign licenses to the dynamic group created by `MLZ-Create-NamedAdminAccounts.ps1` PowerShell script.
 
 > 📘 **Reference**: 
 > - [Reset a user's password using Azure Active Directory](https://learn.microsoft.com/en-us/azure/active-directory/fundamentals/active-directory-users-reset-password-azure-portal)
 > - [Assign licenses to users by group membership in Azure Active Directory](https://learn.microsoft.com/en-us/azure/active-directory/enterprise-users/licensing-groups-assign)
 
 #### Configure phishing-resistant MFA
-The script `MLZ-Create-NamedAdminAccounts` automatically enables FIDO2 and CBA methods in the tenant for all users. Modify Authentication Methods policies as needed via Azure Portal or MS Graph.
+The script `MLZ-Create-NamedAdminAccounts` automatically enables the phishing-resisitant methods FIDO2 and CBA for all users.
 
-Review the list below:
-- **Bad:** SMS or TwoWayPhone
+> 💡 **Recommendations**: Only use phishing-resistant passwordless authentication methods for administration. Review the authenticator options available in Azure AD from the list below:
+> - **Bad:** SMS or TwoWayPhone
 Some MFA is better than no MFA, but phone-based MFA is the weakest option available. SMS is especially egregious since it is susceptable to [SIM swapping attacks](https://en.wikipedia.org/wiki/SIM_swap_scam).
-- **Good:** Authenticator App TOTP Code or Push notification
+> - **Good:** Authenticator App TOTP Code or Push notification
 These methods are not phishing-resistant or passwordless. In either case, a password is used, followed by an Azure MFA prompt.
-- **Better:** Passwordless Phone Sign-In on Registered Device
+> - **Better:** Passwordless Phone Sign-In on Registered Device
 Passwordless, but not phishing-resistant. This required registration of an iOS or Android mobile device with the Azure AD tenant.
-- **Best:** Phishing-Resistant MFA FIDO2 Security Key or Azure AD native Certificate-Based Authentication (CBA)
-  - FIDO2 Security Key
-  - Azure AD Native Certificate-Based Authentication
-  - Windows Hello for Business
+> - **Best:** Phishing-Resistant MFA FIDO2 Security Key or Azure AD native Certificate-Based Authentication (CBA)
+>   - FIDO2 Security Key
+>   - Azure AD Native Certificate-Based Authentication
+>   - Windows Hello for Business
 
 > **Note**: Microsoft Authenticator App is considered phishing-resistant when deployed to a managed mobile device. Since this guide is for setting up a new tenant, it assumes Microsoft Endpoint Manager is not configured to manage mobile devices.
 
@@ -260,6 +261,8 @@ FIDO2 security keys are an unphishable standards-based passwordless authenticati
 
 ### Configure Azure AD native certificate-based authentication
 Organizations that need to use smartcard (certificate-based) authentication with Azure AD should configure Azure AD Native Certificate-Based Authentication settings in Azure AD. This feature is in Public Preview and is subject to change. Follow the latest documentation to configure from the reference below.
+
+For detailed instructions on setting up Azure AD CBA for DOD PKI, see [AAD-CertificateBasedAuthentication-DODPKI.md](/MLZ-Identity-AzureADSetup/doc/AAD-CertificateBasedAuthentication-DODPKI.md)
 
 > 📘 **Reference**: [Azure AD Native Certificate-Based Authentication](https://docs.microsoft.com/en-us/azure/active-directory/authentication/how-to-certificate-based-authentication)
 
