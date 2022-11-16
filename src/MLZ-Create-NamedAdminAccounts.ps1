@@ -18,7 +18,7 @@ System.String
 
 .EXAMPLE
 
-PS> ./MLZ-Create-NamedAdminAccounts.ps1 -UserCSV ".\MLZ-Admin-List.csv" -LicenseGroupName "MLZ-License-AADP2"
+PS> ./MLZ-Create-NamedAdminAccounts.ps1 -UserCSV ".\MLZ-Admin-List.csv" -LicenseGroupName "MLZ-License-AADP2" -EAGroupName "Emergency Access Accounts"
 
 .LINK
 
