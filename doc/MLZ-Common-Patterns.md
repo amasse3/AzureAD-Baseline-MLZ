@@ -67,6 +67,12 @@ graph TD
 
 > **Note**: Internal/External and member/guest are orthoganal concepts in Azure AD. An internal account, cloud-only or synchronized, can be type guest. An external user can be type member. Members are users that belong to the organization which must be licensed in Azure AD to use premium features.
 
+ | |**UserType Property**| 
+:-----:|:-----:|:-----:|:-----:
+ | |Guest|Member
+How User Authenticates|Internal|test1|test2
+ |External|test3|test4|
+
 > 📘 **References**:
 > - [Planning identity for Azure Government applications](https://learn.microsoft.com/en-us/azure/azure-government/documentation-government-plan-identity)
 > - [B2B collaboration overview](https://learn.microsoft.com/en-us/azure/active-directory/external-identities/what-is-b2b)
