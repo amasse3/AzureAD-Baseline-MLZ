@@ -173,14 +173,14 @@ Day-to-day operations requiring administrative privileges should be performed by
 > - Review [Privileged Access Groups](https://docs.microsoft.com/en-us/azure/active-directory/privileged-identity-management/groups-features) and [Administrative Units](https://docs.microsoft.com/en-us/azure/active-directory/roles/administrative-units)
 
 #### Choose a naming convention
-Choose a naming convention for cloud-only administrative accounts:
-- FirstName+"."+LastName+@tenant.onmicrosoft.com
-- FirstInitial+LastName+@tenant.onmicrosoft.com
-- "adm." + FirstInitial+LastName@tenant.onmicrosoft.com
-- other
+Choose a naming convention for cloud-only administrative accounts. For example:
+- FirstName+"."+LastName
+- FirstInitial+LastName
+- "adm." + FirstInitial+LastName
+- "mlz."+FirstInitial+LastName
 
 #### Set password protection policy
-Configure banned password list using [Azure AD Password Protection](https://docs.microsoft.com/en-us/azure/active-directory/authentication/concept-password-ban-bad)
+Configure banned password list using [Azure AD Password Protection](https://docs.microsoft.com/en-us/azure/active-directory/authentication/concept-password-ban-bad).
 
 #### Create a CSV for cloud-only administrators
 Download and edit [MLZ-Admin-List.csv](/MLZ-Identity-AzureADSetup/src/MLZ-Admin-List.csv) for your administrators.
