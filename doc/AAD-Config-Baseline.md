@@ -109,7 +109,8 @@ The first thing we need to do is create Emergency Access Accounts. These account
 
 #### Create accounts
 To create emergency access accounts, run the script including the optional parameters:
-`PS> ./MLZ-CreateBreakGlassAccounts.ps1 -AccountNameBase "MLZ-Emergency-Account" -PWDLength 16 -EAGroupName "Emergency Access Accounts" -Environment USGov`The script `MLZ-Create-BreakGlassAccounts.ps1`
+
+`PS> ./MLZ-CreateBreakGlassAccounts.ps1 -AccountNameBase "MLZ-Emergency-Account" -PWDLength 16 -EAGroupName "Emergency Access Accounts" -Environment USGov`
 
 This will automate the following:
 - Create 2 Emergency Access Accounts
@@ -159,6 +160,7 @@ Azure AD logs must be connected to the Microsoft SIEM, Sentinel, to set up autom
 Day-to-day operations requiring administrative privileges should be performed by named administrator accounts, assigned to individual users (not shared), separate from accounts used to access productivity services like Email, SharePoint, and Teams.
 - [ ] [Choose a naming convention](#choose-a-naming-convention)
 - [ ] [Configure Password Protection policy](#set-password-protection-policy)
+- [ ] [Create a CSV for cloud-only administrators](#create-a-csv-for-cloud-only-administrators)
 - [ ] [Create cloud-only identities](#create-azure-ad-cloud-only-identities)
 - [ ] [Configure phishing-resistant MFA](#configure-phishing-resistant-mfa)
 
@@ -187,20 +189,21 @@ Download and edit [MLZ-Admin-List.csv](/MLZ-Identity-AzureADSetup/src/MLZ-Admin-
 
 #### Create Azure AD cloud-only identities
 To create named administrator accounts in the environment, run the script with optional parameters:
+
 `PS> ./MLZ-Create-NamedAdminAccounts.ps1 -UserCSV ".\MLZ-Admin-List.csv" -LicenseGroupName "MLZ-License-AADP2" -EAGroupName "Emergency Access Accounts"`
 
 This will automate the following:
 - Create named administrator accounts from the CSV
   - Set Department = *MLZ*
   - Optional: Set userCertificateIds
-- Create a dynamic group for users with (Departement eq 'MLZ')
+- Create a dynamic group for users with (user.Department eq 'MLZ')
   - *MLZ-License-AADP2*
 - Enable the following authentication methods for all users
   - Certificate-Based Authentication
   - FIDO2
 - Target MFA registration campaign
-  - Include *MLZ-License-AADP2*
-  - Exclude *Emergency Access Accounts*
+  - Include: *MLZ-License-AADP2*
+  - Exclude: *Emergency Access Accounts*
 
 Complete setup for the named administrator accounts:
 1. Manually reset the password from each administrator.
