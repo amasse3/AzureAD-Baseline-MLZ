@@ -7,9 +7,9 @@ Guidance contained within this repository is not intended to supplant recommenda
 
 Furthermore, this content is not intended to replace or contradict guidance provided by Microsoft professional services (MCS), Fast Track for Azure (FTA), Customer Experience Program (CXP) architects and program managers, or Cloud Solution Architects (CSA). Zero trust capabilities in the Microsoft cloud are constantly evolving, so it is likely this documentation will not account for the latest generally available and preview features.
 
-> **Warning**: Always defer to Microsoft official documentation located at https://learn.microsoft.com/.
->
-> Sample scripts in this repository are not supported under any Microsoft support program or service.
+> **Note**: Always defer to Microsoft official documentation located at https://learn.microsoft.com/.
+
+> **Warning**: Sample scripts in this repository are not supported under any Microsoft support program or service.
 > Scripts are provided AS IS without warranty of any kind. All warranties including, without limitation,
 > any implied warranties of merchantability or of fitness for a particular purpose. The entire risk arising
 > out of the use of sample scripts or configuration documentation remains with you. In no event shall Microsoft,
