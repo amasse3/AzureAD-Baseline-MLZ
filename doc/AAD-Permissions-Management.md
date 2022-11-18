@@ -161,9 +161,9 @@ Consider the below setup for an MLZ deployment with 2 independent "mission spoke
       - [ ] Security events via AMA for **Mission A** spoke subscription
       - [x] Defender for Cloud for **Mission A** spoke subscription
     - [ ] **Mission B** MLZ Resources
-      - [ ] Azure resource connectors for **MLZ mission B** spoke subscription
-      - [ ] Security events via AMA for **MLZ mission B** spoke subscription
-      - [x] Defender for Cloud for **MLZ mission B** spoke subscription
+      - [ ] Azure resource connectors for **Mission B** spoke subscription
+      - [ ] Security events via AMA for **Mission B** spoke subscription
+      - [x] Defender for Cloud for **Mission B** spoke subscription
   - **Mission Owner A** spoke subscription Sentinel workspace
     - [ ] Azure AD connectors
     - [ ] MLZ Core resources
@@ -177,9 +177,9 @@ Consider the below setup for an MLZ deployment with 2 independent "mission spoke
     - [ ] MLZ Core resources
     - [ ] **Mission A** MLZ Resources
     - [x] **Mission B** MLZ Resources
-      - [x] Azure resource connectors for **MLZ mission B** spoke subscription
-      - [x] Security events via AMA for **MLZ mission B** spoke subscription
-      - [x] Defender for Cloud for **MLZ mission B** spoke subscription
+      - [x] Azure resource connectors for **Mission B** spoke subscription
+      - [x] Security events via AMA for **Mission B** spoke subscription
+      - [x] Defender for Cloud for **Mission B** spoke subscription
 
 > 💡 **Recommendation**: Assign **MLZ Security Admins** read access to all Sentinel workspaces within the MLZ, even in the delegated model. This group can perform cross-workspace queries and hunt across the MLZ environment, including the siloed spoke subscriptions.
 
