@@ -221,7 +221,9 @@ Establishing hybrid identity is a fundamental part of establishing an enterprise
 
 #### Attack Paths
 Review the diagram below for hybrid identity attack paths:
+
 ![Attack Paths](../img/hybrid_attackpaths.png)
+
  1. Control of on-premises AD DS &rarr; Control of Azure AD Connect Synchronization server
  2. Control of on-premises AD DS &rarr; Control of AD DS forest in Azure<sup>1</sup>
  3. Control of on-premises AD DS &rarr; Control of AD FS<sup>2</sup>
@@ -247,7 +249,9 @@ Review the diagram below for hybrid identity attack paths:
 
 #### Recommended Mitigations
 Review the diagram below for mitigating hybrid identity attack paths:
+
 ![Mitigations](../img/hybrid_mitigations.png)
+
  1. Treat Azure AD Connect as a Tier 0 service (limit logon as you would a Domain Controller).
  2. Use Azure AD cloud-native authentication mechanisms like AAD Certificate-Based Authentication, FIDO2 security keys, Windows Hello, or MS Authenticator App passwordless.
  3. **Assume Breach** - Migrate legacy applications to use Azure Active Directory.
