@@ -2,8 +2,10 @@
 Document to describe roles relevant to Mission Landing Zone deployment and management.
 
 ## Table of Contents
-- Placeholder
-- Placeholder
+- [Permissions Types](#permissions-in-azure-and-azure-ad)
+- [Security Boundary](#security-boundary)
+  - [Azure AD Management](#azure-ad-management)
+  - 
 
 ## Permissions Types
 There are slightly different permissions models for various Microsoft cloud services. The table below describes the permissions for setting up and managing Mission Landing Zone environments. Permissions for individual M365 services are beyond the scope of this document.
@@ -34,28 +36,78 @@ For Azure resources, the subscription itself plays a special role for 2 reasons:
 1. Some Azure RBAC permissions, like VM Contributor, allow actions *only* when the role is assigned at the subscription level or higher
 2. While Magement Groups sit above the subscriptions in the Azure RBAC scope hierarchy, they *usually* are not used for scope within Azure RBAC roles. Management Groups are primarily used for assigning Azure Policy.
 
-### Azure AD Management
+> **Note**: Azure Lighthouse is a technology that enables RBAC assignments for security principals in another tenant. In an MSSP model, users from the managing tenant may have access to subscriptions without having a security principal in the tenant itself.
+
+## Azure AD Management
+Since the identity platform is the [security boundary](#security-boundary) for Azure, securing and managing it are important undertakings. This section covers two models for managing Azure AD for MLZ deployments:
+- [Centralized Management](#centralized-management)
+- [Delegated Management](#delegated-management)
+
+### Centralized Management
+In the centralized management model, one team within the organization is tasked with all tasks within the identity platform.
+
+Common tasks include:
+- Creating and managing users / groups
+- Assigning licenses
+- Assigning permissions
+- Creating and managing applications
+- Configuring Conditional Access
+- Configuring and managing hybrid identity components like Azure AD Connect
+- Enabling new features
+
+Use Centralized Management for
+ - [x] Small organizations with few administrators
+ - [x] Initial model for tenant setup
+
+> **Warning**: Centralized management does **not** mean all admins should be Global Administrators. Refer to [Azure AD least-privilege roles by task](https://learn.microsoft.com/en-us/azure/active-directory/roles/delegate-by-task) and assign role eligibility using Privileged Identity Management.
+
+### Delegated Management
+Delegated management is more common for enterprise environments. In this model, common tasks are delegated to mission owners so various groups in the organization can manage aspects of the identity platform. This section outlines common tasks and delegation configuration.
+
+> **Note**: Not every activity within Azure AD can or should be delegated.
+
+#### User and Group Management
+
+| Task | Configuration |
+|------|---------------|
+| User creation | At the time of writing, this task cannot be delegated without assigning User Administrator role at the directory level|
+| User management | Create an Administrative Unit and scope **User Administrator** role to the AU|
+| Group creation | Create an AU and scope **Group Administrator** role to the AU |
+| Group management | Assign owner directly, or move the group in an AU and scope **Group Administrator** role to the AU |
+
+> **Reference**: Placeholder
+
+#### Application Management
+
+| Task | Configuration |
+|------|---------------|
+| Enterprise App Creation | At the time of writing, this task cannot be delegated without assigning Cloud Application Administrator role at the directory level|
+| App Registration | Assign **Application Developer** role which allows Create As Owner permissions for App Registrations and Service Principals|
+| Application Management | Assign owner directly to the Enterprise Application and/or App Registration|
+
+**Note**: If the User Setting "Restrict Portal Access to the Azure AD Administration Portal" is set to **Yes**, application management blade will not be available unless the user is assigned an Azure AD directory role. This restriction holds even if the user is an owner of the application.
+
+#### Subscription Management
+
+| Task | Configuration |
+|------|---------------|
+| Manage RBAC assignments | Assign RBAC role via group, assign managers as owner to the group |
+| Create new RBAC groups | Assign **User Access Administrator** via RBAC role. Delegate ability to create security groups (see [User and Group Management](#user-and-group-management))|
+| Remove an RBAC assingment | Remove user from a group providing RBAC access. This can be done as **Group Administrator** for the AU, or owner of the group|
+
+### Security Management
 
 
-#### Centralized Management
+#### Microsoft Sentinel
 
-#### Delegated Management
 
-### MLZ Subscription Management
-
-#### MLZ Core
-
-#### MLZ Spokes
-
-### Microsoft Sentinel Security
-
-### Defender for Cloud Security
+#### Defender for Cloud Security
 
 ## Advanced Topics
 
-### Hybrid Identity Attack Paths
+### Mitigate Hybrid Identity Attack Paths
 
-### Management-Data Plane Crossover
+### Understand Management-Data Plane Crossover
 
 ## See Also
 - [Return Home](/README.md)
