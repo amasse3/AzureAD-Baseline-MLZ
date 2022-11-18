@@ -206,10 +206,10 @@ As the cloud identity story evolves, every resource becomes an identity that can
 A legacy web application is deployed to several servers in Azure. Code running on each server needs some access to Microsoft Graph to perform automation against Azure AD. To simplify RBAC, an app registration is created, and each VM managed identity is given access to a client secret stored in Key Vault. When the application code runs on one of the VMs, it uses the VM managed identity to retrieve the secret using the Key Vault API. This method avoids storing application credentials in code, but allows cross-plane lateral movement, possibly escalation.
 
 #### Plane-Crossing risk
-A user with administrator access to the VM can make changes to Azure AD by impersonating the application.
+A user with local admin on the VM can elevate their effective Azure AD privileges by impersonating the application.
 
 **How?**
-If the default user is assigned local administrator on the VM, they can retrieve an access token as the VM managed identity and use it to retrieve the client secret from key vault.
+If user is assigned local administrator on the VM, they can retrieve an access token as the VM managed identity and use the VM's access token to retrieve the client secret from key vault. With the client secret, the user can initialize an MS Graph client with the application credential.
 
 **Mitigation**
 Defender for Cloud helps identify and prioritize remediation for vulnerable resources by exposing the attack paths an attacker could abuse if they compromise the vulnerable resource.
@@ -222,18 +222,18 @@ Establishing hybrid identity is a fundamental part of establishing an enterprise
 #### Attack Paths
 Review the diagram below for hybrid identity attack paths:
 ![Attack Paths](../img/hybrid_attackpaths.png)
- - 1. Control of on-premises AD DS &rarr; Control of Azure AD Connect Synchronization server
- - 2. Control of on-premises AD DS &rarr; Control of AD DS forest in Azure<sup>1</sup>
- - 3. Control of on-premises AD DS &rarr; Control of AD FS<sup>2</sup>
- - 4. Control of AAD Connect &rarr; Control of **Sync_AADC_** user
+ 1. Control of on-premises AD DS &rarr; Control of Azure AD Connect Synchronization server
+ 2. Control of on-premises AD DS &rarr; Control of AD DS forest in Azure<sup>1</sup>
+ 3. Control of on-premises AD DS &rarr; Control of AD FS<sup>2</sup>
+ 4. Control of AAD Connect &rarr; Control of **Sync_AADC_** user
   - Control users and groups synchronized by Azure AD Connect
   - UPN-Match existing cloud-only users and control them
   - Read passwords if Pass-Through Authentication is enabled<sup>3</sup>
    - Effective permissions of the **Directory Synchronization Accounts** role
- - 5. Control of ADFS &rarr; Sign in as any federated user in Azure AD
+ 5. Control of ADFS &rarr; Sign in as any federated user in Azure AD
   - Without HSM - via exfil ADFS signing certificate private key
   - With HSM - via claims manipulation in ADFS issuance rules
- - 6. Access to **Directory Synchronization Acounts** can add credentials to existing applications<sup>4</sup>
+ 6. Access to **Directory Synchronization Acounts** can add credentials to existing applications<sup>4</sup>
 
 <sup>1</sup> Applicable if AD DS in Azure is a new site for existing AD DS forest.
 
@@ -248,17 +248,17 @@ Review the diagram below for hybrid identity attack paths:
 #### Recommended Mitigations
 Review the diagram below for mitigating hybrid identity attack paths:
 ![Mitigations](../img/hybrid_mitigations.png)
- - 1. Treat Azure AD Connect as a Tier 0 service (limit logon as you would a Domain Controller).
- - 2. Use Azure AD cloud-native authentication mechanisms like AAD Certificate-Based Authentication, FIDO2 security keys, Windows Hello, or MS Authenticator App passwordless.
- - 3. **Assume Breach** - Migrate legacy applications to use Azure Active Directory.
- - 4. Avoid assigning Azure AD or Azure RBAC permissions to synchronized user accounts.
- - 5. Use Azure security tools to detect unusual activity for Azure AD synchronization account.
+ 1. Treat Azure AD Connect as a Tier 0 service (limit logon as you would a Domain Controller).
+ 2. Use Azure AD cloud-native authentication mechanisms like AAD Certificate-Based Authentication, FIDO2 security keys, Windows Hello, or MS Authenticator App passwordless.
+ 3. **Assume Breach** - Migrate legacy applications to use Azure Active Directory.
+ 4. Avoid assigning Azure AD or Azure RBAC permissions to synchronized user accounts.
+ 5. Use Azure security tools to detect unusual activity for Azure AD synchronization account.
    - Set up Conditional Access for workload identities to restrict use of Azure AD Connect Sync account to a known IP address range.
    - Use [M365 Defender](https://learn.microsoft.com/en-us/microsoft-365/security/defender/m365d-enable?view=o365-worldwide) to detect unusual credentials added to an OAuth App
    - Use [Defender for Cloud Apps](https://learn.microsoft.com/en-us/defender-cloud-apps/what-is-defender-for-cloud-apps) to detect and [review risky OAuth apps](https://learn.microsoft.com/en-us/defender-cloud-apps/investigate-risky-oauth).
    - Use PIM for [Hybrid Identity Administrator](https://learn.microsoft.com/en-us/azure/active-directory/roles/permissions-reference#hybrid-identity-administrator) role, requiring approval for use
    - Use [Sentinel to alert](https://learn.microsoft.com/en-us/azure/sentinel/detect-threats-custom) when Sync account attempts to add or remove credentials from any sensitive application
-  - 6. Use separate cloud-only administrator accounts for all administration in Azure, M365, and Azure AD
+  6. Use separate cloud-only administrator accounts for all administration in Azure, M365, and Azure AD
    - Convert all permanent administrative access to eligible access with [PIM](https://learn.microsoft.com/en-us/azure/active-directory/privileged-identity-management/pim-resource-roles-discover-resources)
    - Use [PIM insights](https://learn.microsoft.com/en-us/azure/active-directory/privileged-identity-management/pim-security-wizard) to understand role use in your organization
    - [Periodically review assigned permissions](https://learn.microsoft.com/en-us/azure/active-directory/privileged-identity-management/pim-create-azure-ad-roles-and-resource-roles-review) and remove excessive privileges
