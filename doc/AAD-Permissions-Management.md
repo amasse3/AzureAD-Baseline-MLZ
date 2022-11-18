@@ -4,24 +4,29 @@ Document to describe roles relevant to Mission Landing Zone deployment and manag
 ## Table of Contents
 - [Permissions Types](#permissions-in-azure-and-azure-ad)
 - [Security Boundary](#security-boundary)
-  - [Azure AD Management](#azure-ad-management)
-  - 
+- [MLZ Identity Management](#mlz-identity-management)
+  - [Centralized Management](#centralized-management)
+  - [Delegated Management](#delegated-management)
+- [MLZ Security Management]()
 
 ## Permissions Types
 There are slightly different permissions models for various Microsoft cloud services. The table below describes the permissions for setting up and managing Mission Landing Zone environments. Permissions for individual M365 services are beyond the scope of this document.
 
-| Type | Assigned To | Exclusions | Scope |
+| **Type** | **Assigned To** | **Exclusions** | **Scope** |
+|----------|-----------------|----------------|-----------|
 | Azure AD Permission | All security principals (users, groups, applications<sup>1</sup>,managed identities<sup>2</sup>) | Only cloud-only security groups designated as Role-Assignable (Privileged Access Groups) | <ul><li>Directory</li><li>Administrative Unit</li><li>Resource<sup>3</sup></li></ul> |
 | Azure Resources | <ul><li>All security principals (users, groups, applications)</li><li>Security principals in other tenants (Azure Lighthouse)</li></ul>| N/A | <ul><li>Management Group</li><li>Subscription</li><li>Resource Group</li><li>Resource</li></ul>|
 | Microsoft Graph API | API Scope<sup>4</sup> | 
 
-<sup>1</sup>: The identity of an application registration is a Service Principal. Application / App Registration / Service Principal may be used interchangeably to describe an application identity.
-<sup>2</sup>: Managed identities are non-person identities automatically assigned to many Azure resources. Resources use this identity to access applications, APIs, and other resources protected by Azure AD. 
+<sup>1</sup> The identity of an application registration is a Service Principal. Application / App Registration / Service Principal may be used interchangeably to describe an application identity.
+
+<sup>2</sup> Managed identities are non-person identities automatically assigned to many Azure resources. Resources use this identity to access applications, APIs, and other resources protected by Azure AD. 
 
 > **Warning**: Do not assign managed identities or service principals to Azure AD roles. Doing this can create a scenario where privilege escalation is possible within the environment.
 
-<sup>3</sup>: Here "resource" is an individual security principal that can have Owner be another security principal. For example, a group or application may have an Owner that can manage all aspects of the application, without any additional privileges in Azure AD.
-<sup>4</sup>: MS Graph API scope is a resource-level permission, e.g. User.Read.All or User.ReadWrite.All.
+<sup>3</sup> Here "resource" is an individual security principal that can have Owner be another security principal. For example, a group or application may have an Owner that can manage all aspects of the application, without any additional privileges in Azure AD.
+
+<sup>4</sup> MS Graph API scope is a resource-level permission, e.g. User.Read.All or User.ReadWrite.All.
 
 > 📘 **Reference**:
 >  - [Azure AD built-in roles](https://learn.microsoft.com/en-us/azure/active-directory/roles/permissions-reference)
@@ -38,7 +43,7 @@ For Azure resources, the subscription itself plays a special role for 2 reasons:
 
 > **Note**: Azure Lighthouse is a technology that enables RBAC assignments for security principals in another tenant. In an MSSP model, users from the managing tenant may have access to subscriptions without having a security principal in the tenant itself.
 
-## Azure AD Management
+## MLZ Identity Management
 Since the identity platform is the [security boundary](#security-boundary) for Azure, securing and managing it are important undertakings. This section covers two models for managing Azure AD for MLZ deployments:
 - [Centralized Management](#centralized-management)
 - [Delegated Management](#delegated-management)
@@ -95,17 +100,25 @@ Delegated management is more common for enterprise environments. In this model, 
 | Create new RBAC groups | Assign **User Access Administrator** via RBAC role. Delegate ability to create security groups (see [User and Group Management](#user-and-group-management))|
 | Remove an RBAC assingment | Remove user from a group providing RBAC access. This can be done as **Group Administrator** for the AU, or owner of the group|
 
-### Security Management
+## MLZ Security Management
 
+### Centralized Management
 
 #### Microsoft Sentinel
 
+#### Defender for Cloud
 
-#### Defender for Cloud Security
+### Delegated Management
+
+#### Microsoft Sentinel
+
+#### Defender for Cloud
 
 ## Advanced Topics
 
 ### Mitigate Hybrid Identity Attack Paths
+Recommendation not to use ADFS
+Defender for M365
 
 ### Understand Management-Data Plane Crossover
 
