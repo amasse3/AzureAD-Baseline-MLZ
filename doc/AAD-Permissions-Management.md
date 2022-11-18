@@ -83,6 +83,10 @@ Use Delegated Management for:
 
 > **Note**: Not every activity within Azure AD can or should be delegated.
 
+A sample delegated model is shown in the image below:
+
+![MLZ Delegated Administration](../img/mission-delegate.png)
+
 #### User and Group Management
 
 | Task | Configuration |
@@ -201,6 +205,8 @@ This section is a placeholder for advanced security topics for permissions in Az
 
 ### Understand Management-Data Plane Crossover
 As the cloud identity story evolves, every resource becomes an identity that can securely access any other resource based on the permissions granted to it's identity. Because of this, ownership of any resource means ability to access as that resource.
+
+![Management-Data-Plane](../img/management-data.png)
 
 #### Example Scenario
 A legacy web application is deployed to several servers in Azure. Code running on each server needs some access to Microsoft Graph to perform automation against Azure AD. To simplify RBAC, an app registration is created, and each VM managed identity is given access to a client secret stored in Key Vault. When the application code runs on one of the VMs, it uses the VM managed identity to retrieve the secret using the Key Vault API. This method avoids storing application credentials in code, but allows cross-plane lateral movement, possibly escalation.
