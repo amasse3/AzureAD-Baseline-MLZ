@@ -1,5 +1,5 @@
 # Permissions in Azure and Azure AD
-Document to describe roles relevant to Mission Landing Zone deployment and management.
+Document to describes permissions management and delegation models for Mission Landing Zone deployments.
 
 ## Table of Contents
  - [Permissions Types](#permissions-in-azure-and-azure-ad)
@@ -44,8 +44,8 @@ There are slightly different permissions models for various Microsoft cloud serv
 ## Security Boundary
 The security boundary for an Azure environment is the Azure AD tenant. Global Administrator, the highest level Azure AD permission, can assign themselves to User Access Administrator / Owner for any subscription pinned to that Azure AD.
 
-For Azure resources, the subscription itself plays a special role for 2 reasons:
-1. Some Azure RBAC permissions, like VM Contributor, allow actions *only* when the role is assigned at the subscription level or higher
+For Azure resources, the subscription itself plays a special role for two reasons:
+1. Some Azure RBAC permissions, like VM Contributor, allow actions *only* when the role is assigned at the subscription level or higher.
 2. While Magement Groups sit above the subscriptions in the Azure RBAC scope hierarchy, they *usually* are not used for scope within Azure RBAC roles. Management Groups are primarily used for assigning Azure Policy.
 
 > **Note**: Azure Lighthouse is a technology that enables RBAC assignments for security principals in another tenant. In an MSSP model, users from the managing tenant may have access to subscriptions without having a security principal in the tenant itself.
@@ -67,7 +67,7 @@ Common tasks include:
 - Configuring and managing hybrid identity components like Azure AD Connect
 - Enabling new features
 
-Use Centralized Management for
+Use Centralized Management for:
  - [x] Small organizations with few administrators
  - [x] Initial model for tenant setup
 
@@ -76,7 +76,7 @@ Use Centralized Management for
 ### Delegated Management
 Delegated management is more common for enterprise environments. In this model, common tasks are delegated to mission owners so various groups in the organization can manage aspects of the identity platform. This section outlines common tasks and delegation configuration.
 
-Use Delegated Management for
+Use Delegated Management for:
  - [x] Large organizations with geographically separated teams
  - [x] Distrubting administrative activities without over-permissioning
  - [X] Enabling subscription owners to manage users, groups, and RBAC
@@ -102,7 +102,7 @@ Use Delegated Management for
 | App Registration | Assign **Application Developer** role which allows Create As Owner permissions for App Registrations and Service Principals|
 | Application Management | Assign owner directly to the Enterprise Application and/or App Registration|
 
-**Note**: If the User Setting "Restrict Portal Access to the Azure AD Administration Portal" is set to **Yes**, application management blade will not be available unless the user is assigned an Azure AD directory role. This restriction holds even if the user is an owner of the application.
+> **Note**: If the User Setting "Restrict Portal Access to the Azure AD Administration Portal" is set to **Yes**, application management blade will not be available unless the user is assigned an Azure AD directory role. This restriction holds even if the user is an owner of the application.
 
 > 📘 **Reference**: [App registration Custom Role Permissions](https://learn.microsoft.com/en-us/azure/active-directory/roles/custom-available-permissions)
 
@@ -150,39 +150,36 @@ In the delegated model, the Microsoft Sentinel workspace deployed with MLZ is us
 
 Consider the below setup for an MLZ deployment with 2 independent "mission spoke" subscriptions:
 
- - **MLZ Core** Sentinel workspace
-  - [x] Azure AD connectors
-  - [x] Azure resource connectors for MLZ core subscriptions
-  - [x] Security events via AMA for MLZ core subscriptions
-  - [x] Defender for Cloud for MLZ core subscriptions
-  - [ ] Azure resource connectors for **MLZ mission A** spoke subscription
-  - [ ] Security events via AMA for **MLZ mission A** spoke subscription
-  - [x] Defender for Cloud for **MLZ mission A** spoke subscription
-  - [ ] Azure resource connectors for **MLZ mission B** spoke subscription
-  - [ ] Security events via AMA for **MLZ mission B** spoke subscription
-  - [x] Defender for Cloud for **MLZ mission B** spoke subscription
- - **Mission Owner A** spoke subscription Sentinel workspace
-  - [ ] Azure AD connectors
-  - [ ] Azure resource connectors for MLZ core subscriptions
-  - [ ] Security events via AMA for MLZ core subscriptions
-  - [ ] Defender for Cloud for MLZ core subscriptions
-  - [x] Azure resource connectors for **MLZ mission A** spoke subscription
-  - [x] Security events via AMA for **MLZ mission A** spoke subscription
-  - [x] Defender for Cloud for **MLZ mission A** spoke subscription
-  - [ ] Azure resource connectors for **MLZ mission B** spoke subscription
-  - [ ] Security events via AMA for **MLZ mission B** spoke subscription
-  - [ ] Defender for Cloud for **MLZ mission B** spoke subscription
-- **Mission Owner B** spoke subscription Sentinel workspace
-  - [ ] Azure AD connectors
-  - [ ] Azure resource connectors for MLZ core subscriptions
-  - [ ] Security events via AMA for MLZ core subscriptions
-  - [ ] Defender for Cloud for MLZ core subscriptions
-  - [ ] Azure resource connectors for **MLZ mission A** spoke subscription
-  - [ ] Security events via AMA for **MLZ mission A** spoke subscription
-  - [ ] Defender for Cloud for **MLZ mission A** spoke subscription
-  - [x] Azure resource connectors for **MLZ mission B** spoke subscription
-  - [x] Security events via AMA for **MLZ mission B** spoke subscription
-  - [x] Defender for Cloud for **MLZ mission B** spoke subscription
+  - **MLZ Core** Sentinel workspace
+    - [x] Azure AD connectors
+    - [x] MLZ Core resources
+      - [x] Azure resource connectors for MLZ core subscriptions
+      - [x] Security events via AMA for MLZ core subscriptions
+      - [x] Defender for Cloud for MLZ core subscriptions
+    - [ ] **Mission A** MLZ Resources
+      - [ ] Azure resource connectors for **Mission A** spoke subscription
+      - [ ] Security events via AMA for **Mission A** spoke subscription
+      - [x] Defender for Cloud for **Mission A** spoke subscription
+    - [ ] **Mission B** MLZ Resources
+      - [ ] Azure resource connectors for **MLZ mission B** spoke subscription
+      - [ ] Security events via AMA for **MLZ mission B** spoke subscription
+      - [x] Defender for Cloud for **MLZ mission B** spoke subscription
+  - **Mission Owner A** spoke subscription Sentinel workspace
+    - [ ] Azure AD connectors
+    - [ ] MLZ Core resources
+    - [x] **Mission A** MLZ Resources
+      - [x] Azure resource connectors for **Mission A** spoke subscription
+      - [x] Security events via AMA for **Mission A** spoke subscription
+      - [x] Defender for Cloud for **Mission A** spoke subscription
+    - [ ] **Mission B** MLZ Resources
+  - **Mission Owner B** spoke subscription Sentinel workspace
+    - [ ] Azure AD connectors
+    - [ ] MLZ Core resources
+    - [ ] **Mission A** MLZ Resources
+    - [x] **Mission B** MLZ Resources
+      - [x] Azure resource connectors for **MLZ mission B** spoke subscription
+      - [x] Security events via AMA for **MLZ mission B** spoke subscription
+      - [x] Defender for Cloud for **MLZ mission B** spoke subscription
 
 > 💡 **Recommendation**: Assign **MLZ Security Admins** read access to all Sentinel workspaces within the MLZ, even in the delegated model. This group can perform cross-workspace queries and hunt across the MLZ environment, including the siloed spoke subscriptions.
 
