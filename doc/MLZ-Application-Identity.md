@@ -124,16 +124,20 @@ Applications are represented by two separate object types:
 - **Application Object** (Application Registrations) is the definition of the application. This configuration is only present in the home tenant for multi-tenant apps and tells Azure AD how to issue tokens for the application.
 - **Service Principal** (Enterprise Applications) is the configuration that governs an application's connection to Azure AD. Every application registration has exactly 1 service principal added to the application's home directory.
 
-When application registrations are created through the Azure 
+When an application is added to Azure AD through the Azure Portal:
+1. The application object (App Registration) object is created in AAD
+2. User is added as owner to the Application object (App Registration)
+3. Service principal (Enterprise App) is added for the application
+4. User is added as owner to the Service Principal (Enterprise App)
 
-```mermaid
-  graph LR
-      A(New App Registration) --> B(Make Owner)
-      B-->C(New Service Principal)
-      C--D(Make Owner)
-```
-
-
+flowchart LR
+    A(Application<br>Developer) -->|New<br>App| B{Azure AD}
+    B -->|1| C[Application<br>Object]
+    B -->|2| D[Add creator<br>as owner]
+    D -.->C
+    B -->|3| E(Create<br>Service Principal)
+    B -->|4| F[Add creator<br>as owner]
+    F -.->E
 
 ## Enterprise Apps
 
