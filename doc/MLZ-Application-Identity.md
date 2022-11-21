@@ -189,6 +189,9 @@ flowchart LR
 ## Application Types
 Azure AD supports nearly every application using [modern protocols](#modern-apps) like OpenID Connect, OAuth 2.0, SAML 2.0, and WS-Federation. Support for [legacy applications](#legacy-apps) that may use Active Directory Domain Services for authentication is enabled by Microsoft [Azure AD Application Proxy](#azure-ad-application-proxy), an identity-aware proxy agent deployed to Windows Server infrastructure.
 
+The diagram below describes modern and legacy apps deployed to MLZ.
+![mlz-app-identity](../img/app-identity.png)
+
 ### Modern and Legacy Apps
 Applications used within the enterprise should use standard protocols for authentication and authorization that offer integration with most identity provider systems. To simplify the conversation, apps can be categorized based on the type of identity protocols they use. 
 - [Modern applications](#legacy-apps)
