@@ -144,7 +144,7 @@ An application is created in AAD in any of the following circumstances:
 By default, *any* Azure AD user can register applications. The [MLZ AAD Baseline](./AAD-Config-Baseline.md#6-configure-user-group-and-external-collaboration-settings) recommends disabling this feature. When this setting is restricted, creating application objects requires permissions only granted by the [**Application Developer**](https://learn.microsoft.com/en-us/azure/active-directory/roles/permissions-reference#application-developer), [**Cloud Application Administrator**](https://learn.microsoft.com/en-us/azure/active-directory/roles/permissions-reference#cloud-application-administrator), [**Application Administrator**](https://learn.microsoft.com/en-us/azure/active-directory/roles/permissions-reference#application-administrator), or [**Global Administrator**](https://learn.microsoft.com/en-us/azure/active-directory/roles/permissions-reference#global-administrator) built-in Azure AD directory roles.
 
 | Activity | Application Developer | Cloud Application Administrator | Application Administrator | Application Owner |
-|----------|-----------------------|---------------------------------|---------------------------|-------------------|
+|----------|:---------------------:|:-------------------------------:|:------------------------:|:------------------:|
 |Create App Registrations|x|x|x||
 |Create Service Principals|x|x|x||
 |Create App from Enterprise Apps Experience||x|x||
