@@ -115,6 +115,8 @@ Applications interface with Azure AD in two main ways:
   - Resource APIs (e.g. Key Vault, Azure Storage)
   - APIs for apps developed by your organization
 
+> 📘 **Reference**: [Integrating Azure Active Directory with applications - getting started guide](https://learn.microsoft.com/en-us/azure/active-directory/manage-apps/plan-an-application-integration)
+
 ### Application Object Types
 Applications are represented by two separate object types:
 
@@ -148,7 +150,7 @@ By default, *any* Azure AD user can register applications. The [MLZ AAD Baseline
 |Create App from Enterprise Apps Experience||x|x||
 |Onboard On-Prem App through Enterprise Apps Experience|||x||
 |Mananage Application Object|x|x|x|x|
-|Manage Sercice Principal|x|x|x|x|
+|Manage Application Service Principal|x|x|x|x|
 |Grant Admin Consent for APIs<sup>1</sup><br>(except MS Graph API)||x|x||
 
 <sup>1</sup>Only the **Global Administrator** or **Privileged Role Administrator** can grant access to the Azure AD Graph or Microsoft Graph.
@@ -177,12 +179,16 @@ flowchart LR
     B -->|4| F[Add creator<br>as owner]
     F -.->E
 ```
-> 📘 **Reference**: [How and why applications are added to Azure AD](https://learn.microsoft.com/en-us/azure/active-directory/develop/active-directory-how-applications-are-added)
+> 📘 **Reference**:
+> - [How and why applications are added to Azure AD](https://learn.microsoft.com/en-us/azure/active-directory/develop/active-directory-how-applications-are-added)
+> - [What is application management in Azure Active Directory](https://learn.microsoft.com/en-us/azure/active-directory/manage-apps/what-is-application-management)
 
 ### The MyApps Portal
 [My Apps](https://docs.microsoft.com/en-us/azure/active-directory/manage-apps/myapps-overview) is a customizable portal that offers a launchpad for accessing enterprise applications integrated with Azure AD. Visibility and assignment requirements is configured via Enterprise Apps by a **Cloud Application Administrator**, **Application Administrator** or the **Owner** of the application service principal.
 
-## Protocol Support for Azure AD Applications
+## Application Types
+Azure AD supports nearly every application using [modern protocols](#modern-apps) like OpenID Connect, OAuth 2.0, SAML 2.0, and WS-Federation. Support for [legacy applications](#legacy-apps) that may use Active Directory Domain Services for authentication is enabled by Microsoft [Azure AD Application Proxy](#azure-ad-application-proxy), an identity-aware proxy agent deployed to Windows Server infrastructure.
+
 ### Modern and Legacy Apps
 Applications used within the enterprise should use standard protocols for authentication and authorization that offer integration with most identity provider systems. To simplify the conversation, apps can be categorized based on the type of identity protocols they use. 
 - [Modern applications](#legacy-apps)
@@ -215,31 +221,67 @@ Common protocols for modern apps include [OpenID-Connect](https://docs.microsoft
 |**Development Library**|Windows Identity Foundation|
 
 ## Azure AD and On-Premises Applications
-
-> **Note**: The location of the application hosting infrastructure has no bearing on whether or not Azure AD can be an identity provider. Azure AD can be used for modern apps as long as authenticating clients have internet access and a network path to the application. 
-> Azure AD can be used for legacy apps as long as Azure AD Application Proxy or Secure Hybrid Access Partner broker is used.
+The location of the application hosting infrastructure has no bearing on whether or not Azure AD can be an identity provider. Azure AD can be used for modern apps as long as authenticating clients have internet access and a network path to the application. Azure AD can be used for legacy apps as long as Azure AD Application Proxy or Secure Hybrid Access Partner broker is used.
 
 > 📘 **Reference**: [Secure Hybrid Access with Azure AD](https://docs.microsoft.com/en-us/azure/active-directory/manage-apps/secure-hybrid-access)
 
 ### Azure AD Application Proxy
-### Secure Hybrid Access Partners
+Azure AD Application proxy is a simple, secure, and cost-effective way to extend Azure AD capabilities to legacy apps and publish on-premises apps for external access with Azure AD pre-authentication. Deploying Azure AD Application Proxy to the Identity Subscription for MLZ is a fast and easy way to lift+shift on-premises applications without code change or application re-factoring.
+
+Apps published through App Proxy can use Conditional Access and other controls, such as Authentication Strength, route through Defender for Cloud Apps, just like a modern cloud-hosted application.
+
+> **Note**: In most cases, the legacy application will still require Active Directory Domain Controllers be accessible to the Application server and App Proxy Connectors.
+
+> 📘 **Reference**: [Remote access to on-premises applications through Azure AD Application Proxy](https://learn.microsoft.com/en-us/azure/active-directory/app-proxy/application-proxy)
+
 ### Active Directory Domain Services in Azure
+Legacy applications that need Active Directory for kerberos authentication or LDAP interface rely on extending the on-premises Active Directory forest to Azure. In this model, domain controllers are hosted in the MLZ Identity subscription.
+
+> 📘 **Reference**: 
+> - [Deploy AD DS in an Azure VNet](https://learn.microsoft.com/en-us/azure/architecture/reference-architectures/identity/adds-extend-domain)
+> - [Create an AD DS resource forest in Azure](https://learn.microsoft.com/en-us/azure/architecture/reference-architectures/identity/adds-forest)
+
+### Azure Active Directory Domain Services
+Not to be confused with AD DS in Azure, [Azure AD DS](https://learn.microsoft.com/en-us/azure/active-directory-domain-services/overview), provides a way to extend Azure AD capabilities to a managed AD DS forest.
+
+> **Note**: This is not used in most MLZ deployments. Azure AD DS requires a password hash synchronized from Azure AD to the managed domain.
+
+> 📘 **Reference**:
+> - [What is Azure Active Directory Domain Services](https://learn.microsoft.com/en-us/azure/active-directory-domain-services/overview)
+> - [Compare self-managed AD DS with Azure Active Directory and Azure AD DS](https://learn.microsoft.com/en-us/azure/active-directory-domain-services/compare-identity-solutions)
+> - [How objects and credentials are synced in Azure AD DS](https://learn.microsoft.com/en-us/azure/active-directory-domain-services/synchronization)
 
 ## Collaboration with Azure AD
+Azure Active Directory makes it easy to collaborate with other organizations that use Azure AD.
+
 ### B2B Collaboration
+Azure AD B2B collaboration is a feature within External Identities that provides a guest invitation mechanism for onboarding guest Azure AD users homed outside of your organization. Review the [external collaboration settings](https://learn.microsoft.com/en-us/azure/active-directory/external-identities/external-collaboration-settings-configure) and the [baseline MLZ identity add-on configuration](./AAD-Config-Baseline.md#6-configure-user-group-and-external-collaboration-settings) and determine what changes are needed to support collaboration with partners.
+
+Once a guest user redeems their invite to your directory, they can be assigned to enterprise applications in your tenant. See [Authentication and Conditional Access for External Identities](https://learn.microsoft.com/en-us/azure/active-directory/external-identities/authentication-conditional-access#authentication-flow-for-external-azure-ad-users) for a detailed overview of B2B application access.
+
+Use [cross-tenant access settings (XTAP)](https://learn.microsoft.com/en-us/azure/active-directory/external-identities/cross-tenant-access-settings-b2b-collaboration) to improve security and user experience for B2B guests.
+
+> 📘 **Reference**: 
+> - [B2B Collaboration Overview](https://learn.microsoft.com/en-us/azure/active-directory/external-identities/what-is-b2b)
+> - [Authentication and Conditional Access for External Identities](https://learn.microsoft.com/en-us/azure/active-directory/external-identities/authentication-conditional-access#authentication-flow-for-external-azure-ad-users)
+> - [Azure Active Directory B2B Best Practices](https://learn.microsoft.com/en-us/azure/active-directory/external-identities/b2b-fundamentals)
+
 ### Identity broker
+Another security token service like Active Directory Federation Services or Azure AD B2C tenant can act as a broker for applications with complex identity requirements. One example is apps that support 1 identity provider, but some users cannnot be in Azure AD.
 
-### MLZ Subscriptions attached to Enterprise Azure AD tenant
-An organization's Azure AD that contains all users and licenses is an **Enterprise Azure AD Tenant**. These tenants are often configured for hybrid identity with users and groups synchronized from an on-Premises Active Directory enviornment using Azure AD Connect, or provisioned into Azure AD directly from a support HR SaaS Provider. All non-Microsoft applications, including applications running on-premises, in other clouds, SaaS apps, or Azure subscriptions pinned to *other* non-Enterprise AAD should use the **Enterprise Azure AD** for identity.
-- **Modern Applications** using OpenIDConnect, OAuth, SAML, WS-Federation can use Azure AD identity directly when onboarded as an [Enterprise Application](https://docs.microsoft.com/en-us/azure/active-directory/manage-apps/add-application-portal).
-- **Legacy Applications** using Kerberos (Windows Authentication), NTLM, Header-Based authentication can use Azure AD identities indirectly via [Azure AD Application Proxy](https://docs.microsoft.com/en-us/azure/active-directory/app-proxy/application-proxy) or a [Secure Hybrid Access Partner](https://docs.microsoft.com/en-us/azure/active-directory/manage-apps/secure-hybrid-access) acting as a broker.
+The diagram below describes the trust model for integrating Azure AD B2C and it's applications with Azure AD. During sign-in, users choose which type of account to use for accessing the app.
+![Broker Model](../img/broker-model.png)
 
-> **Important**:  
-Applications hosted in MLZ should use the **Enterprise Azure AD** tenant for application identity, directly or via Azure AD Application Proxy / broker. This means applications relying on Active Directory Domain Services need AD DS extended to the MLZ Azure environment through extending existing Active Directory domain or resource forest in Azure. 
-In either case, Azure AD Application proxy connectors are recommended to broker access for the Enterprise AAD identities. This allows publishing applications securely without relying on costly network appliances (application firewalls and VPN gateways), while bringing the power of Azure AD Conditional Access to enforce zero trust policies based on authentication context, session details, device health, and identity risk.
+The diagram below describes the authentication process for an Azure AD user accessing an application integrated with a broker security token service (STS):
 
-### MLZ Subscriptions attached to a separate, standalone Azure Platform tenant
-In some cases, customers choose to use a separate Azure AD where their subscriptions are managed. This configuration introduces complexity for Azure services that are accessed by Azure AD identities, since users either need A) Separate Azure AD accounts and licenses in each tenant, B) Rely on Azure AD B2B Guests and switching tenant context, C) configuring light house for all Azure resource access.
+```mermaid
+flowchart LR
+    A(Application) -.->|trust| B[Identity Broker<br>STS]
+    B -.->|App<br>Registration| C{Azure AD}
+    User <--> A
+    User <--> B
+    User <--> C
+```
 
 ## See Also
-Relevant links
+- [Return Home](/README.md)
