@@ -104,10 +104,7 @@ While an Azure AD tenant can contain identies for every use case mentioned in th
 
 > 📘 **Reference**: Review the Tenant Types outlined in [Identity Patterns for Mission Landing Zone](/MLZ-Identity-AzureADSetup/doc/MLZ-Common-Patterns.md)
 
-## Enterprise Azure AD tenant
-An organization's Azure AD that contains all users and licenses is an **Enterprise Azure AD Tenant**. These tenants are often configured for hybrid identity with users and groups synchronized from an on-Premises Active Directory enviornment using Azure AD Connect, or provisioned into Azure AD directly from a support HR SaaS Provider. All non-Microsoft applications, including applications running on-premises, in other clouds, SaaS apps, or Azure subscriptions pinned to *other* non-Enterprise AAD should use the **Enterprise Azure AD** for identity.
-
-## What is an Azure AD Application?
+### What is an Azure AD Application?
 Applications interface with Azure AD in two main ways:
 1. Web applications, APIs, SPAs use Azure AD to authenticate and authorize users
   - M365 Applications like Exchange Online and Teams
@@ -118,18 +115,58 @@ Applications interface with Azure AD in two main ways:
   - Resource APIs (e.g. Key Vault, Azure Storage)
   - APIs for apps developed by your organization
 
-### Object Types
+### Application Object Types
 Applications are represented by two separate object types:
 
-- **Application Object** (Application Registrations) is the definition of the application. This configuration is only present in the home tenant for multi-tenant apps and tells Azure AD how to issue tokens for the application.
-- **Service Principal** (Enterprise Applications) is the configuration that governs an application's connection to Azure AD. Every application registration has exactly 1 service principal added to the application's home directory.
+- **Application Object** (Application Registrations) is the definition of the application including:
+  - How Azure AD can issue tokens for accessing the application
+  - The resources the application might need access to
+  - The actions the application can take (permissions)
+- **Service Principal** (Enterprise Applications) is the configuration that governs an application's connection to Azure AD. Every application registration has exactly 1 service principal added to the application's home directory. Service Principals fall into 3 cateogies:
+  - Applications (Default filter for Enterprise Applications blade)
+  - Managed identities
+  - Legacy (does not have associated app registration)
 
-When an application is added to Azure AD through the Azure Portal:
+> 📘 **Reference**: [Applications and service principals](https://learn.microsoft.com/en-us/azure/active-directory/develop/app-objects-and-service-principals)
+
+### Creating Application Objects
+An application is created in AAD in any of the following circumstances:
+- User with **Application Developer** role creates an application registration via the Azure Portal or Graph API
+- User with permissions to an Azure subscription creates a managed identity in Azure
+  - A user-assigned managed identity created manually
+  - A system-assigned managed identity created for an Azure resource
+- User with **Cloud Application Administrator** role creates a new Enterprise App from a gallery template or Non-Gallery app
+- User with **Application Administrator** role creates a new Enterprise App for a on-premises application using Azure AD Application Proxy
+
+#### Permissions
+By default, *any* Azure AD user can register applications. The [MLZ AAD Baseline](./AAD-Config-Baseline.md#6-configure-user-group-and-external-collaboration-settings) recommends disabling this feature. When this setting is restricted, creating application objects requires permissions only granted by the [**Application Developer**](https://learn.microsoft.com/en-us/azure/active-directory/roles/permissions-reference#application-developer), [**Cloud Application Administrator**](https://learn.microsoft.com/en-us/azure/active-directory/roles/permissions-reference#cloud-application-administrator), [**Application Administrator**](https://learn.microsoft.com/en-us/azure/active-directory/roles/permissions-reference#application-administrator), or [**Global Administrator**](https://learn.microsoft.com/en-us/azure/active-directory/roles/permissions-reference#global-administrator) built-in Azure AD directory roles.
+
+| Activity | Application Developer | Cloud Application Administrator | Application Administrator | Application Owner |
+|----------|-----------------------|---------------------------------|---------------------------|-------------------|
+|Create App Registrations|x|x|x||
+|Create Service Principals|x|x|x||
+|Create App from Enterprise Apps Experience||x|x||
+|Onboard On-Prem App through Enterprise Apps Experience|||x||
+|Mananage Application Object|x|x|x|x|
+|Manage Sercice Principal|x|x|x|x|
+|Grant Admin Consent for APIs<sup>1</sup><br>(except MS Graph API)||x|x||
+
+<sup>1</sup>Only the **Global Administrator** or **Privileged Role Administrator** can grant access to the Azure AD Graph or Microsoft Graph.
+
+> **Note**: Creating apps via Enterprise Apps in the portal requires **Cloud Application Administrator** or better. The **Application Developer** role cannot perform this action. Enterprise apps created in this manner require additional permissions to configure features like provisioning. Any app that needs SAML or password-based single sign-on must be created from the Enterprise Apps blade. Enterprise apps created using Application Developer role and the App registration will display a note that single sign-on configuration is not available.
+
+> 📘 **Reference**: 
+> - [Grant tenant-wide consent to an application](https://learn.microsoft.com/en-us/azure/active-directory/manage-apps/grant-admin-consent?pivots=portal)
+> - [Azure AD built-in roles](https://learn.microsoft.com/en-us/azure/active-directory/roles/permissions-reference)
+
+#### Object creation and owner assignment
+When an application is added to Azure AD, four steps occur:
 1. The application object (App Registration) object is created in AAD
 2. User is added as owner to the Application object (App Registration)
 3. Service principal (Enterprise App) is added for the application
 4. User is added as owner to the Service Principal (Enterprise App)
 
+The diagram below describes this process:
 ```mermaid
 flowchart LR
     A(Application<br>Developer) -->|New<br>App| B{Azure AD}
@@ -140,12 +177,12 @@ flowchart LR
     B -->|4| F[Add creator<br>as owner]
     F -.->E
 ```
-
-## Enterprise Apps
+> 📘 **Reference**: [How and why applications are added to Azure AD](https://learn.microsoft.com/en-us/azure/active-directory/develop/active-directory-how-applications-are-added)
 
 ### The MyApps Portal
-Any enterprise application [My Apps](https://docs.microsoft.com/en-us/azure/active-directory/manage-apps/myapps-overview) is a customizable portal that offers a launchpad for accessing enterprise applications integrated with Azure AD.
+[My Apps](https://docs.microsoft.com/en-us/azure/active-directory/manage-apps/myapps-overview) is a customizable portal that offers a launchpad for accessing enterprise applications integrated with Azure AD. Visibility and assignment requirements is configured via Enterprise Apps by a **Cloud Application Administrator**, **Application Administrator** or the **Owner** of the application service principal.
 
+## Protocol Support for Azure AD Applications
 ### Modern and Legacy Apps
 Applications used within the enterprise should use standard protocols for authentication and authorization that offer integration with most identity provider systems. To simplify the conversation, apps can be categorized based on the type of identity protocols they use. 
 - [Modern applications](#legacy-apps)
