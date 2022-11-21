@@ -130,6 +130,7 @@ When an application is added to Azure AD through the Azure Portal:
 3. Service principal (Enterprise App) is added for the application
 4. User is added as owner to the Service Principal (Enterprise App)
 
+```mermaid
 flowchart LR
     A(Application<br>Developer) -->|New<br>App| B{Azure AD}
     B -->|1| C[Application<br>Object]
@@ -138,6 +139,7 @@ flowchart LR
     B -->|3| E(Create<br>Service Principal)
     B -->|4| F[Add creator<br>as owner]
     F -.->E
+```
 
 ## Enterprise Apps
 
