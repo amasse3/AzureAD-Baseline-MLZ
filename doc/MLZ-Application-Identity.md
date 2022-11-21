@@ -102,20 +102,38 @@ These identities can be used for any of the following:
   
 While an Azure AD tenant can contain identies for every use case mentioned in this section (and more), not every tenant will be used for all possible purposes. Some Azure AD tenants may provide identity for M365 services and other SaaS applications, but not have any Azure subscriptions attached. For these tenants, managed resource identities and Azure RBAC assignments will not exist. Other Azure AD tenants have attached Azure subscriptions, but not support identity for any enterprise services or applications. These tenants may only include a select few adminstrators and developers with cloud-only acounts.
 
-### Azure AD tenant types
-
-|Tenant Type|Identities|Hybrid Configuration|Supported services|
-|----|-----|-------------|--------|
-|Enterprise|All employees, contractors, guests|hybrid (synced)|Microsoft 365, Azure, SaaS applications, other enterprise LOB apps|
-|Standalone Azure Platform|Azure admins and developers|cloud-only|Azure Resource Manager (subscriptions, IaaS and PaaS services)|
-
-> :warning: **Important**: Understanding which tenant type MLZ subscriptions are attached to will determine whether the local Azure AD tenant should be used for modern apps, or if apps running on infrastructure in the MLZ tenant will be Enterprise Applications within some other enterprise tenant (usally used for M365. 
-
-Apps running on infrastructure in one tenant can use a different AAD as an identity provider. If apps are integrated with the enterprise / M365 tenant, users will have the most consistent sign-in experience. Any zero trust security policies configured with Conditional Access can apply, even if applications are hosted in subscriptions attached to a different tenant, or within a different cloud environment or on-premises datacenter.
->**Reference**: [Choosing your identity authority](https://docs.microsoft.com/en-us/azure/azure-government/documentation-government-plan-identity#choosing-your-identity-authority)
+> 📘 **Reference**: Review the Tenant Types outlined in [Identity Patterns for Mission Landing Zone](/MLZ-Identity-AzureADSetup/doc/MLZ-Common-Patterns.md)
 
 ## Enterprise Azure AD tenant
 An organization's Azure AD that contains all users and licenses is an **Enterprise Azure AD Tenant**. These tenants are often configured for hybrid identity with users and groups synchronized from an on-Premises Active Directory enviornment using Azure AD Connect, or provisioned into Azure AD directly from a support HR SaaS Provider. All non-Microsoft applications, including applications running on-premises, in other clouds, SaaS apps, or Azure subscriptions pinned to *other* non-Enterprise AAD should use the **Enterprise Azure AD** for identity.
+
+## What is an Azure AD Application?
+Applications interface with Azure AD in two main ways:
+1. Web applications, APIs, SPAs use Azure AD to authenticate and authorize users
+  - M365 Applications like Exchange Online and Teams
+  - SaaS apps from the [Azure AD Application Gallery](https://learn.microsoft.com/en-us/azure/active-directory/manage-apps/overview-application-gallery)
+2. Applications interacting with APIs protected by Azure AD
+  - Microsoft Graph API
+  - Azure Resource Graph
+  - Resource APIs (e.g. Key Vault, Azure Storage)
+  - APIs for apps developed by your organization
+
+### Object Types
+Applications are represented by two separate object types:
+
+- **Application Object** (Application Registrations) is the definition of the application. This configuration is only present in the home tenant for multi-tenant apps and tells Azure AD how to issue tokens for the application.
+- **Service Principal** (Enterprise Applications) is the configuration that governs an application's connection to Azure AD. Every application registration has exactly 1 service principal added to the application's home directory.
+
+When application registrations are created through the Azure 
+
+```mermaid
+  graph LR
+      A(New App Registration) --> B(Make Owner)
+      B-->C(New Service Principal)
+      C--D(Make Owner)
+```
+
+
 
 ## Enterprise Apps
 
