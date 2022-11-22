@@ -249,7 +249,7 @@
             "id": "07",
             "description": "Configure Conditional Access Policies",
             "runstep": "True",
-            "comments": "Excludes current user from each rule. Enabled for Reporting Only",
+            "comments": "Excludes current user and Break Glass accounts from each role. Report Only for now",
             "parameters": {
                 "rules": [
                     {
