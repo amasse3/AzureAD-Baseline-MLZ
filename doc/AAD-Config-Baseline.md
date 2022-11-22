@@ -386,15 +386,15 @@ To enable security defaults, see [Enable Security Defaults](https://docs.microso
 **Azure AD Premium P2 - Create Conditional Access Policies for MLZ**
 Create the following Conditional Access policies:
 
-|Display Name|Users|Applications|Controls|
-|------------|-----|------------|--------|
-|MLZ001: MFA - Require multifactor authentication for all users|All excluding Emergency Access Accounts|All Apps|MFA|
-|MLZ002: MFA - Block Legacy Authentication|All|Client Apps: exchangeActiveSync, other|Block|
-|MLZ003: MFA - Securing security info registration|All excluding Emergency Access Accounts|UserActions: registersecurityinfo|MFA|
-|MLZ004: Admins - Require phishing-resistant MFA for Azure AD admins|Directory Roles (from policy template)|All apps|Phishing-resistant MFA<br><ul><li>Fido2</li><li>WindowsHellowForBusiness</li><li>x509Certificate</li></ul>|
-|MLZ005: Admins - Require phishing-resistant MFA for Azure Management|All users excluding Emergency Access Accounts|Azure Management|Phishing-resistant MFA<br><ul><li>Fido2</li><li>WindowsHellowForBusiness</li><li>x509Certificate</li></ul>|
-|MLZ006: Risk - Require password change for high risk users|High Risk|All Apps|Require Password Change|
-|MLZ007: Risk - Require passwordless MFA for medium risk sign ins||||Phishing-resistant MFA<br><ul><li>Fido2</li><li>WindowsHellowForBusiness</li><li>x509Certificate</li><li>Microsoft Authenticator App</li></ul>|
+|ID|Category|Description|Users|Applications|Controls|
+|--|--------|------------|-----|------------|--------|
+|MLZ001|MFA|Require multifactor authentication for all users|<ul><li>Include</li><ul><li>All Users</li></ul><li>Exclude</li><ul><li>Emergency Access Accounts</li></ul></ul>|All Apps|MFA|
+|MLZ002|MFA|Block Legacy Authentication|All|Client Apps: exchangeActiveSync, other|Block|
+|MLZ003|MFA|Securing security info registration|<ul><li>Include</li><ul><li>All Users</li></ul><li>Exclude</li><ul><li>Emergency Access Accounts</li></ul></ul>|UserActions: registersecurityinfo|MFA|
+|MLZ004|Admins|Require phishing-resistant MFA for Azure AD admins|Directory Roles (from policy template)|All apps|Phishing-resistant MFA<br><ul><li>Fido2</li><li>WindowsHellowForBusiness</li><li>x509Certificate</li></ul>|
+|MLZ005|Admins|Require phishing-resistant MFA for Azure Management|<ul><li>Include</li><ul><li>All Users</li></ul><li>Exclude</li><ul><li>Emergency Access Accounts</li></ul></ul>|Azure Management|Phishing-resistant MFA<br><ul><li>Fido2</li><li>WindowsHellowForBusiness</li><li>x509Certificate</li></ul>|
+|MLZ006|Risk|Require password change for high risk users|<ul><li>Include</li><ul><li>High Risk Users</li></ul><li>Exclude</li><ul><li>Emergency Access Accounts</li></ul></ul>|All Apps|Require Password Change|
+|MLZ007|Risk|Require passwordless MFA for medium risk sign ins|<ul><li>Include</li><ul><li>All Users</li></ul><li>Exclude</li><ul><li>Emergency Access Accounts</li></ul></ul>|All apps|Phishing-resistant MFA<br><ul><li>Fido2</li><li>WindowsHellowForBusiness</li><li>x509Certificate</li><li>Microsoft Authenticator App</li></ul>|
 
 > **Note**: If Microsoft Endpoint Manager (Intune) will be deployed for the Azure AD tenant used by MLZ, enroll privileged access devices and use [Conditional Access](https://docs.microsoft.com/en-us/mem/intune/protect/create-conditional-access-intune) to require a compliant device for Azure Management.
 
