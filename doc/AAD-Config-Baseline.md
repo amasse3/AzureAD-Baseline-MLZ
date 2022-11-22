@@ -365,7 +365,7 @@ Azure AD Premium P2 customers should map security groups eligible for roles usin
 ### Review securing privileged access in Azure AD
 Familiarize yourself with the Securing Privileged Access guidance for Azure AD and build a plan for handling privileged access to the Mission Landing Zone environment.
 
-> **Reference**: [Securing privileged access for hybrid and cloud deployments in Azure AD](https://docs.microsoft.com/en-us/azure/active-directory/roles/security-planning)
+> 📘 **Reference**: [Securing privileged access for hybrid and cloud deployments in Azure AD](https://docs.microsoft.com/en-us/azure/active-directory/roles/security-planning)
 
 </p>
 </details>
@@ -377,26 +377,32 @@ This section enables key recommended access policies for all apps protected by A
 <p>
 
 **Azure AD Free - Turn on Security Defaults**
-Azure AD Free offers a feature called Security Defaults. This feature performs basic security configuration for the Azure AD platform. To enable security defaults, see [Enable Security Defaults](https://docs.microsoft.com/en-us/azure/active-directory/fundamentals/concept-fundamentals-security-defaults).
+Azure AD Free offers a feature called Security Defaults. This feature performs basic security configuration for the Azure AD platform. Azure AD Conditional Access Policies should replace or enhance protections enabled by Security Defaults. 
 
-`Script`
+> 💡**Recommendation**: Azure AD Premium customers should only enable Security Defaults as a stop-gap until CA Policies are configured and tested.
 
-**Azure AD Premium P1 and P2 - Create Conditional Access Policies**
+To enable security defaults, see [Enable Security Defaults](https://docs.microsoft.com/en-us/azure/active-directory/fundamentals/concept-fundamentals-security-defaults).
+
+**Azure AD Premium P2 - Create Conditional Access Policies for MLZ**
 Create the following Conditional Access policies:
 
-1. [Block Legacy Authentication](https://docs.microsoft.com/en-us/azure/active-directory/conditional-access/howto-conditional-access-policy-block-legacy)
-2. [Require MFA for All Users all Apps](https://docs.microsoft.com/en-us/azure/active-directory/conditional-access/howto-conditional-access-policy-all-users-mfa)
-
-> **Note**: If you are configuring [hybrid identity](#9-optional-configure-hybrid-identity), make sure exclude the Azure AD account used for AAD Connect Synchronization from the MFA policy.
-
-**Azure AD Premium P2 - Configure risk-based Conditional Access policies**
-Enable the following [risk-based Conditional Access Policies](https://docs.microsoft.com/en-us/azure/active-directory/identity-protection/howto-identity-protection-configure-risk-policies):
-1. Require password change when User Risk is **High**
-2. Create Conditional Access rule to Block Registering Security Info when sign-in risk is **High**
-
-`script`
+|Display Name|Users|Applications|Controls|
+|------------|-----|------------|--------|
+|MLZ001: MFA - Require multifactor authentication for all users|All excluding Emergency Access Accounts|All Apps|MFA|
+|MLZ002: MFA - Block Legacy Authentication|All|Client Apps: exchangeActiveSync, other|Block|
+|MLZ003: MFA - Securing security info registration|All excluding Emergency Access Accounts|UserActions: registersecurityinfo|MFA|
+|MLZ004: Admins - Require phishing-resistant MFA for Azure AD admins|Directory Roles (from policy template)|All apps|Phishing-resistant MFA<br><ul><li>Fido2</li><li>WindowsHellowForBusiness</li><li>x509Certificate</li></ul>|
+|MLZ005: Admins - Require phishing-resistant MFA for Azure Management|All users excluding Emergency Access Accounts|Azure Management|Phishing-resistant MFA<br><ul><li>Fido2</li><li>WindowsHellowForBusiness</li><li>x509Certificate</li></ul>|
+|MLZ006: Risk - Require password change for high risk users|High Risk|All Apps|Require Password Change|
+|MLZ007: Risk - Require passwordless MFA for medium risk sign ins||||Phishing-resistant MFA<br><ul><li>Fido2</li><li>WindowsHellowForBusiness</li><li>x509Certificate</li><li>Microsoft Authenticator App</li></ul>|
 
 > **Note**: If Microsoft Endpoint Manager (Intune) will be deployed for the Azure AD tenant used by MLZ, enroll privileged access devices and use [Conditional Access](https://docs.microsoft.com/en-us/mem/intune/protect/create-conditional-access-intune) to require a compliant device for Azure Management.
+
+> 📘 **Reference**:
+> - [Common Conditional Access Policies](https://learn.microsoft.com/en-us/azure/active-directory/conditional-access/concept-conditional-access-policy-common)
+> - [Device-based Conditional Access with Intune](https://docs.microsoft.com/en-us/mem/intune/protect/create-conditional-access-intune)
+> - [Risk-based Conditional Access Policies](https://docs.microsoft.com/en-us/azure/active-directory/identity-protection/howto-identity-protection-configure-risk-policies)
+> - [Require authentication strength for external users](https://learn.microsoft.com/en-us/azure/active-directory/conditional-access/howto-conditional-access-policy-authentication-strength-external)
 
 </p>
 </details>
