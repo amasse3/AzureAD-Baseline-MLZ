@@ -1,0 +1,505 @@
+{
+    "GlobalParemeterSet": {
+        "Environment": "Global",
+        "EAGroupName": "Emergency Access Accounts",
+        "PWDLength": "16",
+        "MissionAUs": [
+            "Alpha",
+            "Bravo",
+            "Charlie"
+        ],
+        "comments": ""
+    },
+    "StepParameterSet": [
+        {
+            "id": "01",
+            "description": "Install PowerShell Modules",
+            "runstep": "True",
+            "comments": "",
+            "parameters": {  
+                "modules": [  
+                    "Az",  
+                    "Microsoft.Graph.PowerShell",  
+                    "AzureADPreview"
+                ]
+            }
+        },
+        {
+            "id": "02",
+            "description": "Create Break Glass Accounts",
+            "runstep": "True",
+            "comments": "",
+            "parameters": { 
+                "EAAccountNames": [
+                    "mlz-EA01",
+                    "mlz-EA02"
+                ],
+                "EAGroupName": "Emergency Access Accounts",
+                "PWDLength": 16,
+                "MissionCode": "EA"
+            }
+        },
+        {
+            "id": "03",
+            "description": "Create Named Admin Accounts",
+            "runstep": "True",
+            "comments": "",
+            "parameters": { 
+                "UserCSV": "MLZ-Admin.List.csv",
+                "LicenseGroupName": "MLZ-License-AADP2",
+                "PWDLength": 16,
+                "MissionCode": "MLZ-Core"
+            }
+        },
+        {
+            "id": "04",
+            "description": "Enable passwordless authentication methods",
+            "runstep": "True",
+            "comments": "",
+            "parameters": {
+                "AuthenticationMethodsConfigurations": [
+                    {
+                        "id": "Fido2",
+                        "state": "enabled",
+                        "isSelfServiceRegistrationAllowed": true,
+                        "isAttestationEnforced": false,
+                        "includeTargets": [
+                            {
+                                "targetType": "group",
+                                "id": "all_users",
+                                "isRegistrationRequired": false
+                            }
+                        ]
+                    },
+                    {
+                        "id": "MicrosoftAuthenticator",
+                         "state": "enabled",
+                        "featureSettings": {
+                            "displayAppInformationRequiredState": {
+                                "state": "default",
+                                "includeTarget": {
+                                    "targetType": "group",
+                                    "id": "all_users"
+                                }
+                            },
+                            "displayLocationInformationRequiredState": {
+                                "state": "default",
+                                "includeTarget": {
+                                    "targetType": "group",
+                                    "id": "all_users"
+                                }
+                            }
+                        },
+                        "includeTargets": [
+                            {
+                                "targetType": "group",
+                                "id": "all_users",
+                                "isRegistrationRequired": false,
+                                "authenticationMode": "any"
+                            }
+                        ]   
+                    },
+                    {
+                        "id": "X509Certificate",
+                        "state": "enabled",
+                        "certificateUserBindings": [
+                            {
+                                "x509CertificateField": "PrincipalName",
+                                "userProperty": "certificateUserIds",
+                                "priority": 1
+                            },
+                            {
+                                "x509CertificateField": "PrincipalName",
+                                "userProperty": "onPremisesUserPrincipalName",
+                                "priority": 2
+                            }
+                        ],
+                        "authenticationModeConfiguration": {
+                            "x509CertificateAuthenticationDefaultMode": "x509CertificateMultiFactor"
+                        },
+                        "includeTargets@odata.context": "https://graph.microsoft.com/v1.0/$metadata#authenticationMethodsPolicy/authenticationMethodConfigurations('X509Certificate')/microsoft.graph.x509CertificateAuthenticationMethodConfiguration/includeTargets",
+                        "includeTargets": [
+                            {
+                                "targetType": "group",
+                                "id": "all_users",
+                                "isRegistrationRequired": false
+                            }
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            "id": "05",
+            "description": "Create MLZ RBAC Groups",
+            "runstep": "True",
+            "comments": "",
+            "parameters": {
+                "Groups": [
+                    {
+                        "type": "Security",
+                        "permission": "AzureRBAC",
+                        "Groups": [
+                            {
+                                "name": "Platform Owner",
+                                "scope": [
+                                    "core"
+                                ]
+                            },
+                            {
+                                "name": "Subscription Owner",
+                                "scope": [
+                                    "core",
+                                    "mission"
+                                ]
+                            },
+                            {
+                                "name": "Security Operations",
+                                "scope": [
+                                    "core"
+                                ]
+                            },
+                            {
+                                "name": "Subscription Contributor",
+                                "scope": [
+                                    "core",
+                                    "mission"
+                                ]
+                            },
+                            {
+                                "name": "Subscription Reader",
+                                "scope": [
+                                    "core",
+                                    "mission"
+                                ]
+                            },
+                            {
+                                "name": "Subscription Owner No Network Write",
+                                "scope": [
+                                    "core",
+                                    "mission"
+                                ]
+                            },
+                            {
+                                "name": "Application Owners (DevOps)",
+                                "scope": [
+                                    "core",
+                                    "mission"
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            } 
+        },
+        {
+            "id": "06",
+            "description": "Create PIM Roles (and Admin Units)",
+            "runstep": "True",
+            "comments": "To Do: approvals and notifications, custom roles",
+            "parameters": {
+                "CreateAdminUnits": "True",
+                "Roles": [
+                    {
+                        "name": "Global Administrator",
+                        "scope": [
+                            "tenant"
+                        ],
+                        "eligibility": "180d",
+                        "duration": "4h"
+                    },
+                    {
+                        "name": "Application Administrator",
+                        "scope": [
+                            "tenant"
+                        ],
+                        "eligibility": "180d",
+                        "duration": "4h"
+                    },
+                    {
+                        "name": "Application Developer",
+                        "scope": [
+                            "tenant"
+                        ],
+                        "eligibility":"180d",
+                        "duration": "4h"
+                    },
+                    {
+                        "name": "Group Administrator",
+                        "scope": [
+                            "tenant",
+                            "mission"
+                        ],
+                        "eligibility": "180d",
+                        "duration": "4h"
+                    },
+                    {
+                        "name": "User Administrator",
+                        "scope": [
+                            "tenant",
+                            "mission"
+                        ],
+                        "eligibility": "180d",
+                        "duration": "4h"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "07",
+            "description": "Configure Conditional Access Policies",
+            "runstep": "True",
+            "comments": "Excludes current user from each rule. Enabled for Reporting Only",
+            "parameters": {
+                "rules": [
+                    {
+                        "displayname": "MLZ001: MFA - Require multifactor authentication for all users",
+                        "state": "enabledForReportingButNotEnforced",
+                        "sessionControls": null,
+                        "conditions": {
+                            "clientAppTypes": [
+                                "all"
+                            ],
+                            "servicePrincipalRiskLevels": [],
+                            "platforms": null,
+                            "locations": null,
+                            "times": null,
+                            "deviceStates": null,
+                            "devices": null,
+                            "clientApplications": null,
+                            "applications": {
+                                "includeApplications": [
+                                    "All"
+                                ],
+                                "excludeApplications": [],
+                                "includeUserActions": [],
+                                "includeAuthenticationContextClassReferences": []
+                            },
+                            "users": {
+                                "includeUsers": [],
+                                "excludeUsers": [],
+                                "includeGroups": [],
+                                "excludeGroups": [],
+                                "includeRoles": [
+                                    "62e90394-69f5-4237-9190-012177145e10",
+                                    "194ae4cb-b126-40b2-bd5b-6091b380977d",
+                                    "f28a1f50-f6e7-4571-818b-6a12f2af6b6c",
+                                    "29232cdf-9323-42fd-ade2-1d097af3e4de",
+                                    "b1be1c3e-b65d-4f19-8427-f6fa0d97feb9",
+                                    "729827e3-9c14-49f7-bb1b-9608f156bbb8",
+                                    "b0f54661-2d74-4c50-afa3-1ec803f12efe",
+                                    "fe930be7-5e62-47db-91af-98c3a49a38b1",
+                                    "c4e39bd9-1100-46d3-8c65-fb160da0071f",
+                                    "9b895d92-2cd3-44c7-9d02-a6ac2d5ea5c3",
+                                    "158c047a-c907-4556-b7ef-446551a6b5f7",
+                                    "966707d0-3269-4727-9be2-8c3a10f19b9d",
+                                    "7be44c8a-adaf-4e2a-84d6-ab2649e08a13",
+                                    "e8611ab8-c189-46e8-94e1-60213ab1f814"
+                                ],
+                                "excludeRoles": [],
+                                "includeGuestsOrExternalUsers": null,
+                                "excludeGuestsOrExternalUsers": null
+                            }
+                        },
+                        "grantControls": {
+                            "operator": "OR",
+                            "builtInControls": [
+                                "mfa"
+                            ],
+                            "customAuthenticationFactors": [],
+                            "termsOfUse": [],
+                            "authenticationStrength": null
+                        }
+                    },
+                    {
+                        "displayname": "MLZ002: MFA - Block Legacy Authentication",
+                        "state": "enabledForReportingButNotEnforced",
+                        "sessionControls": null,
+                        "conditions": {
+                            "userRiskLevels": [],
+                            "signInRiskLevels": [],
+                            "clientAppTypes": [
+                                "exchangeActiveSync",
+                                "other"
+                            ],
+                            "servicePrincipalRiskLevels": [],
+                            "platforms": null,
+                            "locations": null,
+                            "times": null,
+                            "deviceStates": null,
+                            "devices": null,
+                            "clientApplications": null,
+                            "applications": {
+                                "includeApplications": [
+                                    "All"
+                                ],
+                                "excludeApplications": [],
+                                "includeUserActions": [],
+                                "includeAuthenticationContextClassReferences": []
+                            },
+                            "users": {
+                                "includeUsers": [
+                                    "All"
+                                ],
+                                "excludeUsers": [],
+                                "includeGroups": [],
+                                "excludeGroups": [],
+                                "includeRoles": [],
+                                "excludeRoles": [],
+                                "includeGuestsOrExternalUsers": null,
+                                "excludeGuestsOrExternalUsers": null
+                            }
+                        },
+                        "grantControls": {
+                            "operator": "OR",
+                            "builtInControls": [
+                                "block"
+                            ],
+                            "customAuthenticationFactors": [],
+                            "termsOfUse": [],
+                            "authenticationStrength": null
+                        }
+                    },
+                    {
+                        "displayname": "MLZ003: MFA - Securing security info registration",
+                        "state": "enabledForReportingButNotEnforced",
+                        "sessionControls": null,
+                        "conditions": {
+                            "userRiskLevels": [],
+                            "signInRiskLevels": [],
+                            "clientAppTypes": [
+                                "all"
+                            ],
+                            "servicePrincipalRiskLevels": [],
+                            "platforms": null,
+                            "times": null,
+                            "deviceStates": null,
+                            "devices": null,
+                            "clientApplications": null,
+                            "applications": {
+                                "includeApplications": [],
+                                "excludeApplications": [],
+                                "includeUserActions": [
+                                    "urn:user:registersecurityinfo"
+                                ],
+                                "includeAuthenticationContextClassReferences": []
+                            },
+                            "users": {
+                                "includeUsers": [
+                                    "All"
+                                ],
+                                "excludeUsers": [
+                                    "GuestsOrExternalUsers"
+                                ],
+                                "includeGroups": [],
+                                "excludeGroups": [],
+                                "includeRoles": [],
+                                "excludeRoles": [
+                                    "62e90394-69f5-4237-9190-012177145e10"
+                                ],
+                                "includeGuestsOrExternalUsers": null,
+                                "excludeGuestsOrExternalUsers": null
+                            },
+                            "locations": {
+                                "includeLocations": [
+                                    "All"
+                                ],
+                                "excludeLocations": [
+                                    "AllTrusted"
+                                ]
+                            }
+                        },
+                        "grantControls": {
+                            "operator": "OR",
+                            "builtInControls": [
+                                "mfa"
+                            ],
+                            "customAuthenticationFactors": [],
+                            "termsOfUse": [],
+                            "authenticationStrength": null
+                        }
+                    },
+                    {
+                        "displayname": "MLZ004: Admins - Require phishing-resistant MFA for Azure AD admins",
+                        "state": "enabledForReportingButNotEnforced",
+                        "sessionControls": null,
+                        "conditions": {
+                            "userRiskLevels": [],
+                            "signInRiskLevels": [],
+                            "clientAppTypes": [
+                                "all"
+                            ],
+                            "servicePrincipalRiskLevels": [],
+                            "platforms": null,
+                            "locations": null,
+                            "times": null,
+                            "deviceStates": null,
+                            "devices": null,
+                            "clientApplications": null,
+                            "applications": {
+                                "includeApplications": [
+                                    "All"
+                                ],
+                                "excludeApplications": [],
+                                "includeUserActions": [],
+                                "includeAuthenticationContextClassReferences": []
+                            },
+                            "users": {
+                                "includeUsers": [],
+                                "excludeUsers": [],
+                                "includeGroups": [],
+                                "excludeGroups": [],
+                                "includeRoles": [
+                                    "62e90394-69f5-4237-9190-012177145e10",
+                                    "194ae4cb-b126-40b2-bd5b-6091b380977d",
+                                    "f28a1f50-f6e7-4571-818b-6a12f2af6b6c",
+                                    "29232cdf-9323-42fd-ade2-1d097af3e4de",
+                                    "b1be1c3e-b65d-4f19-8427-f6fa0d97feb9",
+                                    "729827e3-9c14-49f7-bb1b-9608f156bbb8",
+                                    "b0f54661-2d74-4c50-afa3-1ec803f12efe",
+                                    "fe930be7-5e62-47db-91af-98c3a49a38b1",
+                                    "c4e39bd9-1100-46d3-8c65-fb160da0071f",
+                                    "9b895d92-2cd3-44c7-9d02-a6ac2d5ea5c3",
+                                    "158c047a-c907-4556-b7ef-446551a6b5f7",
+                                    "966707d0-3269-4727-9be2-8c3a10f19b9d",
+                                    "7be44c8a-adaf-4e2a-84d6-ab2649e08a13",
+                                    "e8611ab8-c189-46e8-94e1-60213ab1f814"
+                                ],
+                                "excludeRoles": [],
+                                "includeGuestsOrExternalUsers": null,
+                                "excludeGuestsOrExternalUsers": null
+                            }
+                        },
+                        "grantControls": {
+                            "operator": "OR",
+                            "builtInControls": [],
+                            "customAuthenticationFactors": [],
+                            "termsOfUse": [],
+                            "authenticationStrength": {
+                                "id": "00000000-0000-0000-0000-000000000004",
+                                "displayName": "Phishing resistant MFA",
+                                "description": "Phishing-resistant, Passwordless methods for the strongest authentication, such as a FIDO2 security key",
+                                "policyType": "builtIn",
+                                "requirementsSatisfied": "mfa",
+                                "allowedCombinations": [
+                                    "windowsHelloForBusiness",
+                                    "fido2",
+                                    "x509CertificateMultiFactor"
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "displayname": "MLZ005: Admins - Require phishing-resistant MFA for Azure Management"
+                    },
+                    {
+                        "displayname": "MLZ006: Risk - Require password change for high risk users"
+                    },
+                    {
+                        "displayname": "MLZ007: Risk - Require password change for high risk users"
+                    }
+                ]
+            }
+        }
+    ]
+}
