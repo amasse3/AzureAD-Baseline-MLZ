@@ -96,7 +96,7 @@ Import the modified parameters file for use in the baseline configuration script
 
 ### 5. 🗒️ MLZ-BASELINE SCRIPT: Install the PowerShell modules
 
-`PS> 1_MLZ_Install_Tools.ps1 -ParametersJson $mlzparams`
+`PS> .\1_MLZ_Install_Tools.ps1 -ParametersJson $mlzparams`
 
 #### a. Manual module installation
 Use the commands below to install the tools manually:
@@ -231,7 +231,7 @@ Run the script to:
 - Permanently assign Global Administrator role to the Privileged Access Group
 - Create named administrator accounts
   
-`PS> ./2_MLZ_Create_Accounts.ps1 -ParametersJson $mlzparams`
+`PS> .\2_MLZ_Create_Accounts.ps1 -ParametersJson $mlzparams`
 
 ### 5. Complete setup for Emergency Access accounts
 Perform the following manual steps to complete the configuration:
@@ -304,7 +304,7 @@ Azure AD authenticaton methods allow an administrator to configure how users can
 ### 1. 🗒️ MLZ-BASELINE SCRIPT: Enable Authentication Methods
 Run the script to configure authentication methods:
 
-`PS>./3_MLZ_Config_AuthNMethods.ps1 -ParametersJson $mlzparams`
+`PS> .\3_MLZ_Config_AuthNMethods.ps1 -ParametersJson $mlzparams`
 
 The sections below describe the methods enabled.
 
@@ -406,7 +406,7 @@ The following role-assignable groups are used in the AAD Configuration Baseline:
 ### 3. 🗒️ MLZ-BASELINE SCRIPT: Create Azure AD security groups
 Run the script below to create Azure AD security groups:
 
-`PS>.\5_MLZ_Create_Groups.ps1 -ParametersJson $mlzparams`
+`PS> .\5_MLZ_Create_Groups.ps1 -ParametersJson $mlzparams`
 
 ## 6. Configure Privileged Identity Management (PIM)
 We enabled PIM when we signed in with the first AADP2-licensed Global Administrator in [step 1](#1-prepare-to-manage-azure-ad). This section assigns the groups created in the [previous section](#5-create-mlz-rbac-security-groups) to Azure and AAD roles using PIM:
@@ -417,7 +417,7 @@ We enabled PIM when we signed in with the first AADP2-licensed Global Administra
 ### 1. 🗒️ MLZ-BASELINE SCRIPT: Configure PIM
 Run the script below to configure PIM:
 
-`PS>.\6_MLZ_Config_PIM.ps1 -ParametersJson $mlzparams`
+`PS> .\6_MLZ_Config_PIM.ps1 -ParametersJson $mlzparams`
 
 - Enables PIM for Azure Subscriptions
 - Creates PIM roles for AAD and MLZ RBAC
@@ -466,7 +466,7 @@ This section enables key recommended access policies for all apps protected by A
 ### 1. 🗒️ MLZ-BASELINE SCRIPT: Configure Conditional Access
 Run the script below to configure Conditional Access Policies:
 
-`PS>.\7_MLZ_Config_CA.ps1 -ParametersJson $mlzparams`
+`PS> .\7_MLZ_Config_CA.ps1 -ParametersJson $mlzparams`
 
 The baseline script will configure CA policies in [Azure AD P2 - CA Policies for MLZ](#3-azure-ad-premium-p2---create-conditional-access-policies-for-mlz)
 
@@ -515,7 +515,7 @@ This section contains basic tenant-level settings applicable to all Azure AD ver
 ### 1. 🗒️ MLZ-BASELINE SCRIPT: Configure user, group, collaboration settings
 Run the script below to configure user, group, collaboration settings:
 
-`PS>.\8_MLZ_Config_UserGroupCollab.ps1 -ParametersJson $mlzparams`
+`PS> .\8_MLZ_Config_UserGroupCollab.ps1 -ParametersJson $mlzparams`
 
 The settings applied by the baseline are outlined below.
 
