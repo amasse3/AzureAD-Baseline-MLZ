@@ -720,6 +720,9 @@ Azure AD Application Proxy is an on-premises agent and cloud service that [secur
 > - [Security Benefits for Azure AD Application Proxy](https://learn.microsoft.com/en-us/azure/active-directory/app-proxy/what-is-application-proxy#security-benefits)
 > - [Secure Hybrid Access Partner Integrations](https://learn.microsoft.com/en-us/azure/active-directory/manage-apps/secure-hybrid-access#secure-hybrid-access-through-azure-ad-partner-integrations)
 
+</p>
+</details>
+
 ### Authentication Strength (Preview)
 Authentication Strengths is a feature that allows a tenant administrator to label authenticators (and combinations) according to the strength of the credential. Out-of-Box settings include:
 - Multifactor Authentication
@@ -760,9 +763,6 @@ Learn about Azure AD Access Reviews and understand how access granted to memeber
 Guest user lifecycle can be managed automatically using Entitlements Management when a Connected Organization is established for a partner organization. Review the capability and establish a connected organization with partner organizations with users that will be invited for collaboration and application access.
 
 > 📘 **Reference**: [Connected Organizations in Entitlements Management](https://learn.microsoft.com/en-us/azure/active-directory/governance/entitlement-management-organization)
-
-</p>
-</details>
 
 ## See Also
 ### MLZ Identity Add-On
