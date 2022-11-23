@@ -38,7 +38,7 @@ This section outlines the preliminary activities for configuring a new Azure AD 
 - [ ] [Prepare a secure workstation for managing Azure AD](#2-prepare-a-secure-workstation-for-managing-azure-ad)
 - [ ] [Modify the parameters file](#3-modify-the-mlz-aad-parametersjson-configuration-file)
 - [ ] [Load the parameters file](#4-load-the-mlz-aad-parametersjson)
-- [ ] [🗒️ MLZ-BASELINE SCRIPT: Install the PowerShell modules](#5-🗒️-mlz-baseline-script-install-the-powershell-modules)
+- [ ] [🗒️ Install the PowerShell modules](#5-🗒️-install-the-powershell-modules)
 - [ ] [Bookmark the Azure AD Portal URLs](#6-bookmark-the-azure-portal-urls)
 - [ ] [Create and the first Global Administrator](#7-create-the-first-global-administrator)
 - [ ] [License the first global administrator](#8-license-the-first-global-administrator)
@@ -94,7 +94,7 @@ Import the modified parameters file for use in the baseline configuration script
 
 > **Note:** the parameters will be referenced by the `$mlzparams` variable throughout this document.
 
-### 5. 🗒️ MLZ-BASELINE SCRIPT: Install the PowerShell modules
+### 5. 🗒️ Install the PowerShell modules
 
 `PS> .\1_MLZ_Install_Tools.ps1 -ParametersJson $mlzparams`
 
@@ -173,7 +173,7 @@ This section covers account creation for Emergency Access and day-to-day Azure A
 - [ ] [Develop emergency access procedures](#1-develop-emergency-access-procedures)
 - [ ] [Plan for monitoring and alerting emergency access account usage](#2-plan-for-monitoring-and-alerting-on-emergency-access-account-usage)
 - [ ] [Populate MLZ-Admin-List.csv](#3-populate-user-csv-for-named-administrators)
-- [ ] [🗒️ MLZ-BASELINE SCRIPT: Create Accounts](#4-🗒️-mlz-baseline-script-create-accounts))
+- [ ] [🗒️ Create Accounts](#4-🗒️-create-accounts)
 - [ ] [Complete setup for emergency access accounts](#5-complete-setup-for-emergency-access-accounts)
 - [ ] [Complete setup for named administrator accounts](#6-complete-setup-for-named-administrator-accounts)
 
@@ -222,7 +222,7 @@ Download and edit [MLZ-Admin-List.csv](/MLZ-Identity-AzureADSetup/src/MLZ-Admin-
 
 > **Note**: The **UserCertificateIds** field is needed for configuring Azure AD Certificate-based authentication. Setting this value upon user creation is optional.
 
-### 4. 🗒️ MLZ-BASELINE SCRIPT: Create Accounts
+### 4. 🗒️ Create Accounts
 
 Run the script to:
 - Create two Emergency Access Accounts
@@ -292,7 +292,7 @@ Passwordless, but not phishing-resistant. This required registration of an iOS o
 ## 3. Configure authentication methods
 Azure AD authenticaton methods allow an administrator to configure how users can authenticate to Azure AD.
 
-- [ ] [🗒️ MLZ-BASELINE SCRIPT: Enable Authentication Methods](#1-🗒️-mlz-baseline-script-enable-authentication-methods)
+- [ ] [🗒️ Enable Authentication Methods](#1-🗒️-enable-authentication-methods)
 - [ ] [Enable Microsoft Authenticator](#enable-microsoft-authenticator-app)
 - [ ] [Enable FIDO2 Security Keys](#enable-fido2-security-keys)
 
@@ -301,7 +301,7 @@ Azure AD authenticaton methods allow an administrator to configure how users can
 <details><summary><b>Show Content</b></summary>
 <p>
 
-### 1. 🗒️ MLZ-BASELINE SCRIPT: Enable Authentication Methods
+### 1. 🗒️ Enable Authentication Methods
 Run the script to configure authentication methods:
 
 `PS> .\3_MLZ_Config_AuthNMethods.ps1 -ParametersJson $mlzparams`
@@ -346,7 +346,7 @@ Steps for setting up Azure AD CBA with the DoD PKI can be found in [AAD-Certific
 Use this set of Azure AD Security Groups and RBAC role assignments as a baseline.
 - [ ] [Azure Resource RBAC](#1-azure-resource-rbac)
 - [ ] [Azure AD Directory Roles](#2-azure-ad-directory-roles)
-- [ ] [🗒️ MLZ-BASELINE SCRIPT: Create AAD Security Groups](#3-🗒️-mlz-baseline-script-create-azure-ad-security-groups)
+- [ ] [🗒️ Create AAD Security Groups](#3-🗒️-create-azure-ad-security-groups)
 
 <details><summary><b>Show Content</b></summary>
 <p>
@@ -403,7 +403,7 @@ The following role-assignable groups are used in the AAD Configuration Baseline:
 
 > **Note**: These security group and role assignments represent baseline configuration. Modify with additional roles as needed, starting with built-in roles when possible.
 
-### 3. 🗒️ MLZ-BASELINE SCRIPT: Create Azure AD security groups
+### 3. 🗒️ Create Azure AD security groups
 Run the script below to create Azure AD security groups:
 
 `PS> .\5_MLZ_Create_Groups.ps1 -ParametersJson $mlzparams`
@@ -411,10 +411,10 @@ Run the script below to create Azure AD security groups:
 ## 6. Configure Privileged Identity Management (PIM)
 We enabled PIM when we signed in with the first AADP2-licensed Global Administrator in [step 1](#1-prepare-to-manage-azure-ad). This section assigns the groups created in the [previous section](#5-create-mlz-rbac-security-groups) to Azure and AAD roles using PIM:
 
-- [ ] [🗒️ MLZ-BASELINE SCRIPT: Conigure PIM](#1-🗒️-mlz-baseline-script-configure-pim)
+- [ ] [🗒️ Conigure PIM](#1-🗒️-configure-pim)
 - [ ] [Review Securing Privileged Access in Azure AD](#2-review-securing-privileged-access-in-azure-ad)
 
-### 1. 🗒️ MLZ-BASELINE SCRIPT: Configure PIM
+### 1. 🗒️ Configure PIM
 Run the script below to configure PIM:
 
 `PS> .\6_MLZ_Config_PIM.ps1 -ParametersJson $mlzparams`
@@ -456,14 +456,14 @@ Familiarize yourself with the Securing Privileged Access guidance for Azure AD a
 ## 7. Deploy MLZ Conditional Access Policies
 This section enables key recommended access policies for all apps protected by Azure AD. This includes the Azure portal, Microsoft Graph, Azure Resource Manager, M365 applications, and any future applications integrated with Azure AD.
 
-- [🗒️ MLZ-BASELINE SCRIPT: Conigure Conditional Access](#1-🗒️-mlz-baseline-script-configure-conditional-access)
+- [🗒️ Conigure Conditional Access](#1-🗒️-configure-conditional-access)
 - [Azure AD Free only - turn on security defaults](#2-azure-ad-free---turn-on-security-defaults)
 - [Azure AD P2 - CA Policies for MLZ](#3-azure-ad-premium-p2---create-conditional-access-policies-for-mlz)
 
 <details><summary><b>Show Content</b></summary>
 <p>
 
-### 1. 🗒️ MLZ-BASELINE SCRIPT: Configure Conditional Access
+### 1. 🗒️ Configure Conditional Access
 Run the script below to configure Conditional Access Policies:
 
 `PS> .\7_MLZ_Config_CA.ps1 -ParametersJson $mlzparams`
@@ -504,7 +504,7 @@ Create the following Conditional Access policies:
 ## 8. Configure user, group, and external collaboration settings
 This section contains basic tenant-level settings applicable to all Azure AD versions. The MLZ baseline AAD script will set these configuration items according to the defaults outlined in each section. This configuration can be changed at any time. The baseline settings represent a starting point, and may not be functional for certain scenarios. For example, tenants that will be accessed by guests from another tenant must set the External Collaboration settings accordingly. The baseline offers a most restrictive experience, which turns off these collaboration features.
 
-- [ ] [🗒️ MLZ-BASELINE SCRIPT: Configure user, group, collaboration settings](#1-🗒️-mlz-baseline-script-configure-user-group-collaboration-settings)
+- [ ] [🗒️ Configure user, group, collaboration settings](#1-🗒️-configure-user-group-collaboration-settings)
 - [ ] [User Settings](#2-user-settings)
 - [ ] [Group Settings](#3-group-settings)
 - [ ] [External Collaboration Settings](#4-external-collaboration-settings)
@@ -512,7 +512,7 @@ This section contains basic tenant-level settings applicable to all Azure AD ver
 <details><summary><b>Show Content</b></summary>
 <p>
 
-### 1. 🗒️ MLZ-BASELINE SCRIPT: Configure user, group, collaboration settings
+### 1. 🗒️ Configure user, group, collaboration settings
 Run the script below to configure user, group, collaboration settings:
 
 `PS> .\8_MLZ_Config_UserGroupCollab.ps1 -ParametersJson $mlzparams`
@@ -589,7 +589,6 @@ New-MgDomain -BodyParameter $params
 7. Click **verify** to complete adding the custom domain.
 
 Now you can create users with the custom domain as the UPN suffix. Existing cloud-only (managed) users can be modified to use the custom domain suffix.
-
 
 > **Note**:
 Sometimes when custom domains are added to an Azure AD tenant, users who signed up for trial Microsoft services with their organization email address will appear in the tenant once the domain is verified. Do not be alarmed by this. To verify no other users have privileges within the tenant, [view the Azure AD role members](https://docs.microsoft.com/en-us/azure/active-directory/roles/view-assignments).
