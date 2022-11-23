@@ -13,8 +13,8 @@ Some steps require Azure AD P2 licensing for privileged users within the environ
 6. [Configure Privileged Identity Management](#6-configure-privileged-identity-management-pim)
 7. [Deploy MLZ Conditional Access Policies](#7-deploy-mlz-conditional-access-policies)
 8. [Configure user, group, collaboration settings](#8-configure-user-group-and-external-collaboration-settings)
-9. [Optional: evaluate hybrid identity options](#9-optional-evaluate-hybrid-identity-options)
-10. [Use Azure AD for Zero Trust](#10-use-azure-ad-for-zero-trust)
+9. [Optional configuration](#9-optional-configuration)
+10. [Enterprise Azure AD and Zero Trust](#10-enterprise-azure-ad-and-zero-trust)
 
 ## Sample Configuration Script
 This sample configuration script wraps the 8 separate scripts and applies all settings.
