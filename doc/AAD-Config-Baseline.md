@@ -30,17 +30,17 @@ This section outlines the preliminary activities for configuring a new Azure AD 
 <details><summary><b>Show Content</b></summary>
 <p>
 
-### Review the MLZ Deployment Patterns
+### 1. Review the MLZ Deployment Patterns
 Review the [MLZ Deployment Patterns](./MLZ-Common-Patterns.md#decision-tree) and determine which type will be used for the MLZ tenant.
 
 > **Warning**: The baseline configuration script should not be run in existing production Azure AD tenants, especially if M365 services are used. Settings applied in the baseline script may disrupt functionality and result in outage for end users.
 
-### Prepare a secure workstation for managing Azure AD
+### 2. Prepare a secure workstation for managing Azure AD
 There are several client tools for managing Azure AD configuration. Make sure you are managing Azure and Azure AD from a secure workstation. Ensure these privileged access devices include the Azure management tools outlined in this section. 
 
 > 📘 **Reference**: [Privileged Access Devices](https://docs.microsoft.com/en-us/security/compass/privileged-access-devices)
 
-### Modify the mlz-aad-parameters.json configuration file
+### 3. Modify the mlz-aad-parameters.json configuration file
 The parameters file for the MLZ tenant baseline configuration scripts includes all the settings for running the MLZ AAD Baseline scripts.
 
 The JSON-formatting parameters file can be found [here](/src/mlz-aad-parameters.json)
@@ -66,7 +66,7 @@ Each section of the parameters file corresponds with one of the configuration sc
 - 7_MLZ_Config_CA.ps1
 - 8_MLZ_Config_UserGroupCollab.ps1
 
-### Load the mlz-aad-parameters.json
+### 4. Load the mlz-aad-parameters.json
 Import the modified parameters file for use in the baseline configuration scripts.
 
 1. Download the contents from [src](/src/) to the workstation
@@ -76,11 +76,11 @@ Import the modified parameters file for use in the baseline configuration script
 
 > **Note:** the parameters will be referenced by the `$mlzparams` variable throughout this document.
 
-### 🗒️ MLZ-BASELINE SCRIPT: Install the PowerShell modules
+### 5. 🗒️ MLZ-BASELINE SCRIPT: Install the PowerShell modules
 
 `PS> 1_MLZ_Install_Tools.ps1 -ParametersJson $mlzparams`
 
-#### Manual module installation
+#### a. Manual module installation
 Use the commands below to install the tools manually:
 - [Azure Command-Line-Interface (CLI)](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli)
 - [Azure Az PowerShell](https://learn.microsoft.com/en-us/powershell/azure/install-az-ps?view=azps-9.0.1)
@@ -90,7 +90,7 @@ Use the commands below to install the tools manually:
 - [Azure AD PowerShell v2](https://learn.microsoft.com/en-us/powershell/azure/active-directory/install-adv2?view=azureadps-2.0)
   - `Install-Module AzureADPreview`
 
-### Bookmark the Azure portal URLs
+### 6. Bookmark the Azure portal URLs
 
  - Entra Admin Center
    - Global: **https://entra.microsoft.com**
@@ -99,7 +99,7 @@ Use the commands below to install the tools manually:
    - Global: **https://portal.azure.com**
    - Government: **https://portal.azure.us**
 
-### Create the first Global Administrator
+### 7. Create the first Global Administrator
 The first user in an Azure AD tenant will have super user / root access to the Azure AD tenant. This superuser permissions are assigned via the [Global Administrator](https://docs.microsoft.com/en-us/azure/active-directory/roles/permissions-reference#global-administrator) built-in role.
 
 Usually, the first user in Azure AD will be a guest / external user. This can be verified by navigating to the Users blade in the Azure AD Portal and investigating the **User Type** field. 
@@ -117,7 +117,7 @@ If the signed in account is not a **member** type, follow the steps below to cre
 
 > 📘 **Reference**: [Azure AD Setup Guide](https://go.microsoft.com/fwlink/p/?linkid=2183427)
 
-### License the first Global Administrator
+### 8. License the first Global Administrator
 1. Log in to the Azure Portal (https://portal.azure.com | https://portal.azure.us) as the first Global Administrator
 2. Search for **Azure Active Directory** and click the Azure AD icon to open the AAD Administration "blade" in the Azure Portal.
 3. Click **Licenses** and then **All Products**
@@ -126,13 +126,13 @@ If the signed in account is not a **member** type, follow the steps below to cre
 
 > 📘 **Reference**: [Assign or remove licenses in the Azure AD Portal](https://docs.microsoft.com/en-us/azure/active-directory/fundamentals/license-users-groups?)
 
-### Activate Privileged Identity Management
+### 9. Activate Privileged Identity Management
 While signed in to the Azure AD portal with the first administrator, perform the following:
 1. Search for **Azure AD Privileged Identity Management**
 2. Select **Azure AD Roles**
 3. Follow the prompts to enable PIM on the tenant.
 
-### Connect to the Azure AD Tenant with Microsoft Graph PowerShell
+### 10. Connect to the Azure AD Tenant with Microsoft Graph PowerShell
 Now we will ensure we can connect using MS Graph PowerShell. 
 
 1. Open PowerShell and run the following command to connect to Azure AD:
