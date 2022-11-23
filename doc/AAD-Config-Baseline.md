@@ -562,7 +562,9 @@ MLZ AAD baseline will set the following Azure AD external collaboration settings
 </p>
 </details>
 
-## 8. Optional: add a custom domain to Azure AD
+## 9. Optional Configuration
+
+### Add a custom domain to Azure AD
 When an Azure AD tenant is created, a default domain is assigned that looks like *tenantname.onmicrosoft.com* (*tenantname.onmicrosoft.us* for Azure AD Government). By default, all users in Azure AD get a UserPrincipalName (UPN) with the default domain suffix.
 
 [Custom domains](https://docs.microsoft.com/en-us/azure/active-directory/fundamentals/add-custom-domain) let tenant administrators use an organization's DNS domain for username suffixes, mail routing, etc.
@@ -595,7 +597,7 @@ Sometimes when custom domains are added to an Azure AD tenant, users who signed 
 </p>
 </details>
 
-## 9. Optional: evaluate hybrid identity options
+### Evaluate hybrid identity options
 Microsoft’s identity solutions span on-premises and cloud-based capabilities. These solutions create a common user identity for authentication and authorization to all resources. This configuration has 2 parts:
 - [ ] [Synchronization](#synchronization)
 - [ ] [Authentication](#authentication)
@@ -654,59 +656,12 @@ Pass-Through Authentication (PTA) and federation with ADFS are not recommended. 
 </p>
 </details>
 
-## 10. Use Azure AD for Zero Trust
+## 10. Enterprise Azure AD and Zero Trust
 
+- [ ] [Connect applications to Azure AD](#connect-applications-to-azure-ad)
 - [ ] [Authentication Strength](#authentication-strength-preview)
 - [ ] [Cross-Tenant Access Policies (XTAP)](#cross-tenant-access-policies-xtap-and-b2b-cross-cloud-collaboration)
 - [ ] [Identity Governance (IGA)](#identity-governance)
-- [ ] [Connect applications to Azure AD](#connect-applications-to-azure-ad)
-
-<details><summary><b>Show Content</b></summary>
-<p>
-
-### Authentication Strength (Preview)
-Authentication Strengths is a feature that allows a tenant administrator to label authenticators (and combinations) according to the strength of the credential. Out-of-Box settings include:
-- Multifactor Authentication
-- Passwordless Multifactor Authentication
-- Phishing-Resistant MFA
-
-Additional strengths, like NIST Authenticator Assurance Levels, can be configured by an administrator.
-
-> 📘 **Reference**: Configure Authentication Strength](https://learn.microsoft.com/en-us/azure/active-directory/authentication/concept-authentication-strengths)
-
-> 💡 **Recommendation**: Configure desired MFA strength for baseline access and update the 'All Users, All Apps, MFA' Conditional Access Policy to require Authentication Strength.
-
-### Cross-Tenant Access Policies (XTAP) and B2B Cross-Cloud Collaboration
-Cross-tenant access policies (XTAP) let an administrator configure "trust" relationships with other Azure AD tenants. This allows trusting device compliance and MFA claims for external users for a more secure and productive collaboration experience. Similar settings can be configured between Azure AD Commercial tenant and an Azure AD Government tenant. Cross-cloud collaboration requires setting Inbound and Outbound XTAP settings on the respective tenants.
-
-> - 📘 **Reference**: [Cross-tenant access with Azure AD external identities](https://learn.microsoft.com/en-us/azure/active-directory/external-identities/cross-tenant-access-overview)
-
-### Administrative units and custom roles
-Administrative Units provide a mechanism for scoping Azure AD roles to a particular set of resources. AUs can be scoped to users, groups, and devices. Resources can be assigned to an AU manually, or the AU can be configured with dynamic rules. Refer to the documentation below to learn about AUs and their use cases for scoping / delegating administration in Azure AD.
-
-> **Note**: Not all out-of-box Azure AD roles can be scoped to an AU. Review the [limitations](https://learn.microsoft.com/en-us/azure/active-directory/roles/administrative-units#groups) for Administrative Units.
-
-> 📘 **Reference**: [Administrative Units (AUs)](https://learn.microsoft.com/en-us/azure/active-directory/roles/administrative-units)
-
-### Identity governance
-Identity Governance defines a set of capabilities provided by Azure AD Premium P2 licensing.
-
-#### Entitlements Managmement
-Learn about Entitlements Management in Azure AD and understand how identity governance can help with permissions and application access.
-
-> 📘 **Reference**: [Entitlements Management](https://learn.microsoft.com/en-us/azure/active-directory/governance/entitlement-management-overview)
-
-#### Access Reviews
-Learn about Azure AD Access Reviews and understand how access granted to memebers and guests can be periodically reviewed to maintain least-privilege.
-> 📘 **Reference**: [Access Reviews](https://learn.microsoft.com/en-us/azure/active-directory/governance/access-reviews-overview)
-
-### Connected Orgs
-Guest user lifecycle can be managed automatically using Entitlements Management when a Connected Organization is established for a partner organization. Review the capability and establish a connected organization with partner organizations with users that will be invited for collaboration and application access.
-
-> 📘 **Reference**: [Connected Organizations in Entitlements Management](https://learn.microsoft.com/en-us/azure/active-directory/governance/entitlement-management-organization)
-
-</p>
-</details>
 
 ### Connect applications to Azure AD
 One of the first steps an organization can take in adopting zero trust principals is consolidating around a single cloud-based Identity as a Service (IdaaS) platform like Azure Active Directory.
@@ -765,6 +720,47 @@ Azure AD Application Proxy is an on-premises agent and cloud service that [secur
 > - [Optimize traffic flow with Azure Active Directory Application Proxy](https://learn.microsoft.com/en-us/azure/active-directory/app-proxy/application-proxy-network-topology)
 > - [Security Benefits for Azure AD Application Proxy](https://learn.microsoft.com/en-us/azure/active-directory/app-proxy/what-is-application-proxy#security-benefits)
 > - [Secure Hybrid Access Partner Integrations](https://learn.microsoft.com/en-us/azure/active-directory/manage-apps/secure-hybrid-access#secure-hybrid-access-through-azure-ad-partner-integrations)
+
+### Authentication Strength (Preview)
+Authentication Strengths is a feature that allows a tenant administrator to label authenticators (and combinations) according to the strength of the credential. Out-of-Box settings include:
+- Multifactor Authentication
+- Passwordless Multifactor Authentication
+- Phishing-Resistant MFA
+
+Additional strengths, like NIST Authenticator Assurance Levels, can be configured by an administrator.
+
+> 📘 **Reference**: Configure Authentication Strength](https://learn.microsoft.com/en-us/azure/active-directory/authentication/concept-authentication-strengths)
+
+> 💡 **Recommendation**: Configure desired MFA strength for baseline access and update the 'All Users, All Apps, MFA' Conditional Access Policy to require Authentication Strength.
+
+### Cross-Tenant Access Policies (XTAP) and B2B Cross-Cloud Collaboration
+Cross-tenant access policies (XTAP) let an administrator configure "trust" relationships with other Azure AD tenants. This allows trusting device compliance and MFA claims for external users for a more secure and productive collaboration experience. Similar settings can be configured between Azure AD Commercial tenant and an Azure AD Government tenant. Cross-cloud collaboration requires setting Inbound and Outbound XTAP settings on the respective tenants.
+
+> - 📘 **Reference**: [Cross-tenant access with Azure AD external identities](https://learn.microsoft.com/en-us/azure/active-directory/external-identities/cross-tenant-access-overview)
+
+### Administrative units and custom roles
+Administrative Units provide a mechanism for scoping Azure AD roles to a particular set of resources. AUs can be scoped to users, groups, and devices. Resources can be assigned to an AU manually, or the AU can be configured with dynamic rules. Refer to the documentation below to learn about AUs and their use cases for scoping / delegating administration in Azure AD.
+
+> **Note**: Not all out-of-box Azure AD roles can be scoped to an AU. Review the [limitations](https://learn.microsoft.com/en-us/azure/active-directory/roles/administrative-units#groups) for Administrative Units.
+
+> 📘 **Reference**: [Administrative Units (AUs)](https://learn.microsoft.com/en-us/azure/active-directory/roles/administrative-units)
+
+### Identity governance
+Identity Governance defines a set of capabilities provided by Azure AD Premium P2 licensing.
+
+#### Entitlements Managmement
+Learn about Entitlements Management in Azure AD and understand how identity governance can help with permissions and application access.
+
+> 📘 **Reference**: [Entitlements Management](https://learn.microsoft.com/en-us/azure/active-directory/governance/entitlement-management-overview)
+
+#### Access Reviews
+Learn about Azure AD Access Reviews and understand how access granted to memebers and guests can be periodically reviewed to maintain least-privilege.
+> 📘 **Reference**: [Access Reviews](https://learn.microsoft.com/en-us/azure/active-directory/governance/access-reviews-overview)
+
+### Connected Orgs
+Guest user lifecycle can be managed automatically using Entitlements Management when a Connected Organization is established for a partner organization. Review the capability and establish a connected organization with partner organizations with users that will be invited for collaboration and application access.
+
+> 📘 **Reference**: [Connected Organizations in Entitlements Management](https://learn.microsoft.com/en-us/azure/active-directory/governance/entitlement-management-organization)
 
 </p>
 </details>
