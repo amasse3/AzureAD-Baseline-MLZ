@@ -12,8 +12,8 @@ Document to describes permissions management and delegation models for Mission L
    - [Delegated](#delegated)
    - [Outsourced](#outsourced)
  - [Advanced Topics](#advanced-topics)
-   - [MitigateHybrid Identity Attack Paths](#mitigate-hybrid-identity-attack-paths)
-   - [Understand Management-Data Plane Crossover](#understand-management-data-plane-crossover)
+   - [Understand management-data plane crossover](#understand-management-data-plane-crossover)
+   - [Understand hybrid identity attack paths](#understand-hybrid-identity-attack-paths)
  - [See Also](#see-also)
 
 ## Permissions Types
@@ -222,10 +222,9 @@ Defender for Cloud helps identify and prioritize remediation for vulnerable reso
 
 > 📘 **Reference**: [Identify and remediate attack paths](https://learn.microsoft.com/en-us/azure/defender-for-cloud/how-to-manage-attack-path)
 
-# Mitigate Hybrid Identity Attack Paths
+### Understand Hybrid Identity Attack Paths
 Establishing hybrid identity is a fundamental part of establishing an enterprise identity platform, and one of the first steps an organization can take in adopting zero trust principals. 
 
-## Attack Paths
 Review the diagram below for hybrid identity attack paths:
 
 ![Attack Paths](../img/hybrid_attackpaths.png)
@@ -253,7 +252,7 @@ Review the diagram below for hybrid identity attack paths:
 
 > 📘 **Reference**: [Azure AD Connect account](https://learn.microsoft.com/en-us/azure/active-directory/hybrid/reference-connect-accounts-permissions#azure-ad-connector-account)
 
-## Recommended Mitigations
+### Recommended Mitigations
 Review the diagram below for mitigating hybrid identity attack paths:
 
 ![Mitigations](../img/hybrid_mitigations.png)
