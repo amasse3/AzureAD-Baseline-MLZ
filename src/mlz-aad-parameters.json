@@ -13,47 +13,46 @@
     "StepParameterSet": [
         {
             "id": "01",
-            "description": "Install PowerShell Modules",
+            "description": "Prepare to manage Azure AD",
             "runstep": "True",
             "comments": "",
             "parameters": {  
-                "modules": [  
+                "Modules": [  
                     "Az",  
                     "Microsoft.Graph.PowerShell",  
                     "AzureADPreview"
+                ],
+                "AdministrativeUnits": [
+
                 ]
             }
         },
         {
             "id": "02",
-            "description": "Create Break Glass Accounts",
+            "description": "Create Break Glass and Named Admin accounts",
             "runstep": "True",
             "comments": "",
             "parameters": { 
-                "EAAccountNames": [
-                    "mlz-EA01",
-                    "mlz-EA02"
-                ],
-                "EAGroupName": "Emergency Access Accounts",
-                "PWDLength": 16,
-                "MissionCode": "EA"
+                "EmergencyAccess": {
+                    "EAAccountNames": [
+                        "mlz-emergency01",
+                        "mlz-emergency02"
+                    ],
+                    "EAGroupName": "Emergency Access Accounts",
+                    "PWDLength": 16,
+                    "MissionCode": "EA"
+                },
+                "NamedAdmins": {
+                    "UserCSV": "MLZ-Admin.List.csv",
+                    "LicenseGroupName": "MLZ-License-AADP2",
+                    "PWDLength": 16,
+                    "MissionCode": "MLZ-Core"
+                }
             }
         },
         {
             "id": "03",
-            "description": "Create Named Admin Accounts",
-            "runstep": "True",
-            "comments": "",
-            "parameters": { 
-                "UserCSV": "MLZ-Admin.List.csv",
-                "LicenseGroupName": "MLZ-License-AADP2",
-                "PWDLength": 16,
-                "MissionCode": "MLZ-Core"
-            }
-        },
-        {
-            "id": "04",
-            "description": "Enable passwordless authentication methods",
+            "description": "Configure authentication methods",
             "runstep": "True",
             "comments": "",
             "parameters": {
@@ -130,8 +129,13 @@
             }
         },
         {
+            "id": "04",
+            "description": "Placeholder",
+            "comments": "This could include the exact CBA configuration and certificates for DOD PKI. Need ability to upload certificates via MS Graph PowerShell."
+        },
+        {
             "id": "05",
-            "description": "Create MLZ RBAC Groups",
+            "description": "Create MLZ Security Groups and Privileged Access Groups",
             "runstep": "True",
             "comments": "",
             "parameters": {
@@ -144,48 +148,84 @@
                                 "name": "Platform Owner",
                                 "scope": [
                                     "core"
-                                ]
+                                ],
+                                "description": "MLZ - User Access Administrator at the highest management group under /"
                             },
                             {
                                 "name": "Subscription Owner",
                                 "scope": [
                                     "core",
                                     "mission"
-                                ]
+                                ],
+                                "description": "MLZ - Subscription owner"
                             },
                             {
                                 "name": "Security Operations",
                                 "scope": [
                                     "core"
-                                ]
+                                ],
+                                "description": "MLZ - Sentinel contributor, Logic Apps Contributor, Security Reader."
                             },
                             {
                                 "name": "Subscription Contributor",
                                 "scope": [
                                     "core",
                                     "mission"
-                                ]
+                                ],
+                                "description": "MLZ - Subscription contributor"
                             },
                             {
                                 "name": "Subscription Reader",
                                 "scope": [
                                     "core",
                                     "mission"
-                                ]
+                                ],
+                                "description": "MLZ - Subscription Reader"
                             },
                             {
                                 "name": "Subscription Owner No Network Write",
                                 "scope": [
                                     "core",
                                     "mission"
-                                ]
+                                ],
+                                "description": "MLZ - custom role that grants owner with exception of network write permissions."
                             },
                             {
                                 "name": "Application Owners (DevOps)",
                                 "scope": [
                                     "core",
                                     "mission"
-                                ]
+                                ],
+                                "description": "MLZ - custom role for Application Owners."
+                            }
+                        ]
+                    },
+                    {
+                        "type": "PAG",
+                        "permission": "AAD",
+                        "Groups": [
+                            {
+                                "name": "RBAC Groups Administrator",
+                                "scope": [
+                                    "core",
+                                    "mission"
+                                ],
+                                "description": "MLZ - Group Administrator scoped to Administrative Unit."
+                            },
+                            {
+                                "name": "User Administrator",
+                                "scope": [
+                                    "core",
+                                    "mission"
+                                ],
+                                "description": "MLZ - User Administrator scoped to Administrative Unit."
+                            },
+                            {
+                                "name": "Application Developers",
+                                "scope": [
+                                    "core"
+                                ],
+                                "description": "MLZ - Application Developer group."
                             }
                         ]
                     }
@@ -194,7 +234,7 @@
         },
         {
             "id": "06",
-            "description": "Create PIM Roles (and Admin Units)",
+            "description": "Create PIM Roles",
             "runstep": "True",
             "comments": "To Do: approvals and notifications, custom roles",
             "parameters": {
@@ -486,6 +526,41 @@
                         "displayname": "MLZ007: Risk - Require passwordless MFA for medium risk sign ins"
                     }
                 ]
+            }
+        },
+        {
+            "id": "08",
+            "description": "Configure User, Group, Collaboration settings",
+            "runstep": "True",
+            "comments": "",
+            "parameters": {
+                "authorizationPolicy": {
+                    "allowInvitesFrom": "adminsAndGuestInviters",
+                    "allowedToSignUpEmailBasedSubscriptions": true,
+                    "allowedToUseSSPR": true,
+                    "allowEmailVerifiedUsersToJoinOrganization": false,
+                    "allowUserConsentForRiskyApps": null,
+                    "blockMsolPowerShell": false,
+                    "enabledPreviewFeatures": [],
+                    "guestUserRoleId": "10dae51f-b6af-4016-8d66-8c2a99b929b3",
+                    "permissionGrantPolicyIdsAssignedToDefaultUserRole": [
+                        "ManagePermissionGrantsForSelf.microsoft-user-default-legacy"
+                    ],
+                    "defaultUserRolePermissions": {
+                        "allowedToCreateApps": false,
+                        "allowedToCreateSecurityGroups": true,
+                        "allowedToCreateTenants": false,
+                        "allowedToReadBitlockerKeysForOwnedDevice": true,
+                        "allowedToReadOtherUsers": true
+                        }
+                },
+                "externalIdentityPolicy": {
+                    "allowExternalIdentitiesToLeave": true,
+                    "allowDeletedIdentitiesDataRemoval": false
+                },
+                "adminConsentRequestPolicy": {
+                    "isEnabled": false
+                }
             }
         }
     ]
