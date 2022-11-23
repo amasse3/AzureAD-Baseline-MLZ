@@ -8,29 +8,28 @@
             "Bravo",
             "Charlie"
         ],
-        "comments": ""
+        "LicenseSKUPartNumber": "DEVELOPERPACK_E5",
+        "comments": "Update these global parameters."
     },
     "StepParameterSet": [
         {
             "id": "01",
-            "description": "Prepare to manage Azure AD",
-            "runstep": "True",
-            "comments": "",
+            "description": "1_MLZ_Install_Tools",
+            "runstep": true,
+            "comments": "Also creates Admin Units",
             "parameters": {  
                 "Modules": [  
                     "Az",  
                     "Microsoft.Graph.PowerShell",  
                     "AzureADPreview"
                 ],
-                "AdministrativeUnits": [
-
-                ]
+                "CreateAdminUnits": true
             }
         },
         {
             "id": "02",
-            "description": "Create Break Glass and Named Admin accounts",
-            "runstep": "True",
+            "description": "2_MLZ_Create_Accounts",
+            "runstep": true,
             "comments": "",
             "parameters": { 
                 "EmergencyAccess": {
@@ -52,7 +51,7 @@
         },
         {
             "id": "03",
-            "description": "Configure authentication methods",
+            "description": "3_MLZ_Config_AuthNMethods",
             "runstep": "True",
             "comments": "",
             "parameters": {
@@ -130,12 +129,12 @@
         },
         {
             "id": "04",
-            "description": "Placeholder",
+            "description": "4_MLZ_Config_CBA",
             "comments": "This could include the exact CBA configuration and certificates for DOD PKI. Need ability to upload certificates via MS Graph PowerShell."
         },
         {
             "id": "05",
-            "description": "Create MLZ Security Groups and Privileged Access Groups",
+            "description": "5_MLZ_Create_Groups",
             "runstep": "True",
             "comments": "",
             "parameters": {
@@ -234,7 +233,7 @@
         },
         {
             "id": "06",
-            "description": "Create PIM Roles",
+            "description": "6_MLZ_Config_PIM",
             "runstep": "True",
             "comments": "To Do: approvals and notifications, custom roles",
             "parameters": {
@@ -287,7 +286,7 @@
         },
         {
             "id": "07",
-            "description": "Configure Conditional Access Policies",
+            "description": "7_MLZ_Config_CA",
             "runstep": "True",
             "comments": "Excludes current user and Break Glass accounts from each role. Report Only for now",
             "parameters": {
@@ -530,7 +529,7 @@
         },
         {
             "id": "08",
-            "description": "Configure User, Group, Collaboration settings",
+            "description": "8_MLZ_Config_UserGroupCollab",
             "runstep": "True",
             "comments": "",
             "parameters": {

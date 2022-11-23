@@ -5,7 +5,7 @@ This document provides key steps for deploying and securing Azure Active Directo
 Some steps require Azure AD P2 licensing for privileged users within the environment. Alternative steps are included in case licenses are not available during initial configuration.
 
 ## Table of Contents
-1. [Prepare to manage Azure AD](#1-prepare-to-manage-azure-ad)
+1. [Prepare to configure MLZ Azure AD](#1-prepare-to-configure-mlz-azure-ad)
 2. [Create accounts for Azure management](#2-create-accounts-for-azure-management)
 3. [Configure authentication methods](#3-configure-authentication-methods)
 4. [Configure certificate-based authentication](#4-configure-certificate-based-authentication)
@@ -16,16 +16,16 @@ Some steps require Azure AD P2 licensing for privileged users within the environ
 9. [Optional: evaluate hybrid identity options](#9-optional-evaluate-hybrid-identity-options)
 10. [Use Azure AD for Zero Trust](#10-use-azure-ad-for-zero-trust)
 
-## 1. Prepare to manage Azure AD
-The first user in an Azure AD tenant will have super user / root access to the entire Azure tenant. These permissions are assigned by the Global Administrator Azure AD role.
+## 1. Prepare to configure MLZ Azure AD
+This section outlines the preliminary activities for configuring a new Azure AD tenant for MLZ.
 
 - [ ] [Review the MLZ Deployment Patterns](#review-the-mlz-deployment-patterns)
 - [ ] [Prepare a secure workstation for managing Azure AD](#prepare-a-secure-workstation-for-managing-azure-ad)
 - [ ] [Install Azure Management Tools](#install-azure-management-tools)
-- [ ] [Create the first Global Administrator](#create-the-first-global-administrator)
-- [ ] [License the first Global Administrator](#license-the-first-global-administrator)
-- [ ] [Connect to Azure AD with MS Graph PowerShell](#connect-to-the-azure-ad-tenant-with-microsoft-graph-powershell)
-- [ ] [Create Administrative Units](#create-administrative-units)
+- [ ] [Bookmark the Azure AD Portal URLs](#bookmark-the-azure-portal-urls)
+- [ ] [Create and license the first Global Administrator](#create-the-first-global-administrator)
+- [ ] [Verify connectivity using MS Graph PowerShell](#connect-to-the-azure-ad-tenant-with-microsoft-graph-powershell)
+- [ ] [Modify mlz-aad-parameters.json](#modify-the-mlz-aad-parametersjson-configuration-file)
 
 <details><summary><b>Show Content</b></summary>
 <p>
@@ -40,8 +40,48 @@ There are several client tools for managing Azure AD configuration. Make sure yo
 
 > 📘 **Reference**: [Privileged Access Devices](https://docs.microsoft.com/en-us/security/compass/privileged-access-devices)
 
-### Install Azure management tools
-Install the following tools locally to the Azure management workstation:
+### Modify the mlz-aad-parameters.json configuration file
+The parameters file for the MLZ tenant baseline configuration scripts includes all the settings for running the MLZ AAD Baseline scripts.
+
+The JSON-formatting parameters file can be found [here](/src/mlz-aad-parameters.json)
+
+At minimum, modify the **GlobalParameterSet**.
+
+|Parameter|Description|DefaultValue|
+|---------|-----------|------------|
+|Environment|Azure Environment for Microsoft Graph PowerShell. Values should match "Global","USGov", or "USGovDOD"|Global|
+|EAGroupName|Name of the group containing Emergency Access accounts. Used to exclude these accounts from Conditional Access policies.|Emergency Access Accounts|
+|PWDLength|Length of random passwords set by the deployment script.|16|
+|MissionAUs|Array of names for Administrative Units. Applicable if using delegated administration model.|[Alpha,Bravo,Charlie]|
+|LicenseSKUPartNumber|License SKU for AAD P2 / E5 <br>Find using $(get-mgsubscribedsku).SKUPartNumber|DEVELOPERPACK_E5|
+
+Each section of the parameters file corresponds with one of the configuration scripts.
+
+- 1_MLZ_Install_Tools.ps1
+- 2_MLZ_Create_Accounts.ps1
+- 3_MLZ_Config_AuthNMethods.ps1
+- 4_MLZ_Config_CBA.ps1
+- 5_MLZ_Create_Groups.ps1
+- 6_MLZ_Config_PIM.ps1
+- 7_MLZ_Config_CA.ps1
+- 8_MLZ_Config_UserGroupCollab.ps1
+
+### Load the mlz-aad-parameters.json
+Import the modified parameters file for use in the baseline configuration scripts.
+
+1. Download the contents from [src](/src/) to the workstation
+2. Launch PowerShell
+3. Navigate to the directory for the downloaded files using `cd`
+4. Import the JSON parameters file: `$mlzparams = $(Get-Content ./mlz-aad-parameters.json) | convertFrom-Json`
+
+> **Note:** the parameters will be referenced by the `$mlzparams` variable throughout this document.
+
+### 🗒️ MLZ-BASELINE SCRIPT: Install the PowerShell modules
+
+`PS> 1_MLZ_Install_Tools.ps1 -ParametersJson $mlzparams`
+
+#### Manual module installation
+Use the commands below to install the tools manually:
 - [Azure Command-Line-Interface (CLI)](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli)
 - [Azure Az PowerShell](https://learn.microsoft.com/en-us/powershell/azure/install-az-ps?view=azps-9.0.1)
   - `Install-Module Az`
@@ -50,10 +90,21 @@ Install the following tools locally to the Azure management workstation:
 - [Azure AD PowerShell v2](https://learn.microsoft.com/en-us/powershell/azure/active-directory/install-adv2?view=azureadps-2.0)
   - `Install-Module AzureADPreview`
 
-### Create the first Global Administrator
-Log in with an account that is a [Global Administrator](https://docs.microsoft.com/en-us/azure/active-directory/roles/permissions-reference#global-administrator) within the tenant. Usually, the first user that created the Azure AD tenant will be a guest / external user. This can be verified by navigating to the Users blade in the Azure AD Portal and investigating the **User Type** field. 
+### Bookmark the Azure portal URLs
 
-If the signed in account is not a **member** type, follow the steps below:
+ - Entra Admin Center
+   - Global: **https://entra.microsoft.com**
+   - Government: **https://entra.microsoft.us**
+ - Azure Portal
+   - Global: **https://portal.azure.com**
+   - Government: **https://portal.azure.us**
+
+### Create the first Global Administrator
+The first user in an Azure AD tenant will have super user / root access to the Azure AD tenant. This superuser permissions are assigned via the [Global Administrator](https://docs.microsoft.com/en-us/azure/active-directory/roles/permissions-reference#global-administrator) built-in role.
+
+Usually, the first user in Azure AD will be a guest / external user. This can be verified by navigating to the Users blade in the Azure AD Portal and investigating the **User Type** field. 
+
+If the signed in account is not a **member** type, follow the steps below to create a new "first user" in the Azure AD tenant:
 1. [Add a new user in Azure AD](https://docs.microsoft.com/en-us/azure/active-directory/fundamentals/add-users-azure-active-directory#add-a-new-user)
    1. Record the username, including the domain suffix
    2. Note the temporary password
@@ -92,10 +143,7 @@ Now we will ensure we can connect using MS Graph PowerShell.
 - Azure AD Government - DoD
   - `Connect-MgGraph -Environment UsGovDoD`
 2. Sign in with the first administrator account.
-
-### Create Administrative Units
-Placeholder
-
+ 
 </p>
 </details>
 
