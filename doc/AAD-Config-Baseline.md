@@ -16,6 +16,21 @@ Some steps require Azure AD P2 licensing for privileged users within the environ
 9. [Optional: evaluate hybrid identity options](#9-optional-evaluate-hybrid-identity-options)
 10. [Use Azure AD for Zero Trust](#10-use-azure-ad-for-zero-trust)
 
+## Sample Configuration Script
+This sample configuration script wraps the 8 separate scripts and applies all settings.
+
+```PowerShell
+$mlzparms = $(get-content mlz-aad-parameters.json) | convertFrom-Json
+.\1_MLZ_Install_Tools.ps1 -ParametersJson $mlzparams
+.\2_MLZ_Create_Accounts.ps1 -ParametersJson $mlzparams
+.\3_MLZ_Config_AuthNMethods.ps1 -ParametersJson $mlzparams
+#.\4_MLZ_Config_CBA.ps1 -ParametersJson $mlzParams #Note: Note used in this version
+.\5_MLZ_Create_Groups.ps1 -ParametersJson $mlzparams
+.\6_MLZ_Config_PIM.ps1 -ParametersJson $mlparams
+.\7_MLZ_Config_CA.ps1 -ParametersJson $mlzparams
+.\8_MLZ_Config_UserGroupCollab.ps1 -ParametersJson $mlzparams
+```
+
 ## 1. Prepare to configure MLZ Azure AD
 This section outlines the preliminary activities for configuring a new Azure AD tenant for MLZ.
 
@@ -453,6 +468,8 @@ Run the script below to configure Conditional Access Policies:
 
 `PS>.\7_MLZ_Config_CA.ps1 -ParametersJson $mlzparams`
 
+The baseline script will configure CA policies in [Azure AD P2 - CA Policies for MLZ](#3-azure-ad-premium-p2---create-conditional-access-policies-for-mlz)
+
 ### 2. Azure AD Free - Turn on Security Defaults**
 Azure AD Free offers a feature called Security Defaults. This feature performs basic security configuration for the Azure AD platform. Azure AD Conditional Access Policies should replace or enhance protections enabled by Security Defaults. 
 
@@ -487,10 +504,10 @@ Create the following Conditional Access policies:
 ## 8. Configure user, group, and external collaboration settings
 This section contains basic tenant-level settings applicable to all Azure AD versions. The MLZ baseline AAD script will set these configuration items according to the defaults outlined in each section. This configuration can be changed at any time. The baseline settings represent a starting point, and may not be functional for certain scenarios. For example, tenants that will be accessed by guests from another tenant must set the External Collaboration settings accordingly. The baseline offers a most restrictive experience, which turns off these collaboration features.
 
-- [ ] [🗒️ MLZ-BASELINE SCRIPT: Configure user, group, collaboration settings]
-- [ ] [User Settings](#user-settings)
-- [ ] [Group Settings](#group-settings)
-- [ ] [External Collaboration Settings](#external-collaboration-settings)
+- [ ] [🗒️ MLZ-BASELINE SCRIPT: Configure user, group, collaboration settings](#1-🗒️-mlz-baseline-script-configure-user-group-collaboration-settings)
+- [ ] [User Settings](#2-user-settings)
+- [ ] [Group Settings](#3-group-settings)
+- [ ] [External Collaboration Settings](#4-external-collaboration-settings)
 
 <details><summary><b>Show Content</b></summary>
 <p>
