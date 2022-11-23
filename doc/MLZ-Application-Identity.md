@@ -2,25 +2,12 @@
 This document contains identity guidance for applications running in Mission Landing Zone.
 
 ## Table of Contents
+- [Azure AD - the everything identity platform](#azure-ad---the-everything-identity-platform)
+- [Azure Active Directory and Zero Trust](#azure-active-directory-and-zero-trust)
 - [Understanding Azure AD Identities](#understanding-azure-ad-identities)
-- [Azure AD tenant types](#azure-ad-tenant-types)
-- [Enterprise Azure AD tenant](#enterprise-azure-ad-tenant)
 - [Application Types](#application-types)
-  - Modern Apps
-  - Legacy Apps
-- Zero Trust
-  - Policy Enforcement Point
-  - Conditional Access
--- Azure AD for application identity
-  - Modern Apps
-  - Legacy Apps
-- Azure AD Application Proxy and Secure Hybrid Access Partners
-- B2B guest identities
-- Common Scenarios
-  - 1. MLZ subscriptions attached to a separate Azure Platform (MLZ) tenant
-  - 2. MLZ subscriptions attached to an Enterprise tenant
-  - 3. B2B guests and MLZ
-- See Also
+- [Collaboration with Azure AD](#collaboration-with-azure-ad)
+- [See Also](#see-also)
 
 ## Azure AD - the everything identity platform
 Azure Active Directory is not just the Microsoft cloud Identity as a Service (IDaaS) platform, but the everything identity platform for all enterprise applications.
