@@ -14,8 +14,7 @@ Some steps require Azure AD P2 licensing for privileged users within the environ
 7. [Deploy MLZ Conditional Access Policies](#7-deploy-mlz-conditional-access-policies)
 8. [Configure user, group, collaboration settings](#8-configure-user-group-and-external-collaboration-settings)
 9. [Optional: evaluate hybrid identity options](#9-optional-evaluate-hybrid-identity-options)
-10. [Configure additional features](#10-configure-additional-features)
-11. [Next Step: Connect applications to Azure AD](#next-step-connect-applications-to-azure-ad)
+10. [Use Azure AD for Zero Trust](#10-use-azure-ad-for-zero-trust)
 
 ## 1. Prepare to manage Azure AD
 The first user in an Azure AD tenant will have super user / root access to the entire Azure tenant. These permissions are assigned by the Global Administrator Azure AD role.
@@ -255,7 +254,6 @@ Azure AD authenticaton methods allow an administrator to configure how users can
 
 - [ ] [Enable Microsoft Authenticator](#enable-microsoft-authenticator-app)
 - [ ] [Enable FIDO2 Security Keys](#enable-fido2-security-keys)
-- [ ] [Configure Azure AD Certificate-Based Authentication](#configure-azure-ad-native-certificate-based-authentication)
 
 > 📘 **Reference**: [What authentication verification methods are available in Azure AD](https://docs.microsoft.com/en-us/azure/active-directory/authentication/concept-authentication-methods)
 
@@ -406,14 +404,14 @@ This section enables key recommended access policies for all apps protected by A
 <details><summary><b>Show Content</b></summary>
 <p>
 
-**Azure AD Free - Turn on Security Defaults**
+### Azure AD Free - Turn on Security Defaults**
 Azure AD Free offers a feature called Security Defaults. This feature performs basic security configuration for the Azure AD platform. Azure AD Conditional Access Policies should replace or enhance protections enabled by Security Defaults. 
 
 > 💡**Recommendation**: Azure AD Premium customers should only enable Security Defaults as a stop-gap until CA Policies are configured and tested.
 
 To enable security defaults, see [Enable Security Defaults](https://docs.microsoft.com/en-us/azure/active-directory/fundamentals/concept-fundamentals-security-defaults).
 
-**Azure AD Premium P2 - Create Conditional Access Policies for MLZ**
+### Azure AD Premium P2 - Create Conditional Access Policies for MLZ**
 Create the following Conditional Access policies:
 
 |ID|Category|Description|Users|Applications|Controls|
@@ -582,21 +580,15 @@ Pass-Through Authentication (PTA) and federation with ADFS are not recommended. 
 </p>
 </details>
 
-## 10. Configure additional features
-- [ ] [Group-based licensing](#group-based-licensing)
+## 10. Use Azure AD for Zero Trust
+
 - [ ] [Authentication Strength](#authentication-strength-preview)
 - [ ] [Cross-Tenant Access Policies (XTAP)](#cross-tenant-access-policies-xtap-and-b2b-cross-cloud-collaboration)
 - [ ] [Identity Governance (IGA)](#identity-governance)
+- [ ] [Connect applications to Azure AD](#connect-applications-to-azure-ad)
 
 <details><summary><b>Show Content</b></summary>
 <p>
-
-### Group-based licensing
-Group-based licensing is an Azure AD Premium feauture that automatically applied licenses to members of a security group. Creating [dynamic groups](https://docs.microsoft.com/en-us/azure/active-directory/enterprise-users/groups-create-rule) can further automate this process, since these groups are populated based on user attribute values.
-
-To use group-based licensing, follow steps in [assign licenses to a group](https://docs.microsoft.com/en-us/azure/active-directory/enterprise-users/licensing-groups-assign).
-
-> 📘 **Reference**: [Group-based licensing with PowerShell and Microsoft Graph](https://docs.microsoft.com/en-us/azure/active-directory/enterprise-users/licensing-ps-examples)
 
 ### Authentication Strength (Preview)
 Authentication Strengths is a feature that allows a tenant administrator to label authenticators (and combinations) according to the strength of the credential. Out-of-Box settings include:
@@ -642,7 +634,7 @@ Guest user lifecycle can be managed automatically using Entitlements Management 
 </p>
 </details>
 
-## Next Step: connect applications to Azure AD
+### Connect applications to Azure AD
 One of the first steps an organization can take in adopting zero trust principals is consolidating around a single cloud-based Identity as a Service (IdaaS) platform like Azure Active Directory.
 
 This section describes steps to integrate applications with Azure AD.
@@ -656,13 +648,13 @@ This section describes steps to integrate applications with Azure AD.
 <details><summary><b>Show Content</b></summary>
 <p>
 
-### 📘 Review MLZ-Application-Identity
+#### 📘 Review MLZ-Application-Identity
 Detailed guidance around identity for MLZ applications can be found in the referenced document below.
 
 > **Reference**: [Identity for MLZ Applications](./MLZ-Application-Identity.md)
 
 
-### Consolidate around an Azure AD tenant
+#### Consolidate around an Azure AD tenant
 Standardizing around a common identity platform often requires changes to IT policy mandating new applications (procured and developed in house) targets Azure Active Directory. The Azure AD tenant containing all users in the organization, especially if it is used for M365, is a good choice because the same zero trust access and device management policies for M365 can be re-used for any application in the organization.
 
 > 💡 **Recommendation**: 
@@ -674,12 +666,12 @@ Standardizing around a common identity platform often requires changes to IT pol
 > - [Planning identity for Azure Government applications](https://learn.microsoft.com/en-us/azure/azure-government/documentation-government-plan-identity)
 > - [Microsoft Zero Trust Resources](https://www.microsoft.com/en-us/security/business/zero-trust)
 
-### Add Enterprise Applications to Azure AD
+#### Add Enterprise Applications to Azure AD
 Enterprise Apps are application resources assigned to users in your Azure Active Directory. Add applications from the Azure AD Gallery or add non-gallery apps that use SAML, WS-Federation, OpenID Connect, or OAuth protocols.
 
 > 📘 **Reference**: [Overview of the Azure Active Directory application gallery](https://learn.microsoft.com/en-us/azure/active-directory/manage-apps/overview-application-gallery)
 
-### Develop new applications for Azure AD
+#### Develop new applications for Azure AD
 Develop new applications and APIs to use Azure AD for authentication and authorization.
 
 > 📘 **Reference**:
@@ -687,7 +679,7 @@ Develop new applications and APIs to use Azure AD for authentication and authori
 >   - [Security best practices for application properties in Azure Active Directory](https://learn.microsoft.com/en-us/azure/active-directory/develop/security-best-practices-for-app-registration)
 >   - [Microsoft Identity Platform code samples](https://learn.microsoft.com/en-us/azure/active-directory/develop/sample-v2-code)
 
-### Add on-premises applications to Azure AD
+#### Add on-premises applications to Azure AD
 Azure AD Application Proxy is an on-premises agent and cloud service that [securely publishes](https://learn.microsoft.com/en-us/azure/active-directory/app-proxy/application-proxy-security) on-premises applications that use [Kerberos-based](https://learn.microsoft.com/en-us/azure/active-directory/app-proxy/application-proxy-configure-single-sign-on-with-kcd), [password-based]https://learn.microsoft.com/en-us/azure/active-directory/app-proxy/application-proxy-configure-single-sign-on-password-vaulting), [SAML](https://learn.microsoft.com/en-us/azure/active-directory/app-proxy/application-proxy-configure-single-sign-on-on-premises-apps), and [header-based](https://learn.microsoft.com/en-us/azure/active-directory/app-proxy/application-proxy-configure-single-sign-on-with-headers) authentication protocols. This feature allows organizations to gain [single sign-on](https://learn.microsoft.com/en-us/azure/active-directory/app-proxy/application-proxy-config-sso-how-to) and zero trust security controls for existing applications, without expensive network appliances or VPNs. Remote access to on-premises applications is achieved without code change to applications or opening inbound ports for the external firewall.
 
 > 💡 **Recommendation**:
