@@ -30,7 +30,7 @@ $mlzparms = $(get-content mlz-aad-parameters.json) | convertFrom-Json
 To apply all configuration sections in the baseline, use the `-All` switch along with the parameters.
 
 ```PowerShell
-.\Configure-AADTenantBaseline.ps1 -All -ParametersJson $mlzparams
+.\Configure-AADTenantBaseline.ps1 -ParametersJson $mlzparams -All
 
 ```
 ### Apply individual configurations

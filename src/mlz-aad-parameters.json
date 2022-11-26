@@ -11,10 +11,9 @@
         "LicenseSKUPartNumber": "DEVELOPERPACK_E5",
         "comments": "Update these global parameters."
     },
-    "StepParameterSet": [
-        {
+    "StepParameterSet": {
+        "PSTools": {
             "id": "01",
-            "name": "PSTools",
             "description": "1_MLZ_Install_Tools",
             "runstep": true,
             "comments": "Also creates Admin Units",
@@ -27,9 +26,8 @@
                 "CreateAdminUnits": true
             }
         },
-        {
+        "Accounts": {
             "id": "02",
-            "name": "Accounts",
             "description": "2_MLZ_Create_Accounts",
             "runstep": true,
             "comments": "",
@@ -53,9 +51,8 @@
                 }
             }
         },
-        {
+        "AuthNMethods": {
             "id": "03",
-            "name": "AuthNMethods",
             "description": "3_MLZ_Config_AuthNMethods",
             "runstep": true,
             "comments": "",
@@ -132,13 +129,13 @@
                 ]
             }
         },
-        {
+        "CBA": {
             "id": "04",
             "name": "CBA",
             "description": "4_MLZ_Config_CBA",
             "comments": "This could include the exact CBA configuration and certificates for DOD PKI. Need ability to upload certificates via MS Graph PowerShell."
         },
-        {
+        "Groups": {
             "id": "05",
             "name": "Groups",
             "description": "5_MLZ_Create_Groups",
@@ -240,9 +237,8 @@
                 ]
             } 
         },
-        {
+        "PIM": {
             "id": "06",
-            "name": "PIM",
             "description": "6_MLZ_Config_PIM",
             "runstep": true,
             "comments": "To Do: approvals and notifications, custom roles",
@@ -294,9 +290,8 @@
                 ]
             }
         },
-        {
+        "CA": {
             "id": "07",
-            "name": "CA",
             "description": "7_MLZ_Config_CA",
             "runstep": "True",
             "comments": "Excludes current user and Break Glass accounts from each role. Report Only for now",
@@ -711,9 +706,8 @@
                 ]
             }
         },
-        {
+        "UserGroupCollab": {
             "id": "08",
-            "name": "UserGroupCollabSettings",
             "description": "8_MLZ_Config_UserGroupCollab",
             "runstep": true,
             "comments": "",
@@ -747,5 +741,5 @@
                 }
             }
         }
-    ]
+    }
 }
