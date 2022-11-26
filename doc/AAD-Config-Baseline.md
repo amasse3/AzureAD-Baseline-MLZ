@@ -17,31 +17,43 @@ Some steps require Azure AD P2 licensing for privileged users within the environ
 10. [Enterprise Azure AD and Zero Trust](#10-enterprise-azure-ad-and-zero-trust)
 
 ## Sample Configuration Script
-This sample configuration script using the `-All` parameter, applies settings for the global and 8 step configuration sets from the `mlz-aad-parameters.json` file.
+This section demonstrates using the [Configure-AADTenantBaseline.ps1](/src/Configure-AADTenantBaseline.ps1) script.
+
+### Read in the parameters file
+Read in the mlz-aad-parameters.json file so it can be passed as a variable to the `ParametersJson` parameter.
 
 ```PowerShell
 $mlzparms = $(get-content mlz-aad-parameters.json) | convertFrom-Json
 
-.\Configure-AADTenantBaseline.ps1 -All
-
 ```
-To apply individual sections, include them in the `-ConfigurationSteps` flag as an array using the "id" values.
+### All Baseline Configurations
+To apply all configuration sections in the baseline, use the `-All` switch along with the parameters.
 
 ```PowerShell
-$mlzparms = $(get-content mlz-aad-parameters.json) | convertFrom-Json
+.\Configure-AADTenantBaseline.ps1 -All -ParametersJson $mlzparams
 
-.\Configure-AADTenantBaseline.ps1 -ConfigurationSteps @("02","03","04")
 ```
+### Apply individual configurations
+To apply individual sections, include switches for each.
+
+```PowerShell
+.\Configure-AADTenantBaseline.ps1 -ParametersJson $mlzparams -PSTools -Accounts -AuthNMethods -Groups -PIM -CA -UserGroupCollabSettings
+```
+
 If no parameters are supplied with the script, it will prompt the user to choose a specific step to run.
 
 ```PowerShell
-PS> .\Configure-AADTenantBaseline.ps1
-PS> Specify a parameters file path:
+PS> .\Configure-AADTenantBaseline.ps1 -ParametersJson $mlzparams
 PS> Choose a step:
-PS> - 1_MLZ_Install_Tools
-PS> - 2 MLZ_Create_Accounts
-
-...
+    - 1_MLZ_Install_Tools
+    - 2_MLZ_Create_Accounts
+    - 3_MLZ_Config_AuthNMethods
+    - 4_MLZ_Config_CBA
+    - 5_MLZ_CreateGroups
+    - 6_MLZ_Config_PIM
+    - 7_MLZ_Config_CA
+    - 8_MLZ_Config_UserGroupCollab
+PS> 
 ```
 
 ## 1. Prepare to configure MLZ Azure AD

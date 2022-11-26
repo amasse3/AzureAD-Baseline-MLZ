@@ -14,6 +14,7 @@
     "StepParameterSet": [
         {
             "id": "01",
+            "name": "PSTools",
             "description": "1_MLZ_Install_Tools",
             "runstep": true,
             "comments": "Also creates Admin Units",
@@ -28,11 +29,13 @@
         },
         {
             "id": "02",
+            "name": "Accounts",
             "description": "2_MLZ_Create_Accounts",
             "runstep": true,
             "comments": "",
             "parameters": { 
                 "EmergencyAccess": {
+                    "runsubstep": true,
                     "EAAccountNames": [
                         "mlz-emergency01",
                         "mlz-emergency02"
@@ -42,6 +45,7 @@
                     "MissionCode": "EA"
                 },
                 "NamedAdmins": {
+                    "runsubstep": true,
                     "UserCSV": "MLZ-Admin.List.csv",
                     "LicenseGroupName": "MLZ-License-AADP2",
                     "PWDLength": 16,
@@ -51,8 +55,9 @@
         },
         {
             "id": "03",
+            "name": "AuthNMethods",
             "description": "3_MLZ_Config_AuthNMethods",
-            "runstep": "True",
+            "runstep": true,
             "comments": "",
             "parameters": {
                 "AuthenticationMethodsConfigurations": [
@@ -129,19 +134,22 @@
         },
         {
             "id": "04",
+            "name": "CBA",
             "description": "4_MLZ_Config_CBA",
             "comments": "This could include the exact CBA configuration and certificates for DOD PKI. Need ability to upload certificates via MS Graph PowerShell."
         },
         {
             "id": "05",
+            "name": "Groups",
             "description": "5_MLZ_Create_Groups",
-            "runstep": "True",
+            "runstep": true,
             "comments": "",
             "parameters": {
                 "Groups": [
                     {
                         "type": "Security",
                         "permission": "AzureRBAC",
+                        "runsubstep": true,
                         "Groups": [
                             {
                                 "name": "Platform Owner",
@@ -202,6 +210,7 @@
                     {
                         "type": "PAG",
                         "permission": "AAD",
+                        "runsubstep": true,
                         "Groups": [
                             {
                                 "name": "RBAC Groups Administrator",
@@ -233,8 +242,9 @@
         },
         {
             "id": "06",
+            "name": "PIM",
             "description": "6_MLZ_Config_PIM",
-            "runstep": "True",
+            "runstep": true,
             "comments": "To Do: approvals and notifications, custom roles",
             "parameters": {
                 "CreateAdminUnits": "True",
@@ -286,6 +296,7 @@
         },
         {
             "id": "07",
+            "name": "CA",
             "description": "7_MLZ_Config_CA",
             "runstep": "True",
             "comments": "Excludes current user and Break Glass accounts from each role. Report Only for now",
@@ -529,8 +540,9 @@
         },
         {
             "id": "08",
+            "name": "UserGroupCollabSettings",
             "description": "8_MLZ_Config_UserGroupCollab",
-            "runstep": "True",
+            "runstep": true,
             "comments": "",
             "parameters": {
                 "authorizationPolicy": {
