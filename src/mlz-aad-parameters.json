@@ -527,13 +527,186 @@
                         }
                     },
                     {
-                        "displayname": "MLZ005: Admins - Require phishing-resistant MFA for Azure Management"
+                        "displayname": "MLZ005: Admins - Require phishing-resistant MFA for Azure Management",
+                        "state": "enabledForReportingButNotEnforced",
+                        "sessionControls": null,
+                        "conditions": {
+                            "userRiskLevels": [],
+                            "signInRiskLevels": [],
+                            "clientAppTypes": [
+                                "all"
+                            ],
+                            "servicePrincipalRiskLevels": [],
+                            "platforms": null,
+                            "locations": null,
+                            "times": null,
+                            "deviceStates": null,
+                            "devices": null,
+                            "clientApplications": null,
+                            "applications": {
+                                "includeApplications": [
+                                    "797f4846-ba00-4fd7-ba43-dac1f8f63013"
+                                ],
+                                "excludeApplications": [],
+                                "includeUserActions": [],
+                                "includeAuthenticationContextClassReferences": []
+                            },
+                            "users": {
+                                "includeUsers": [],
+                                "excludeUsers": [],
+                                "includeGroups": [],
+                                "excludeGroups": [],
+                                "includeRoles": [],
+                                "excludeRoles": [],
+                                "includeGuestsOrExternalUsers": null,
+                                "excludeGuestsOrExternalUsers": null
+                            }
+                        },
+                        "grantControls": {
+                            "operator": "OR",
+                            "builtInControls": [],
+                            "customAuthenticationFactors": [],
+                            "termsOfUse": [],
+                            "authenticationStrength": {
+                                "id": "00000000-0000-0000-0000-000000000004",
+                                "displayName": "Phishing resistant MFA",
+                                "description": "Phishing-resistant, Passwordless methods for the strongest authentication, such as a FIDO2 security key",
+                                "policyType": "builtIn",
+                                "requirementsSatisfied": "mfa",
+                                "allowedCombinations": [
+                                    "windowsHelloForBusiness",
+                                    "fido2",
+                                    "x509CertificateMultiFactor"
+                                ]
+                            }
+                        }
                     },
                     {
-                        "displayname": "MLZ006: Risk - Require password change for high risk users"
+                        "displayname": "MLZ006: Risk - Require password change for high risk users",
+                        "state": "enabledForReportingButNotEnforced",
+                        "sessionControls": null,
+                        "conditions": {
+                            "userRiskLevels": [
+                                "high"
+                            ],
+                            "signInRiskLevels": [],
+                            "clientAppTypes": [
+                                "all"
+                            ],
+                            "servicePrincipalRiskLevels": [],
+                            "platforms": null,
+                            "locations": null,
+                            "times": null,
+                            "deviceStates": null,
+                            "devices": null,
+                            "clientApplications": null,
+                            "applications": {
+                                "includeApplications": [
+                                    "All"
+                                ],
+                                "excludeApplications": [],
+                                "includeUserActions": [],
+                                "includeAuthenticationContextClassReferences": []
+                            },
+                            "users": {
+                                "includeUsers": [
+                                    "None"
+                                ],
+                                "excludeUsers": [],
+                                "includeGroups": [],
+                                "excludeGroups": [],
+                                "includeRoles": [],
+                                "excludeRoles": [],
+                                "includeGuestsOrExternalUsers": null,
+                                "excludeGuestsOrExternalUsers": null
+                            }
+                        },
+                        "grantControls": {
+                            "operator": "AND",
+                            "builtInControls": [
+                                "passwordChange"
+                            ],
+                            "customAuthenticationFactors": [],
+                            "termsOfUse": [],
+                            "authenticationStrength@odata.context": "https://graph.microsoft.com/beta/$metadata#policies/conditionalAccessPolicies('f9520094-accc-48cd-a616-8f58f14e9622')/grantControls/authenticationStrength/$entity",
+                            "authenticationStrength": {
+                                "id": "3b8752a2-c733-4351-a029-502e73cbf207",
+                                "createdDateTime": "2022-09-01T20:35:11.9931474Z",
+                                "modifiedDateTime": "2022-09-01T20:35:11.9931474Z",
+                                "displayName": "AAL3",
+                                "description": "",
+                                "policyType": "custom",
+                                "requirementsSatisfied": "mfa",
+                                "allowedCombinations": [
+                                    "fido2",
+                                    "x509CertificateMultiFactor"
+                                ]
+                            }
+                        }
                     },
                     {
-                        "displayname": "MLZ007: Risk - Require passwordless MFA for medium risk sign ins"
+                        "displayname": "MLZ007: Risk - Require passwordless MFA for medium risk sign ins",
+                        "state": "enabledForReportingButNotEnforced",
+                        "sessionControls": null,
+                        "conditions": {
+                            "userRiskLevels": [],
+                            "signInRiskLevels": [
+                                "high",
+                                "medium"
+                            ],
+                            "clientAppTypes": [
+                                "all"
+                            ],
+                            "servicePrincipalRiskLevels": [],
+                            "platforms": null,
+                            "locations": null,
+                            "times": null,
+                            "deviceStates": null,
+                            "devices": null,
+                            "clientApplications": null,
+                            "applications": {
+                                "includeApplications": [
+                                    "None"
+                                ],
+                                "excludeApplications": [],
+                                "includeUserActions": [],
+                                "includeAuthenticationContextClassReferences": []
+                            },
+                            "users": {
+                                "includeUsers": [
+                                    "None"
+                                ],
+                                "excludeUsers": [],
+                                "includeGroups": [],
+                                "excludeGroups": [],
+                                "includeRoles": [],
+                                "excludeRoles": [],
+                                "includeGuestsOrExternalUsers": null,
+                                "excludeGuestsOrExternalUsers": null
+                            }
+                        },
+                        "grantControls": {
+                            "operator": "OR",
+                            "builtInControls": [],
+                            "customAuthenticationFactors": [],
+                            "termsOfUse": [],
+                            "authenticationStrength@odata.context": "https://graph.microsoft.com/beta/$metadata#policies/conditionalAccessPolicies('cdb1b0fa-adae-4a03-a458-e322248fbbf1')/grantControls/authenticationStrength/$entity",
+                            "authenticationStrength": {
+                                "id": "00000000-0000-0000-0000-000000000003",
+                                "createdDateTime": "2021-12-01T08:00:00Z",
+                                "modifiedDateTime": "2021-12-01T08:00:00Z",
+                                "displayName": "Passwordless MFA",
+                                "description": "Passwordless methods that satisfy strong authentication, such as Passwordless sign-in with the Microsoft Authenticator",
+                                "policyType": "builtIn",
+                                "requirementsSatisfied": "mfa",
+                                "allowedCombinations": [
+                                    "windowsHelloForBusiness",
+                                    "fido2",
+                                    "x509CertificateMultiFactor",
+                                    "deviceBasedPush"
+                                ]
+                            }
+                        }
                     }
                 ]
             }
