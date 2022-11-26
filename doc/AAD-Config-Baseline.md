@@ -17,18 +17,31 @@ Some steps require Azure AD P2 licensing for privileged users within the environ
 10. [Enterprise Azure AD and Zero Trust](#10-enterprise-azure-ad-and-zero-trust)
 
 ## Sample Configuration Script
-This sample configuration script wraps the 8 separate scripts and applies all settings.
+This sample configuration script using the `-All` parameter, applies settings for the global and 8 step configuration sets from the `mlz-aad-parameters.json` file.
 
 ```PowerShell
 $mlzparms = $(get-content mlz-aad-parameters.json) | convertFrom-Json
-.\1_MLZ_Install_Tools.ps1 -ParametersJson $mlzparams
-.\2_MLZ_Create_Accounts.ps1 -ParametersJson $mlzparams
-.\3_MLZ_Config_AuthNMethods.ps1 -ParametersJson $mlzparams
-#.\4_MLZ_Config_CBA.ps1 -ParametersJson $mlzParams #Note: Note used in this version
-.\5_MLZ_Create_Groups.ps1 -ParametersJson $mlzparams
-.\6_MLZ_Config_PIM.ps1 -ParametersJson $mlparams
-.\7_MLZ_Config_CA.ps1 -ParametersJson $mlzparams
-.\8_MLZ_Config_UserGroupCollab.ps1 -ParametersJson $mlzparams
+
+.\Configure-AADTenantBaseline.ps1 -All
+
+```
+To apply individual sections, include them in the `-ConfigurationSteps` flag as an array using the "id" values.
+
+```PowerShell
+$mlzparms = $(get-content mlz-aad-parameters.json) | convertFrom-Json
+
+.\Configure-AADTenantBaseline.ps1 -ConfigurationSteps @("02","03","04")
+```
+If no parameters are supplied with the script, it will prompt the user to choose a specific step to run.
+
+```PowerShell
+PS> .\Configure-AADTenantBaseline.ps1
+PS> Specify a parameters file path:
+PS> Choose a step:
+PS> - 1_MLZ_Install_Tools
+PS> - 2 MLZ_Create_Accounts
+
+...
 ```
 
 ## 1. Prepare to configure MLZ Azure AD
