@@ -81,6 +81,57 @@ function New-MLZAADUser {
     Return $userobj
 }
 
+function UpdateUserCertIDs {
+    Param ([string]$UPN,[string]$CACPrincipalName)
+    $certids = "X509:<PN>$CACPrincipalName"
+    $body=@{
+        "@odata.context"= "https://graph.microsoft.us/beta/$metadata#users/$entity"
+        "authorizationInfo"= @{
+            "certificateUserIds"= @(
+                $certids
+            )
+        }
+    }
+    write-host -ForegroundColor Yellow "UPDATE: Adding userCertificateIds for $UPN. New Value: $CACPrincipalName"
+    Update-MgUser -UserId $UPN -BodyParameter $body
+}
+
+#TO DO - Is there a way to do this?
+function FindLicenseSKUID {
+    Param([String]$SKUName)
+    
+
+    #find license
+    Return $LicenseSKUID
+}
+
+function AssignLicenseToGroup {
+    Param([String]$GroupID,$SKUID)
+    $params = @{
+        AddLicenses = @(
+            @{
+                DisabledPlans = @(
+                    "113feb6c-3fe4-4440-bddc-54d774bf0318"
+                    "14ab5db5-e6c4-4b20-b4bc-13e36fd2227f"
+                )
+                SkuId = "b05e124f-c7cc-45a0-a6aa-8cf78c946968"
+            }
+            @{
+                DisabledPlans = @(
+                    "a413a9ff-720c-4822-98ef-2f37c2a21f4c"
+                )
+                SkuId = "c7df2760-2c81-4ef7-b578-5b5392b571df"
+            }
+        )
+	    RemoveLicenses = @(
+	    )
+    }
+}
+
+
+
+
+Set-MgGroupLicense -GroupId $groupId -BodyParameter $params
 #endregion
 
 #region parameters
@@ -153,8 +204,8 @@ foreach ($AU in $AUs) {
 }
 
 #create break glass users
-
-foreach ($user in $ParametersJson.StepParameterSet.Accounts.Parameters.EAAccountNames) {
+$breakglassusers = $ParametersJson.StepParameterSet.Accounts.Parameters.EAAccountNames 
+foreach ($user in $breakglassusers) {
     $userobj = @{"UserPrincipalName" = $EAAccountName;"DisplayName" = $EAAccountName+" (MLZ)"}
     $UserArray += New-MLZAADUser -user $userobj -MissionCode $DefaultEAMissionCode -PasswordLength $PWDLength
 }
@@ -168,9 +219,11 @@ foreach ($user in $UserArray) {
     Try{
         New-MgGroupMember -GroupID $group.Id -DirectoryObjectId $user.Id -ErrorAction SilentlyContinue
     } Catch {
-        #To Do
+        #To Do: Catch group already existing
     }
 }
+
+#TO DO - Add license to users or groups
 
 #assign group to the PIM Role (reserved roleID, same for all tenants)
 $GA = Get-MgRoleManagementDirectoryRoleDefinition -UnifiedRoleDefinitionId "62e90394-69f5-4237-9190-012177145e10"

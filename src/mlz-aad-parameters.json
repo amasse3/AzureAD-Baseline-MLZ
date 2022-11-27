@@ -1,7 +1,6 @@
 {
     "GlobalParemeterSet": {
         "Environment": "Global",
-        "EAGroupName": "Emergency Access Accounts",
         "PWDLength": "16",
         "MissionAUs": [
             "Alpha",
@@ -26,34 +25,78 @@
                 "CreateAdminUnits": true
             }
         },
-        "Accounts": {
+        "AdminUnits": {
             "id": "02",
-            "description": "2_MLZ_Create_Accounts",
+            "description": "Creates Admin Units for MLZ Core Administration",
+            "runstep": true,
+            "parameters": {
+                "AdministrativeUnits": [
+                    {
+                        "DisplayName": "MLZ Core Users",
+                        "Description": "Contains users with management access for MLZ core subscriptions",
+                        "MembershipType": "Static"
+                    },
+                    {
+                        "DisplayName": "MLZ Core RBAC Groups",
+                        "Description": "Contains groups created by the MLZ identity add-on for assigning RBAC roles for MLZ subscriptions.",
+                        "MembershipType": "Static"
+                    }
+                ]
+            }
+        },
+        "EmergencyAccess": {
+            "id": "03",
+            "description": "Creates Emergency Access Accounts",
+            "runstep": true,
+            "comments": "",
+            "parameters": {
+                "Users": [
+                    {
+                        "UserPrincipalName": "MLZEA01",
+                        "DisplayName": "MLZ Emergency 01",
+                        "MailNickname": "MLZEA01"
+                    },
+                    {
+                        "UserPrincipalName": "MLZEA02",
+                        "DisplayName": "MLZ Emergency 02",
+                        "MailNickname": "MLZEA02"
+                    }
+                ],
+                "EAGroup": {
+                    "displayName": "Emergency Access Accounts",
+                    "description": "Contains the break-glass accounts for the MLZ environment.",
+                    "isAssignableToRole": true,
+                    "mailEnabled": false,
+                    "securityEnabled": true
+                }
+            }
+        },
+        "NamedAccounts": {
+            "id": "04",
+            "description": "Creates named administrator accounts for managing MLZ.",
             "runstep": true,
             "comments": "",
             "parameters": { 
-                "EmergencyAccess": {
-                    "runsubstep": true,
-                    "EAAccountNames": [
-                        "mlz-emergency01",
-                        "mlz-emergency02"
-                    ],
-                    "EAGroupName": "Emergency Access Accounts",
-                    "PWDLength": 16,
-                    "MissionCode": "EA"
-                },
-                "NamedAdmins": {
-                    "runsubstep": true,
+                "Users": {
                     "UserCSV": "MLZ-Admin.List.csv",
                     "LicenseGroupName": "MLZ-License-AADP2",
-                    "PWDLength": 16,
                     "MissionCode": "MLZ-Core"
+                },
+                "LicenseGroup": {
+                    "displayName": "MLZ-Licensing-P2",
+                    "description": "Licenses new users for Azure AD Premium P2",
+                    "groupTypes": [
+                        "DynamicMembership"
+                    ],
+                    "mailEnabled": false,
+                    "membershipRule": "(user.userType -eq \"Member\")",
+                    "membershipRuleProcessingState": "On"
                 }
             }
         },
         "AuthNMethods": {
-            "id": "03",
-            "description": "3_MLZ_Config_AuthNMethods",
+            "id": "05",
+            "description": "Configures Passwordless Authentication Methods for MLZ tenant.",
             "runstep": true,
             "comments": "",
             "parameters": {
@@ -130,15 +173,13 @@
             }
         },
         "CBA": {
-            "id": "04",
-            "name": "CBA",
-            "description": "4_MLZ_Config_CBA",
+            "id": "06",
+            "description": "Configures CBA for DOD CAC",
             "comments": "This could include the exact CBA configuration and certificates for DOD PKI. Need ability to upload certificates via MS Graph PowerShell."
         },
         "Groups": {
-            "id": "05",
-            "name": "Groups",
-            "description": "5_MLZ_Create_Groups",
+            "id": "07",
+            "description": "Creates RBAC groups for MLZ",
             "runstep": true,
             "comments": "",
             "parameters": {
@@ -238,7 +279,7 @@
             } 
         },
         "PIM": {
-            "id": "06",
+            "id": "08",
             "description": "6_MLZ_Config_PIM",
             "runstep": true,
             "comments": "To Do: approvals and notifications, custom roles",
@@ -291,9 +332,9 @@
             }
         },
         "CA": {
-            "id": "07",
-            "description": "7_MLZ_Config_CA",
-            "runstep": "True",
+            "id": "09",
+            "description": "Configures Conditional Access for MLZ baseline",
+            "runstep": true,
             "comments": "Excludes current user and Break Glass accounts from each role. Report Only for now",
             "parameters": {
                 "rules": [
