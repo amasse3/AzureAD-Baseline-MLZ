@@ -665,19 +665,7 @@
                             "customAuthenticationFactors": [],
                             "termsOfUse": [],
                             "authenticationStrength@odata.context": "https://graph.microsoft.com/beta/$metadata#policies/conditionalAccessPolicies('f9520094-accc-48cd-a616-8f58f14e9622')/grantControls/authenticationStrength/$entity",
-                            "authenticationStrength": {
-                                "id": "3b8752a2-c733-4351-a029-502e73cbf207",
-                                "createdDateTime": "2022-09-01T20:35:11.9931474Z",
-                                "modifiedDateTime": "2022-09-01T20:35:11.9931474Z",
-                                "displayName": "AAL3",
-                                "description": "",
-                                "policyType": "custom",
-                                "requirementsSatisfied": "mfa",
-                                "allowedCombinations": [
-                                    "fido2",
-                                    "x509CertificateMultiFactor"
-                                ]
-                            }
+                            "authenticationStrength": null
                         }
                     },
                     {
