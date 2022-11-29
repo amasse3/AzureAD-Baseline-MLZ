@@ -6,12 +6,12 @@ Some steps require Azure AD P2 licensing for privileged users within the environ
 
 ## Table of Contents
 1. [Prepare to configure MLZ Azure AD](#1-prepare-to-configure-mlz-azure-ad)
-2. [Create accounts for Azure management](#2-create-accounts-for-azure-management)
-3. [Configure authentication methods](#3-configure-authentication-methods)
-4. [Configure certificate-based authentication](#4-configure-certificate-based-authentication)
-5. [Create MLZ RBAC groups](#5-create-mlz-rbac-security-groups)
-6. [Configure Privileged Identity Management](#6-configure-privileged-identity-management-pim)
-7. [Deploy MLZ Conditional Access Policies](#7-deploy-mlz-conditional-access-policies)
+2. [Configure authentication methods](#2-configure-authentication-methods)
+3. [Configure certificate-based authentication](#3-configure-certificate-based-authentication)
+4. [Deploy MLZ Conditional Access Policies](#4-deploy-mlz-conditional-access-policies)
+5. [Create accounts for Azure management](#5-create-accounts-for-azure-management)
+6. [Create MLZ RBAC groups](#6-create-mlz-rbac-security-groups)
+7. [Configure Privileged Identity Management](#7-configure-privileged-identity-management-pim)
 8. [Configure user, group, collaboration settings](#8-configure-user-group-and-external-collaboration-settings)
 9. [Optional configuration](#9-optional-configuration)
 10. [Enterprise Azure AD and Zero Trust](#10-enterprise-azure-ad-and-zero-trust)
@@ -102,7 +102,6 @@ PS> Choose a step:
     10 - TenantPolicies
 PS> 
 ```
-
 The parameters file for the MLZ tenant baseline configuration scripts includes all the settings for running the MLZ AAD Baseline scripts.
 
 ### 4. Load the mlz-aad-parameters.json
@@ -116,10 +115,14 @@ Import the modified parameters file for use in the baseline configuration script
 > **Note:** the parameters will be referenced by the `$mlzparams` variable throughout this document.
 
 ### 5. 🗒️ Install the PowerShell modules
-
+Install the PowerShell modules by running:
 `PS> .\Configure-AADTenantBaseline.ps1 -ParametersJson $mlzparams -PSTools`
 
-#### a. Manual module installation
+The script will:
+1. Install MS Graph PowerShell
+2. Install Azure AD Preview
+
+#### Manual module installation
 Use the commands below to install the tools manually:
 - [Azure Command-Line-Interface (CLI)](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli)
 - [Azure Az PowerShell](https://learn.microsoft.com/en-us/powershell/azure/install-az-ps?view=azps-9.0.1)
@@ -186,131 +189,7 @@ Now we will ensure we can connect using MS Graph PowerShell.
 </p>
 </details>
 
-## 2. Create accounts for Azure management
-The first thing we need to do is create Emergency Access Accounts. These accounts will be excluded from Conditional Access and provide a means to access Azure AD if all other admins are locked out due to misconfiguration or service outage.
-
-This section covers account creation for Emergency Access and day-to-day Azure AD administration.
-
-- [ ] [Develop emergency access procedures](#1-develop-emergency-access-procedures)
-- [ ] [Plan for monitoring and alerting emergency access account usage](#2-plan-for-monitoring-and-alerting-on-emergency-access-account-usage)
-- [ ] [Populate MLZ-Admin-List.csv](#3-populate-user-csv-for-named-administrators)
-- [ ] [🗒️ Create Accounts](#4-🗒️-create-accounts)
-- [ ] [Complete setup for emergency access accounts](#5-complete-setup-for-emergency-access-accounts)
-- [ ] [Complete setup for named administrator accounts](#6-complete-setup-for-named-administrator-accounts)
-
-
-<details><summary><b>Show Content</b></summary>
-<p>
-
-### 1. Develop Emergency Access procedures
-Creating and safeguarding emergency access account credentials is an important step in Azure AD tenant setup. Establishing, disseminating, and testing emergency procedures is equally important.
-
-> **Note**: Consult your Information Systems Security Officer (ISSO) for proper handling procedures for Emergency Access accounts.
-
-> 💡 **Recommendations**:
-> - Record passwords for Emergency Access accounts legibly by hand (do not type or send to a printer)
-> - Store passwords for Emergency Access accounts in a safe that resides in a physically secure location.
-> - Do not save passwords to an Enterprise password vault or Privleged Access Management (PAM) system.
-> - Do not save passwords to a personal password vault (LastPass, Apple Keychain, Google, OnePassword, Microsoft Authenticator, etc.)
-> - Store backup copies for Emergency Access account credentials in a geographic distant location.
-> - Exclude at least 1 Emergency Access account from Azure MFA.
-> - Monitor and alert on Emergency Access account usage.
-
-> 📘 **Reference**: [Manage Emergency Access Accounts in Azure AD](https://docs.microsoft.com/en-us/azure/active-directory/roles/security-emergency-access)
-
-### 2. Plan for monitoring and alerting on emergency access account usage
-Azure AD logs must be connected to the Microsoft SIEM, Sentinel, to set up automated alerting based on Emergency Access Account usage.
-
-> **Warning**: Remember to revisit these steps once Mission Landing Zone is deployed and Microsoft Sentinel is enabled.
-
-1. [Connect Azure AD Sign-In Logs to Microsoft Sentinel](https://docs.microsoft.com/en-us/azure/sentinel/connect-azure-active-directory)
-2. [Configure an Analytics Rule to alert when Emergency Access account is used](https://docs.microsoft.com/en-us/azure/active-directory/roles/security-emergency-access#monitor-sign-in-and-audit-logs)
-   
-### 3. Populate user CSV for named administrators
-
-#### Choose a naming convention
-Choose a naming convention for cloud-only administrative accounts. For example:
-- FirstName+"."+LastName
-- FirstInitial+LastName
-- "adm." + FirstInitial+LastName
-- "mlz."+FirstInitial+LastName
-
-#### Set password protection policy
-Configure banned password list using [Azure AD Password Protection](https://docs.microsoft.com/en-us/azure/active-directory/authentication/concept-password-ban-bad).
-
-#### Create a CSV for cloud-only administrators
-Download and edit [MLZ-Admin-List.csv](/MLZ-Identity-AzureADSetup/src/MLZ-Admin-List.csv) for your administrators.
-
-> **Note**: The **UserCertificateIds** field is needed for configuring Azure AD Certificate-based authentication. Setting this value upon user creation is optional.
-
-### 4. 🗒️ Create Accounts
-
-Run the script to:
-- Create two Emergency Access Accounts
-- Create Emergency Access Accounts Privileged Access Group
-- Add the EA accounts as members
-- Permanently assign Global Administrator role to the Privileged Access Group
-- Create named administrator accounts
-  
-`PS> .\2_MLZ_Create_Accounts.ps1 -ParametersJson $mlzparams`
-
-### 5. Complete setup for Emergency Access accounts
-Perform the following manual steps to complete the configuration:
-1. Reset set the password for each Emergency Access account.
-2. Sign in with each account and reset the password (see recommendations in the next section)
-3. Once passwords are set and stored in a secure location, sign out of the Azure Portal.
-4. Sign in with the first administrator account for the remaining configuration.
-5. Follow the steps [here](https://learn.microsoft.com/en-us/azure/active-directory/enterprise-users/licensing-groups-assign) to assign licenses to the *Emergency Access Accounts* group.
-
-> 📘 **Reference:** 
-> - [Manage emergency access accounts in Azure AD](https://docs.microsoft.com/en-us/azure/active-directory/roles/security-emergency-access)
-> - [Management capabilities for Privileged Access Groups](https://learn.microsoft.com/en-us/azure/active-directory/privileged-identity-management/groups-features)
-
-### 6. Complete setup for named administrator accounts
-Day-to-day operations requiring administrative privileges should be performed by named administrator accounts, assigned to individual users (not shared), separate from accounts used to access productivity services like Email, SharePoint, and Teams.
-
-> 💡 **Recommendations**:
-> - Administration for Azure and Azure AD should use cloud-only identities and Azure AD native authentication mechanism, like FIDO2 security keys or smartcard certificates.
-> - Limit the number of Global Administrators, referring to [least privileged roles by task](https://docs.microsoft.com/en-us/azure/active-directory/roles/delegate-by-task) to assign the proper limited administrator role
-> - Assign permissions Just-In-Time using [Azure AD Privileged Identity Management](https://docs.microsoft.com/en-us/azure/active-directory/privileged-identity-management/pim-configure)
-> - Periodically review role eligibility
-> - Leverage PIM [insights](https://docs.microsoft.com/en-us/azure/active-directory/privileged-identity-management/pim-security-wizard) and [alerts](https://docs.microsoft.com/en-us/azure/active-directory/privileged-identity-management/pim-how-to-configure-security-alerts) to further secure your organization
-> - Review [Privileged Access Groups](https://docs.microsoft.com/en-us/azure/active-directory/privileged-identity-management/groups-features) and [Administrative Units](https://docs.microsoft.com/en-us/azure/active-directory/roles/administrative-units)
-
-Complete setup for the named administrator accounts:
-1. Manually reset the password from each administrator.
-2. Provide the password to the admin.
-3. Instruct the admin to change password and [register security info](https://support.microsoft.com/en-us/account-billing/set-up-the-microsoft-authenticator-app-as-your-verification-method-33452159-6af9-438f-8f82-63ce94cf3d29) by setting Microsoft Authenticator App as a verification method.
-
-> 📘 **Reference**: 
-> - [Reset a user's password using Azure Active Directory](https://learn.microsoft.com/en-us/azure/active-directory/fundamentals/active-directory-users-reset-password-azure-portal)
-> - [Assign licenses to users by group membership in Azure Active Directory](https://learn.microsoft.com/en-us/azure/active-directory/enterprise-users/licensing-groups-assign)
-
-#### Choose a strong authentication method for administrators
-The AAD basline scripts automatically enable phishing-resisitant methods FIDO2 and CBA for all users. Consider the MFA options available in Azure AD when updating organizational policy to use phishing-resistant MFA for administrators.
-
-> 💡 **Recommendations**: Only use phishing-resistant passwordless authentication methods for administration. Review the authenticator options available in Azure AD from the list below:
-> - **Bad:** SMS or TwoWayPhone
-Some MFA is better than no MFA, but phone-based MFA is the weakest option available. SMS is especially egregious since it is susceptable to [SIM swapping attacks](https://en.wikipedia.org/wiki/SIM_swap_scam).
-> - **Good:** Authenticator App TOTP Code or Push notification
-These methods are not phishing-resistant or passwordless. In either case, a password is used, followed by an Azure MFA prompt.
-> - **Better:** Passwordless Phone Sign-In on Registered Device
-Passwordless, but not phishing-resistant. This required registration of an iOS or Android mobile device with the Azure AD tenant.
-> - **Best:** Phishing-Resistant MFA FIDO2 Security Key or Azure AD native Certificate-Based Authentication (CBA)
->   - FIDO2 Security Key
->   - Azure AD Native Certificate-Based Authentication
->   - Windows Hello for Business
-
-> **Note**: Microsoft Authenticator App is considered phishing-resistant when deployed to a managed mobile device. Since this guide is for setting up a new tenant, it assumes Microsoft Endpoint Manager is not configured to manage mobile devices.
-
-> 📘 **Reference**: 
-> - [Authentication methods in Azure AD](https://learn.microsoft.com/en-us/azure/active-directory/authentication/concept-authentication-methods)
-> - [Phishing-resistant methods](https://docs.microsoft.com/en-us/azure/active-directory/standards/memo-22-09-multi-factor-authentication#phishing-resistant-methods)
-
-</p>
-</details>
-
-## 3. Configure authentication methods
+## 2. Configure authentication methods
 Azure AD authenticaton methods allow an administrator to configure how users can authenticate to Azure AD.
 
 - [ ] [🗒️ Enable Authentication Methods](#1-🗒️-enable-authentication-methods)
@@ -351,7 +230,7 @@ Bindings are set for certificateUserIds and onPremisesUserPrincipalName. The nex
 </p>
 </details>
 
-## 4. Configure Certificate-Based Authentication
+## 3. Configure Certificate-Based Authentication
 The Azure AD Certificate-Based Authentication feature requires additional configuration:
 
  - uploading certificates and CRL locations for issuing and root Certification Authorities for the user smartcard certificates.
@@ -363,7 +242,180 @@ Steps for setting up Azure AD CBA with the DoD PKI can be found in [AAD-Certific
 
 > 📘 **Reference**: [Azure AD Native Certificate-Based Authentication](https://docs.microsoft.com/en-us/azure/active-directory/authentication/how-to-certificate-based-authentication)
 
-## 5. Create MLZ RBAC security groups
+## 4. Deploy MLZ Conditional Access Policies
+This section enables key recommended access policies for all apps protected by Azure AD. This includes the Azure portal, Microsoft Graph, Azure Resource Manager, M365 applications, and any future applications integrated with Azure AD.
+
+- [🗒️ Conigure Conditional Access](#1-🗒️-configure-conditional-access)
+- [Azure AD Free only - turn on security defaults](#2-azure-ad-free---turn-on-security-defaults)
+- [Azure AD P2 - CA Policies for MLZ](#3-azure-ad-premium-p2---create-conditional-access-policies-for-mlz)
+
+<details><summary><b>Show Content</b></summary>
+<p>
+
+### 1. 🗒️ Configure Conditional Access
+Run the script below to configure Conditional Access Policies:
+
+`PS> .\7_MLZ_Config_CA.ps1 -ParametersJson $mlzparams`
+
+The baseline script will configure CA policies in [Azure AD P2 - CA Policies for MLZ](#3-azure-ad-premium-p2---create-conditional-access-policies-for-mlz)
+
+### 2. Azure AD Free - Turn on Security Defaults**
+Azure AD Free offers a feature called Security Defaults. This feature performs basic security configuration for the Azure AD platform. Azure AD Conditional Access Policies should replace or enhance protections enabled by Security Defaults. 
+
+> 💡**Recommendation**: Azure AD Premium customers should only enable Security Defaults as a stop-gap until CA Policies are configured and tested.
+
+To enable security defaults, see [Enable Security Defaults](https://docs.microsoft.com/en-us/azure/active-directory/fundamentals/concept-fundamentals-security-defaults).
+
+### 3. Azure AD Premium P2 - Create Conditional Access Policies for MLZ**
+Create the following Conditional Access policies:
+
+|ID|Category|Description|Users|Applications|Controls|
+|--|--------|------------|-----|------------|--------|
+|MLZ001|MFA|Require multifactor authentication for all users|<ul><li>Include</li><ul><li>All Users</li></ul><li>Exclude</li><ul><li>Emergency Access Accounts</li></ul></ul>|All Apps|MFA|
+|MLZ002|MFA|Block Legacy Authentication|All|Client Apps: exchangeActiveSync, other|Block|
+|MLZ003|MFA|Securing security info registration|<ul><li>Include</li><ul><li>All Users</li></ul><li>Exclude</li><ul><li>Emergency Access Accounts</li></ul></ul>|UserActions: registersecurityinfo|MFA|
+|MLZ004|Admins|Require phishing-resistant MFA for Azure AD admins|Directory Roles (from policy template)|All apps|Phishing-resistant MFA<br><ul><li>Fido2</li><li>WindowsHellowForBusiness</li><li>x509Certificate</li></ul>|
+|MLZ005|Admins|Require phishing-resistant MFA for Azure Management|<ul><li>Include</li><ul><li>All Users</li></ul><li>Exclude</li><ul><li>Emergency Access Accounts</li></ul></ul>|Azure Management|Phishing-resistant MFA<br><ul><li>Fido2</li><li>WindowsHellowForBusiness</li><li>x509Certificate</li></ul>|
+|MLZ006|Risk|Require password change for high risk users|<ul><li>Include</li><ul><li>High Risk Users</li></ul><li>Exclude</li><ul><li>Emergency Access Accounts</li></ul></ul>|All Apps|Require Password Change|
+|MLZ007|Risk|Require passwordless MFA for medium risk sign ins|<ul><li>Include</li><ul><li>All Users</li></ul><li>Exclude</li><ul><li>Emergency Access Accounts</li></ul></ul>|All apps|Phishing-resistant MFA<br><ul><li>Fido2</li><li>WindowsHellowForBusiness</li><li>x509Certificate</li><li>Microsoft Authenticator App</li></ul>|
+
+> **Note**: If Microsoft Endpoint Manager (Intune) will be deployed for the Azure AD tenant used by MLZ, enroll privileged access devices and use [Conditional Access](https://docs.microsoft.com/en-us/mem/intune/protect/create-conditional-access-intune) to require a compliant device for Azure Management.
+
+> 📘 **Reference**:
+> - [Common Conditional Access Policies](https://learn.microsoft.com/en-us/azure/active-directory/conditional-access/concept-conditional-access-policy-common)
+> - [Device-based Conditional Access with Intune](https://docs.microsoft.com/en-us/mem/intune/protect/create-conditional-access-intune)
+> - [Risk-based Conditional Access Policies](https://docs.microsoft.com/en-us/azure/active-directory/identity-protection/howto-identity-protection-configure-risk-policies)
+> - [Require authentication strength for external users](https://learn.microsoft.com/en-us/azure/active-directory/conditional-access/howto-conditional-access-policy-authentication-strength-external)
+
+</p>
+</details>
+
+## 5. Create accounts for Azure management
+The first thing we need to do is create Emergency Access Accounts. These accounts will be excluded from Conditional Access and provide a means to access Azure AD if all other admins are locked out due to misconfiguration or service outage.
+
+This section covers account creation for Emergency Access and day-to-day Azure AD administration.
+
+- [ ] [Develop emergency access procedures](#1-develop-emergency-access-procedures)
+- [ ] [Plan for monitoring and alerting emergency access account usage](#2-plan-for-monitoring-and-alerting-on-emergency-access-account-usage)
+- [ ] [🗒️ Create emergency access accounts](#3)
+- [ ] [Complete setup for emergency access accounts](#5-complete-setup-for-emergency-access-accounts)
+- [ ] [Populate MLZ-Admin-List.csv](#3-populate-user-csv-for-named-administrators)
+- [ ] [🗒️ Create named admin accounts](#4-🗒️-create-accounts)
+- [ ] [Complete setup for named administrator accounts](#6-complete-setup-for-named-administrator-accounts)
+
+<details><summary><b>Show Content</b></summary>
+<p>
+
+### 1. Develop Emergency Access procedures
+Creating and safeguarding emergency access account credentials is an important step in Azure AD tenant setup. Establishing, disseminating, and testing emergency procedures is equally important.
+
+> **Note**: Consult your Information Systems Security Officer (ISSO) for proper handling procedures for Emergency Access accounts.
+
+> 💡 **Recommendations**:
+> - Record passwords for Emergency Access accounts legibly by hand (do not type or send to a printer)
+> - Store passwords for Emergency Access accounts in a safe that resides in a physically secure location.
+> - Do not save passwords to an Enterprise password vault or Privleged Access Management (PAM) system.
+> - Do not save passwords to a personal password vault (LastPass, Apple Keychain, Google, OnePassword, Microsoft Authenticator, etc.)
+> - Store backup copies for Emergency Access account credentials in a geographic distant location.
+> - Exclude at least 1 Emergency Access account from Azure MFA.
+> - Monitor and alert on Emergency Access account usage.
+
+> 📘 **Reference**: [Manage Emergency Access Accounts in Azure AD](https://docs.microsoft.com/en-us/azure/active-directory/roles/security-emergency-access)
+
+### 2. Plan for monitoring and alerting on emergency access account usage
+Azure AD logs must be connected to the Microsoft SIEM, Sentinel, to set up automated alerting based on Emergency Access Account usage.
+
+> **Warning**: Remember to revisit these steps once Mission Landing Zone is deployed and Microsoft Sentinel is enabled.
+
+1. [Connect Azure AD Sign-In Logs to Microsoft Sentinel](https://docs.microsoft.com/en-us/azure/sentinel/connect-azure-active-directory)
+2. [Configure an Analytics Rule to alert when Emergency Access account is used](https://docs.microsoft.com/en-us/azure/active-directory/roles/security-emergency-access#monitor-sign-in-and-audit-logs)
+
+### 3. 🗒️ Create Emergency Access accounts
+Run the script to create Emergency Access accounts in Azure AD:
+
+`PS> .\Configure-AADTenantBaseline -ParametersJson $mlzparams -EmergencyAccess`
+
+The script will
+1. Create two Emergency Access accounts, `MLZEA01, MLZEA02`
+2. Create an `Emergency Access Accounts` Privileged Access Group.
+3. Permanently assign `Global Administrator` role using Privileged Identity Management.
+4. Apply individual licenses for AAD Premium P2 / E5.
+
+### 4. Complete setup for Emergency Access accounts
+Perform the following manual steps to complete the configuration:
+1. Reset set the password for each Emergency Access account.
+2. Sign in with each account and reset the password (see recommendations in the next section)
+3. Once passwords are set and stored in a secure location, sign out of the Azure Portal.
+4. Sign in with the first administrator account for the remaining configuration.
+5. Follow the steps [here](https://learn.microsoft.com/en-us/azure/active-directory/enterprise-users/licensing-groups-assign) to assign licenses to the *Emergency Access Accounts* group.
+
+> 📘 **Reference:** 
+> - [Manage emergency access accounts in Azure AD](https://docs.microsoft.com/en-us/azure/active-directory/roles/security-emergency-access)
+> - [Management capabilities for Privileged Access Groups](https://learn.microsoft.com/en-us/azure/active-directory/privileged-identity-management/groups-features)
+
+### 5. Populate user CSV for named administrators
+
+#### Choose a naming convention
+Choose a naming convention for cloud-only administrative accounts. For example:
+- FirstName+"."+LastName
+- FirstInitial+LastName
+- "adm." + FirstInitial+LastName
+- "mlz."+FirstInitial+LastName
+
+#### Create a CSV for cloud-only administrators
+Download and edit [MLZ-Admin-List.csv](/MLZ-Identity-AzureADSetup/src/MLZ-Admin-List.csv) for your administrators.
+
+> **Note**: The **UserCertificateIds** field is needed for configuring Azure AD Certificate-based authentication. Setting this value upon user creation is optional.
+
+### 6. Complete setup for named administrator accounts
+Day-to-day operations requiring administrative privileges should be performed by named administrator accounts, assigned to individual users (not shared), separate from accounts used to access productivity services like Email, SharePoint, and Teams.
+
+> 💡 **Recommendations**:
+> - Administration for Azure and Azure AD should use cloud-only identities and Azure AD native authentication mechanism, like FIDO2 security keys or smartcard certificates.
+> - Limit the number of Global Administrators, referring to [least privileged roles by task](https://docs.microsoft.com/en-us/azure/active-directory/roles/delegate-by-task) to assign the proper limited administrator role
+> - Assign permissions Just-In-Time using [Azure AD Privileged Identity Management](https://docs.microsoft.com/en-us/azure/active-directory/privileged-identity-management/pim-configure)
+> - Periodically review role eligibility
+> - Leverage PIM [insights](https://docs.microsoft.com/en-us/azure/active-directory/privileged-identity-management/pim-security-wizard) and [alerts](https://docs.microsoft.com/en-us/azure/active-directory/privileged-identity-management/pim-how-to-configure-security-alerts) to further secure your organization
+> - Review [Privileged Access Groups](https://docs.microsoft.com/en-us/azure/active-directory/privileged-identity-management/groups-features) and [Administrative Units](https://docs.microsoft.com/en-us/azure/active-directory/roles/administrative-units)
+
+#### Set password protection policy
+Configure banned password list using [Azure AD Password Protection](https://docs.microsoft.com/en-us/azure/active-directory/authentication/concept-password-ban-bad).
+
+#### Choose a strong authentication method for administrators
+The AAD basline scripts automatically enable phishing-resisitant methods FIDO2 and CBA for all users. Consider the MFA options available in Azure AD when updating organizational policy to use phishing-resistant MFA for administrators.
+
+> 💡 **Recommendations**: Only use phishing-resistant passwordless authentication methods for administration. Review the authenticator options available in Azure AD from the list below:
+> - **Bad:** SMS or TwoWayPhone
+Some MFA is better than no MFA, but phone-based MFA is the weakest option available. SMS is especially egregious since it is susceptable to [SIM swapping attacks](https://en.wikipedia.org/wiki/SIM_swap_scam).
+> - **Good:** Authenticator App TOTP Code or Push notification
+These methods are not phishing-resistant or passwordless. In either case, a password is used, followed by an Azure MFA prompt.
+> - **Better:** Passwordless Phone Sign-In on Registered Device
+Passwordless, but not phishing-resistant. This required registration of an iOS or Android mobile device with the Azure AD tenant.
+> - **Best:** Phishing-Resistant MFA FIDO2 Security Key or Azure AD native Certificate-Based Authentication (CBA)
+>   - FIDO2 Security Key
+>   - Azure AD Native Certificate-Based Authentication
+>   - Windows Hello for Business
+
+> **Note**: Microsoft Authenticator App is considered phishing-resistant when deployed to a managed mobile device. Since this guide is for setting up a new tenant, it assumes Microsoft Endpoint Manager is not configured to manage mobile devices.
+
+> 📘 **Reference**: 
+> - [Authentication methods in Azure AD](https://learn.microsoft.com/en-us/azure/active-directory/authentication/concept-authentication-methods)
+> - [Phishing-resistant methods](https://docs.microsoft.com/en-us/azure/active-directory/standards/memo-22-09-multi-factor-authentication#phishing-resistant-methods)
+
+#### Distribute accounts for administrators
+Complete setup for the named administrator accounts:
+1. Manually reset the password from each administrator.
+2. Provide the password to the admin.
+3. Instruct the admin to change password and [register security info](https://support.microsoft.com/en-us/account-billing/set-up-the-microsoft-authenticator-app-as-your-verification-method-33452159-6af9-438f-8f82-63ce94cf3d29) by setting Microsoft Authenticator App as a verification method.
+
+> 📘 **Reference**: 
+> - [Reset a user's password using Azure Active Directory](https://learn.microsoft.com/en-us/azure/active-directory/fundamentals/active-directory-users-reset-password-azure-portal)
+> - [Assign licenses to users by group membership in Azure Active Directory](https://learn.microsoft.com/en-us/azure/active-directory/enterprise-users/licensing-groups-assign)
+
+</p>
+</details>
+
+## 6. Create MLZ RBAC security groups
 Use this set of Azure AD Security Groups and RBAC role assignments as a baseline.
 - [ ] [Azure Resource RBAC](#1-azure-resource-rbac)
 - [ ] [Azure AD Directory Roles](#2-azure-ad-directory-roles)
@@ -429,7 +481,7 @@ Run the script below to create Azure AD security groups:
 
 `PS> .\5_MLZ_Create_Groups.ps1 -ParametersJson $mlzparams`
 
-## 6. Configure Privileged Identity Management (PIM)
+## 7. Configure Privileged Identity Management (PIM)
 We enabled PIM when we signed in with the first AADP2-licensed Global Administrator in [step 1](#1-prepare-to-manage-azure-ad). This section assigns the groups created in the [previous section](#5-create-mlz-rbac-security-groups) to Azure and AAD roles using PIM:
 
 - [ ] [🗒️ Conigure PIM](#1-🗒️-configure-pim)
@@ -470,54 +522,6 @@ Settings for each role will match the baselines below:
 Familiarize yourself with the Securing Privileged Access guidance for Azure AD and build a plan for handling privileged access to the Mission Landing Zone environment.
 
 > 📘 **Reference**: [Securing privileged access for hybrid and cloud deployments in Azure AD](https://docs.microsoft.com/en-us/azure/active-directory/roles/security-planning)
-
-</p>
-</details>
-
-## 7. Deploy MLZ Conditional Access Policies
-This section enables key recommended access policies for all apps protected by Azure AD. This includes the Azure portal, Microsoft Graph, Azure Resource Manager, M365 applications, and any future applications integrated with Azure AD.
-
-- [🗒️ Conigure Conditional Access](#1-🗒️-configure-conditional-access)
-- [Azure AD Free only - turn on security defaults](#2-azure-ad-free---turn-on-security-defaults)
-- [Azure AD P2 - CA Policies for MLZ](#3-azure-ad-premium-p2---create-conditional-access-policies-for-mlz)
-
-<details><summary><b>Show Content</b></summary>
-<p>
-
-### 1. 🗒️ Configure Conditional Access
-Run the script below to configure Conditional Access Policies:
-
-`PS> .\7_MLZ_Config_CA.ps1 -ParametersJson $mlzparams`
-
-The baseline script will configure CA policies in [Azure AD P2 - CA Policies for MLZ](#3-azure-ad-premium-p2---create-conditional-access-policies-for-mlz)
-
-### 2. Azure AD Free - Turn on Security Defaults**
-Azure AD Free offers a feature called Security Defaults. This feature performs basic security configuration for the Azure AD platform. Azure AD Conditional Access Policies should replace or enhance protections enabled by Security Defaults. 
-
-> 💡**Recommendation**: Azure AD Premium customers should only enable Security Defaults as a stop-gap until CA Policies are configured and tested.
-
-To enable security defaults, see [Enable Security Defaults](https://docs.microsoft.com/en-us/azure/active-directory/fundamentals/concept-fundamentals-security-defaults).
-
-### 3. Azure AD Premium P2 - Create Conditional Access Policies for MLZ**
-Create the following Conditional Access policies:
-
-|ID|Category|Description|Users|Applications|Controls|
-|--|--------|------------|-----|------------|--------|
-|MLZ001|MFA|Require multifactor authentication for all users|<ul><li>Include</li><ul><li>All Users</li></ul><li>Exclude</li><ul><li>Emergency Access Accounts</li></ul></ul>|All Apps|MFA|
-|MLZ002|MFA|Block Legacy Authentication|All|Client Apps: exchangeActiveSync, other|Block|
-|MLZ003|MFA|Securing security info registration|<ul><li>Include</li><ul><li>All Users</li></ul><li>Exclude</li><ul><li>Emergency Access Accounts</li></ul></ul>|UserActions: registersecurityinfo|MFA|
-|MLZ004|Admins|Require phishing-resistant MFA for Azure AD admins|Directory Roles (from policy template)|All apps|Phishing-resistant MFA<br><ul><li>Fido2</li><li>WindowsHellowForBusiness</li><li>x509Certificate</li></ul>|
-|MLZ005|Admins|Require phishing-resistant MFA for Azure Management|<ul><li>Include</li><ul><li>All Users</li></ul><li>Exclude</li><ul><li>Emergency Access Accounts</li></ul></ul>|Azure Management|Phishing-resistant MFA<br><ul><li>Fido2</li><li>WindowsHellowForBusiness</li><li>x509Certificate</li></ul>|
-|MLZ006|Risk|Require password change for high risk users|<ul><li>Include</li><ul><li>High Risk Users</li></ul><li>Exclude</li><ul><li>Emergency Access Accounts</li></ul></ul>|All Apps|Require Password Change|
-|MLZ007|Risk|Require passwordless MFA for medium risk sign ins|<ul><li>Include</li><ul><li>All Users</li></ul><li>Exclude</li><ul><li>Emergency Access Accounts</li></ul></ul>|All apps|Phishing-resistant MFA<br><ul><li>Fido2</li><li>WindowsHellowForBusiness</li><li>x509Certificate</li><li>Microsoft Authenticator App</li></ul>|
-
-> **Note**: If Microsoft Endpoint Manager (Intune) will be deployed for the Azure AD tenant used by MLZ, enroll privileged access devices and use [Conditional Access](https://docs.microsoft.com/en-us/mem/intune/protect/create-conditional-access-intune) to require a compliant device for Azure Management.
-
-> 📘 **Reference**:
-> - [Common Conditional Access Policies](https://learn.microsoft.com/en-us/azure/active-directory/conditional-access/concept-conditional-access-policy-common)
-> - [Device-based Conditional Access with Intune](https://docs.microsoft.com/en-us/mem/intune/protect/create-conditional-access-intune)
-> - [Risk-based Conditional Access Policies](https://docs.microsoft.com/en-us/azure/active-directory/identity-protection/howto-identity-protection-configure-risk-policies)
-> - [Require authentication strength for external users](https://learn.microsoft.com/en-us/azure/active-directory/conditional-access/howto-conditional-access-policy-authentication-strength-external)
 
 </p>
 </details>

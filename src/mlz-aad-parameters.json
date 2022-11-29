@@ -292,7 +292,7 @@
         },
         "PIM": {
             "id": "08",
-            "description": "6_MLZ_Config_PIM",
+            "description": "Configure Privileged Identity Management Roles",
             "runstep": true,
             "comments": "To Do: approvals and notifications, custom roles",
             "parameters": {
