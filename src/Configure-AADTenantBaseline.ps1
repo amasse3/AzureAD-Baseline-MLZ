@@ -36,7 +36,11 @@ Param(
     [Parameter(Mandatory=$false)]
     [Switch]$PSTools,
     [Parameter(Mandatory=$false)]
-    [Switch]$Accounts,
+    [Switch]$AdminUnits,
+    [Parameter(Mandatory=$false)]
+    [Switch]$EmergencyAccess,
+    [Parameter(Mandatory=$false)]
+    [Switch]$NamedAccounts,
     [Parameter(Mandatory=$false)]
     [Switch]$AuthNMethods,
     [Parameter(Mandatory=$false)]
@@ -44,7 +48,7 @@ Param(
     [Parameter(Mandatory=$false)]
     [Switch]$PIM,
     [Parameter(Mandatory=$false)]
-    [Switch]$CA,
+    [Switch]$ConditionalAccess,
     [Parameter(Mandatory=$false)]
     [Switch]$UserGroupCollabSettings,
 )

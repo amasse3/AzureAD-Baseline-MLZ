@@ -2,12 +2,14 @@
     "GlobalParemeterSet": {
         "Environment": "Global",
         "PWDLength": "16",
+        "UseCSVRelativePasth": "MLZ-Admin-List.csv",
         "MissionAUs": [
             "Alpha",
             "Bravo",
             "Charlie"
         ],
-        "LicenseSKUPartNumber": "DEVELOPERPACK_E5",
+        "LicenseSKUId": "c42b9cae-ea4f-4ab7-9717-81576235ccac",
+        "PKIConfig": "DOD",
         "comments": "Update these global parameters."
     },
     "StepParameterSet": {
@@ -15,14 +17,12 @@
             "id": "01",
             "description": "1_MLZ_Install_Tools",
             "runstep": true,
-            "comments": "Also creates Admin Units",
+            "comments": "Installs MS Graph PowerShell and Azure AD Preview modules.",
             "parameters": {  
                 "Modules": [  
-                    "Az",  
                     "Microsoft.Graph.PowerShell",  
                     "AzureADPreview"
-                ],
-                "CreateAdminUnits": true
+                ]
             }
         },
         "AdminUnits": {
@@ -39,6 +39,18 @@
                     {
                         "DisplayName": "MLZ Core RBAC Groups",
                         "Description": "Contains groups created by the MLZ identity add-on for assigning RBAC roles for MLZ subscriptions.",
+                        "MembershipType": "Static"
+                    }
+                ],
+                "MissionAUTemplates": [
+                    {
+                        "DisplayName": "Mission XX RBAC Groups",
+                        "Description": "Contains groups created by the MLZ identity add-on for assigning RBAC roles for Mission spoke subscriptions.",
+                        "MembershipType": "Static"
+                    },
+                    {
+                        "DisplayName": "Mission XX Users",
+                        "Description": "Contains users with management access for Mission spoke subscriptions.",
                         "MembershipType": "Static"
                     }
                 ]
@@ -331,7 +343,7 @@
                 ]
             }
         },
-        "CA": {
+        "ConditionalAccess": {
             "id": "09",
             "description": "Configures Conditional Access for MLZ baseline",
             "runstep": true,
@@ -735,9 +747,9 @@
                 ]
             }
         },
-        "UserGroupCollab": {
-            "id": "08",
-            "description": "8_MLZ_Config_UserGroupCollab",
+        "TenantPolicies": {
+            "id": "10",
+            "description": "Apply user, group, application, external collaboration settings.",
             "runstep": true,
             "comments": "",
             "parameters": {
@@ -769,6 +781,12 @@
                     "isEnabled": false
                 }
             }
+        },
+        "EntitlementsManagement": {
+            "id": "11",
+            "description": "Configures Entitlements Management Access packages for each Mission.",
+            "runstep": false,
+            "comments": "Placeholder."
         }
     }
 }
