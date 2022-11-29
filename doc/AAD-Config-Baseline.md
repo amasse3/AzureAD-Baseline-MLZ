@@ -16,46 +16,6 @@ Some steps require Azure AD P2 licensing for privileged users within the environ
 9. [Optional configuration](#9-optional-configuration)
 10. [Enterprise Azure AD and Zero Trust](#10-enterprise-azure-ad-and-zero-trust)
 
-## Sample Configuration Script
-This section demonstrates using the [Configure-AADTenantBaseline.ps1](/src/Configure-AADTenantBaseline.ps1) script.
-
-### Read in the parameters file
-Read in the mlz-aad-parameters.json file so it can be passed as a variable to the `ParametersJson` parameter.
-
-```PowerShell
-$mlzparms = $(get-content mlz-aad-parameters.json) | convertFrom-Json
-
-```
-### All Baseline Configurations
-To apply all configuration sections in the baseline, use the `-All` switch along with the parameters.
-
-```PowerShell
-.\Configure-AADTenantBaseline.ps1 -ParametersJson $mlzparams -All
-
-```
-### Apply individual configurations
-To apply individual sections, include switches for each.
-
-```PowerShell
-.\Configure-AADTenantBaseline.ps1 -ParametersJson $mlzparams -PSTools -Accounts -AuthNMethods -Groups -PIM -CA -UserGroupCollabSettings
-```
-
-If no parameters are supplied with the script, it will prompt the user to choose a specific step to run.
-
-```PowerShell
-PS> .\Configure-AADTenantBaseline.ps1 -ParametersJson $mlzparams
-PS> Choose a step:
-    - 1_MLZ_Install_Tools
-    - 2_MLZ_Create_Accounts
-    - 3_MLZ_Config_AuthNMethods
-    - 4_MLZ_Config_CBA
-    - 5_MLZ_CreateGroups
-    - 6_MLZ_Config_PIM
-    - 7_MLZ_Config_CA
-    - 8_MLZ_Config_UserGroupCollab
-PS> 
-```
-
 ## 1. Prepare to configure MLZ Azure AD
 This section outlines the preliminary activities for configuring a new Azure AD tenant for MLZ.
 
@@ -83,12 +43,16 @@ There are several client tools for managing Azure AD configuration. Make sure yo
 
 > 📘 **Reference**: [Privileged Access Devices](https://docs.microsoft.com/en-us/security/compass/privileged-access-devices)
 
-### 3. Modify the mlz-aad-parameters.json configuration file
-The parameters file for the MLZ tenant baseline configuration scripts includes all the settings for running the MLZ AAD Baseline scripts.
+### 3. Prepare to run AAD Tenant Baseline configuration script
 
-The JSON-formatting parameters file can be found [here](/src/mlz-aad-parameters.json)
+The Azure AD tenant baseline for MLZ is applied using a parameters file fed into [Configure-AADTenantBaseline.ps1](/src/Configure-AADTenantBaseline.ps1) script. PowerShell is required to run the baseline. Download the script and parameters file from [/src](/MLZ-Identity-AzureADSetup/src/).
 
-At minimum, modify the **GlobalParameterSet**.
+#### MLZ-AAD-Parameters.json
+Settings for deploying the configuration baseline are set in a parameters file. This file represents the configuration that will be applied when running the baseline. The JSON-formatting parameters file can be found [here](/src/mlz-aad-parameters.json).
+
+At minimum, modify the **GlobalParameterSet** to match the environment before running the script.
+
+The **mlz-aad-parameters.json** file must be read into a variable and passed to the `ParametersJson` parameter of the **Configure-AADTenantBaseline.ps1** script. The script needs to navigate the parameters file and expects it to be in JSON format. 
 
 |Parameter|Description|DefaultValue|
 |---------|-----------|------------|
@@ -96,18 +60,50 @@ At minimum, modify the **GlobalParameterSet**.
 |EAGroupName|Name of the group containing Emergency Access accounts. Used to exclude these accounts from Conditional Access policies.|Emergency Access Accounts|
 |PWDLength|Length of random passwords set by the deployment script.|16|
 |MissionAUs|Array of names for Administrative Units. Applicable if using delegated administration model.|[Alpha,Bravo,Charlie]|
-|LicenseSKUPartNumber|License SKU for AAD P2 / E5 <br>Find using $(get-mgsubscribedsku).SKUPartNumber|DEVELOPERPACK_E5|
+|LicenseSKUPartNumber|License SKU for AAD P2 / E5 <br>Find using get-mgsubscribedsku|E5 Developer GUID<br><b>must be changed</b>|
 
-Each section of the parameters file corresponds with one of the configuration scripts.
+#### Using the script
+Use the command below to read in the parameters:
 
-- 1_MLZ_Install_Tools.ps1
-- 2_MLZ_Create_Accounts.ps1
-- 3_MLZ_Config_AuthNMethods.ps1
-- 4_MLZ_Config_CBA.ps1
-- 5_MLZ_Create_Groups.ps1
-- 6_MLZ_Config_PIM.ps1
-- 7_MLZ_Config_CA.ps1
-- 8_MLZ_Config_UserGroupCollab.ps1
+```PowerShell
+$mlzparms = $(get-content mlz-aad-parameters.json) | convertFrom-Json
+
+```
+**All Baseline Configurations**
+To apply all configuration sections in the baseline, use the `-All` switch along with the parameters.
+
+```PowerShell
+.\Configure-AADTenantBaseline.ps1 -ParametersJson $mlzparams -All
+
+```
+> **Note** : Before applying a setting, the script will check if the settings / objects already exist.
+
+**Apply individual configurations**
+To apply individual sections, include switches for each.
+
+```PowerShell
+.\Configure-AADTenantBaseline.ps1 -ParametersJson $mlzparams -PSTools -Accounts -AuthNMethods -Groups -PIM -CA -UserGroupCollabSettings
+```
+
+If no parameters are supplied with the script, it will prompt the user to choose a specific step to run.
+
+```PowerShell
+PS> .\Configure-AADTenantBaseline.ps1 -ParametersJson $mlzparams
+PS> Choose a step:
+    1 - PSTools
+    2 - AdminUnits
+    3 - EmergencyAccess
+    4 - NamedAccounts
+    5 - AuthNMethods
+    6 - CBA
+    7 - Groups
+    8 - PIM
+    9 - ConditionalAccess
+    10 - TenantPolicies
+PS> 
+```
+
+The parameters file for the MLZ tenant baseline configuration scripts includes all the settings for running the MLZ AAD Baseline scripts.
 
 ### 4. Load the mlz-aad-parameters.json
 Import the modified parameters file for use in the baseline configuration scripts.
@@ -121,7 +117,7 @@ Import the modified parameters file for use in the baseline configuration script
 
 ### 5. 🗒️ Install the PowerShell modules
 
-`PS> .\1_MLZ_Install_Tools.ps1 -ParametersJson $mlzparams`
+`PS> .\Configure-AADTenantBaseline.ps1 -ParametersJson $mlzparams -PSTools`
 
 #### a. Manual module installation
 Use the commands below to install the tools manually:
