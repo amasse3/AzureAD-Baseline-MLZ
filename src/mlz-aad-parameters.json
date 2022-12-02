@@ -1,23 +1,30 @@
 {
-    "GlobalParemeterSet": {
+    "GlobalParameterSet": {
         "Environment": "Global",
         "PWDLength": "16",
-        "UseCSVRelativePasth": "MLZ-Admin-List.csv",
+        "UserCSVRelativePath": "MLZ-Admin-List.csv",
         "MissionAUs": [
             "Alpha",
             "Bravo",
             "Charlie"
         ],
-        "LicenseSKUId": "c42b9cae-ea4f-4ab7-9717-81576235ccac",
+        "License": {
+            "addLicenses": [
+                {
+                "disabledPlans": [],
+                "skuId": "dcb1a3ae-b33f-4487-846a-a640262fadf4"
+                }
+            ],
+            "removeLicenses": []
+        },
         "PKIConfig": "DOD",
         "comments": "Update these global parameters."
     },
     "StepParameterSet": {
         "PSTools": {
-            "id": "01",
-            "description": "1_MLZ_Install_Tools",
+            "description": "Installs MS Graph PowerShell and Azure AD Preview modules.",
             "runstep": true,
-            "comments": "Installs MS Graph PowerShell and Azure AD Preview modules.",
+            "comments": "AzureADPreview only used for uploading certificates for CBA.",
             "parameters": {  
                 "Modules": [  
                     "Microsoft.Graph.PowerShell",  
@@ -26,52 +33,48 @@
             }
         },
         "AdminUnits": {
-            "id": "02",
             "description": "Creates Admin Units for MLZ Core Administration",
             "runstep": true,
             "parameters": {
-                "AdministrativeUnits": [
-                    {
-                        "DisplayName": "MLZ Core Users",
-                        "Description": "Contains users with management access for MLZ core subscriptions",
-                        "MembershipType": "Static"
-                    },
-                    {
-                        "DisplayName": "MLZ Core RBAC Groups",
-                        "Description": "Contains groups created by the MLZ identity add-on for assigning RBAC roles for MLZ subscriptions.",
-                        "MembershipType": "Static"
-                    }
-                ],
-                "MissionAUTemplates": [
-                    {
-                        "DisplayName": "Mission XX RBAC Groups",
-                        "Description": "Contains groups created by the MLZ identity add-on for assigning RBAC roles for Mission spoke subscriptions.",
-                        "MembershipType": "Static"
-                    },
-                    {
-                        "DisplayName": "Mission XX Users",
-                        "Description": "Contains users with management access for Mission spoke subscriptions.",
-                        "MembershipType": "Static"
-                    }
-                ]
+                "CoreAU": 
+                {
+                    "displayName": "MLZ Core Users and Groups",
+                    "description": "Contains users and RBAC groups for management access to MLZ core subscriptions.",
+                    "membershipType": null
+                },
+                "MissionAUGroupTemplate": 
+                {
+                    "displayName": "Mission ZZZ RBAC Groups",
+                    "description": "Contains groups created by the MLZ identity add-on for assigning RBAC roles for Mission spoke subscription ZZZ.",
+                    "membershipType": null
+                },
+                "MissionAUUserTemplate": 
+                {
+                    "displayName": "Mission ZZZ Users",
+                    "description": "Contains users with management access for Mission spoke subscription ZZZ.",
+                    "membershipType": "Dynamic",
+                    "membershipRule": "(user.department -match \"ZZZ\")",
+                    "membershipRuleProcessingState": "On"
+                }
             }
         },
         "EmergencyAccess": {
-            "id": "03",
             "description": "Creates Emergency Access Accounts",
             "runstep": true,
             "comments": "",
             "parameters": {
                 "Users": [
                     {
-                        "UserPrincipalName": "MLZEA01",
-                        "DisplayName": "MLZ Emergency 01",
-                        "MailNickname": "MLZEA01"
+                        "userPrincipalName": "MLZEA01",
+                        "displayName": "MLZ Emergency 01",
+                        "mailNickname": "MLZEA01",
+                        "MissionCode": "EA"
                     },
                     {
-                        "UserPrincipalName": "MLZEA02",
-                        "DisplayName": "MLZ Emergency 02",
-                        "MailNickname": "MLZEA02"
+                        "userPrincipalName": "MLZEA02",
+                        "displayName": "MLZ Emergency 02",
+                        "mailNickname": "MLZEA02",
+                        "MissionCode": "EA"
                     }
                 ],
                 "EAGroup": {
@@ -79,41 +82,50 @@
                     "description": "Contains the break-glass accounts for the MLZ environment.",
                     "isAssignableToRole": true,
                     "mailEnabled": false,
+                    "mailNickname": "MLZEAAccts",
                     "securityEnabled": true
+                },
+                "AdministrativeUnit": {
+                    "displayName": "MLZ EA",
+                    "description": "Contains Emergency Access accounts",
+                    "membershipType": null,
+                    "isMemberManagementRestricted": true,
+                    "visibility": "HiddenMembership"
                 }
             }
         },
         "NamedAccounts": {
-            "id": "04",
             "description": "Creates named administrator accounts for managing MLZ.",
             "runstep": true,
             "comments": "",
             "parameters": { 
                 "Users": {
                     "UserCSV": "MLZ-Admin.List.csv",
-                    "LicenseGroupName": "MLZ-License-AADP2",
-                    "MissionCode": "MLZ-Core"
+                    "CoreMissionCode": "MLZ",
+                    "CoreAdminUnit": "MLZ-Core Admins"
                 },
                 "LicenseGroup": {
-                    "displayName": "MLZ-Licensing-P2",
+                    "displayName": "MLZ-Licensing-AADP2",
                     "description": "Licenses new users for Azure AD Premium P2",
                     "groupTypes": [
                         "DynamicMembership"
                     ],
+                    "securityEnabled": true,
                     "mailEnabled": false,
+                    "mailNickname": "MLZ-Licensing-AADP2",
                     "membershipRule": "(user.userType -eq \"Member\")",
                     "membershipRuleProcessingState": "On"
                 }
             }
         },
         "AuthNMethods": {
-            "id": "05",
             "description": "Configures Passwordless Authentication Methods for MLZ tenant.",
             "runstep": true,
             "comments": "",
             "parameters": {
                 "AuthenticationMethodsConfigurations": [
                     {
+                        "@odata.type": "#microsoft.graph.fido2AuthenticationMethodConfiguration",
                         "id": "Fido2",
                         "state": "enabled",
                         "isSelfServiceRegistrationAllowed": true,
@@ -127,8 +139,9 @@
                         ]
                     },
                     {
+                        "@odata.type": "#microsoft.graph.microsoftAuthenticatorAuthenticationMethodConfiguration",
                         "id": "MicrosoftAuthenticator",
-                         "state": "enabled",
+                        "state": "enabled",
                         "featureSettings": {
                             "displayAppInformationRequiredState": {
                                 "state": "default",
@@ -155,6 +168,7 @@
                         ]   
                     },
                     {
+                        "@odata.type": "#microsoft.graph.x509CertificateAuthenticationMethodConfiguration",
                         "id": "X509Certificate",
                         "state": "enabled",
                         "certificateUserBindings": [
@@ -291,7 +305,6 @@
             } 
         },
         "PIM": {
-            "id": "08",
             "description": "Configure Privileged Identity Management Roles",
             "runstep": true,
             "comments": "To Do: approvals and notifications, custom roles",
@@ -344,7 +357,6 @@
             }
         },
         "ConditionalAccess": {
-            "id": "09",
             "description": "Configures Conditional Access for MLZ baseline",
             "runstep": true,
             "comments": "Excludes current user and Break Glass accounts from each role. Report Only for now",
@@ -748,7 +760,6 @@
             }
         },
         "TenantPolicies": {
-            "id": "10",
             "description": "Apply user, group, application, external collaboration settings.",
             "runstep": true,
             "comments": "",

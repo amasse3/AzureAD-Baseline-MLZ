@@ -297,10 +297,10 @@ This section covers account creation for Emergency Access and day-to-day Azure A
 
 - [ ] [Develop emergency access procedures](#1-develop-emergency-access-procedures)
 - [ ] [Plan for monitoring and alerting emergency access account usage](#2-plan-for-monitoring-and-alerting-on-emergency-access-account-usage)
-- [ ] [🗒️ Create emergency access accounts](#3)
-- [ ] [Complete setup for emergency access accounts](#5-complete-setup-for-emergency-access-accounts)
-- [ ] [Populate MLZ-Admin-List.csv](#3-populate-user-csv-for-named-administrators)
-- [ ] [🗒️ Create named admin accounts](#4-🗒️-create-accounts)
+- [ ] [🗒️ Create emergency access accounts](#3-🗒️-create-emergency-access-accounts)
+- [ ] [Complete setup for emergency access accounts](#4-complete-setup-for-emergency-access-accounts)
+- [ ] [Populate MLZ-Admin-List.csv](#5-populate-user-csv-for-named-administrators)
+- [ ] [🗒️ Create named admin accounts](#6)
 - [ ] [Complete setup for named administrator accounts](#6-complete-setup-for-named-administrator-accounts)
 
 <details><summary><b>Show Content</b></summary>
@@ -335,11 +335,11 @@ Run the script to create Emergency Access accounts in Azure AD:
 
 `PS> .\Configure-AADTenantBaseline -ParametersJson $mlzparams -EmergencyAccess`
 
-The script will
+The script will:
 1. Create two Emergency Access accounts, `MLZEA01, MLZEA02`
 2. Create an `Emergency Access Accounts` Privileged Access Group.
 3. Permanently assign `Global Administrator` role using Privileged Identity Management.
-4. Apply individual licenses for AAD Premium P2 / E5.
+4. Apply licenses for AAD Premium P2 / E5.
 
 ### 4. Complete setup for Emergency Access accounts
 Perform the following manual steps to complete the configuration:
@@ -353,7 +353,8 @@ Perform the following manual steps to complete the configuration:
 > - [Manage emergency access accounts in Azure AD](https://docs.microsoft.com/en-us/azure/active-directory/roles/security-emergency-access)
 > - [Management capabilities for Privileged Access Groups](https://learn.microsoft.com/en-us/azure/active-directory/privileged-identity-management/groups-features)
 
-### 5. Populate user CSV for named administrators
+### 5. 🗒️ Create Named Admin Accounts
+This step prepares the [MLZ-Admin-List.csv](/MLZ-Identity-AzureADSetup/src/MLZ-Admin-List.csv) CSV file. 
 
 #### Choose a naming convention
 Choose a naming convention for cloud-only administrative accounts. For example:
@@ -362,10 +363,60 @@ Choose a naming convention for cloud-only administrative accounts. For example:
 - "adm." + FirstInitial+LastName
 - "mlz."+FirstInitial+LastName
 
-#### Create a CSV for cloud-only administrators
-Download and edit [MLZ-Admin-List.csv](/MLZ-Identity-AzureADSetup/src/MLZ-Admin-List.csv) for your administrators.
+#### Update CSV for cloud-only administrators
+Download and edit [MLZ-Admin-List.csv](/MLZ-Identity-AzureADSetup/src/MLZ-Admin-List.csv) for your administrators. The CSV file location relative to the **Configure-AADTenantBaseline.ps1** script is set by `StepParameterSet.NamedAccounts.parameters.Users.UserCSV` in the JSON parameters file.
+
+Description for the CSV file schema:
+
+|LastName|FirstName|DisplayName|UserPrincipalName|Email|BusinessPhone|Department|UserCertificateIds|UsageLocation|
+|--------|---------|-----------|-----------------|-----|-------------|----------|------------------|-------------|
+|User's last name|User's first name|Display Name|sign-in name for AAD. Must include valid domain suffix.|Contact email address|Phone number|Mission code for the user. This should match an AU set in GlobalParameters.|Certificate name value (see note)|Usage location for applying licenses. e.g. "US"|
 
 > **Note**: The **UserCertificateIds** field is needed for configuring Azure AD Certificate-based authentication. Setting this value upon user creation is optional.
+
+DisplayName and UserPrincipalName can be set programatically using PowerShell. See the following example:
+```PowerShell
+function upn {
+    Param($FirstName,$LastName,$Suffix)
+    $upn = "mlz."+$($FirstName.ToLower()[0])+$($LastName.SubString(0,$LastName.Length).ToLower()) + $Suffix
+    Return $upn
+}
+
+function displayName {
+    Param($FirstName,$LastName)
+    $displayName = $FirstName+" "+$LastName+" (MLZ)"
+    return $displayName
+}
+
+$CSV = Import-Csv -Path .\MLZ-Admin-List.csv
+$Suffix = "@contoso.onmicrosoft.us" 
+
+#Find the suffix by looking for the initial domain of the tenant.
+<#
+Connect-MgGraph -Environment Global
+$Suffix = "@$((Get-MgDomain | ?{$_.IsInitial -eq 'true'}).Id)"
+#>
+
+foreach ($row in $CSV) {
+    $row.UserPrincipalName = upn -FirstName $row.FirstName -LastName $row.LastName -Suffix $Suffix
+    $row.DisplayName = displayName -FirstName $row.FirstName -LastName $row.LastName
+}
+
+#Optional: use Export-Csv to write the new values back to CSV.
+```
+
+#### Run the script
+Run the script to create named administrator accounts in Azure AD:
+
+`PS> .\Configure-AADTenantBaseline -ParametersJson $mlzparams -NamedAccounts`
+
+The script will:
+1. Create named administrator accounts from **MLZ-Admin.List.csv**
+2. Create a Dynamic Security Group for licensing using the definition from `StepParameterSet.NamedAccounts.parameters.LicenseGroup`.
+  1. displayName = **MLZ-Licensing-AADP2**
+  2. membershipRule: "(user.userType -eq \"Member\")"
+  3. Group based licensing for Azure AD Premium P2/E5
+3. Add the users to a new, protected Administrative Unit named **MLZ-Core Admins**
 
 ### 6. Complete setup for named administrator accounts
 Day-to-day operations requiring administrative privileges should be performed by named administrator accounts, assigned to individual users (not shared), separate from accounts used to access productivity services like Email, SharePoint, and Teams.
