@@ -150,6 +150,49 @@ function Build-MemberberArrayParams {
 
     Return $params
 }
+
+function New-MLZGroup {
+    Param([object]$Group,[Array]$MissionAUs,[Switch]$PAG)
+    
+    if ($group.core) {
+        $displayName = $group.name + " MLZ"
+        $mailNickname = $group.mailNickname + "-MLZ"
+
+        Try {
+            $groupobj = Get-MgGroup -Filter "DisplayName eq `'$displayName`'" -ErrorAction SilentlyContinue
+        } Catch {} #to do
+
+        if ($groupobj) {
+            write-host "Group with displayname $displayname already exists...skipping"
+        } else {
+            
+            Switch($PAG) {
+                $true {New-MgGroup -DisplayName $Group.name -MailEnabled:$False -MailNickName $group.mailNickname -SecurityEnabled -IsAssignableToRole}
+                $false {New-MgGroup -DisplayName $Group.name -MailEnabled:$False -MailNickName $group.mailNickname -SecurityEnabled}
+            }
+        }
+    }
+
+    if ($group.mission) {
+        foreach ($mission in $MissionAUs) {
+            $displayName = $group.name + " $mission"
+            $mailNickname = $group.mailNickname + "-" + $mission
+            Try {
+                $groupobj = Get-MgGroup -Filter "DisplayName eq `'$displayName`'" -ErrorAction SilentlyContinue
+            } Catch {} #to do
+
+            if ($groupobj) {
+                write-host "Group with displayname $displayname already exists...skipping"
+            } else {
+                Write-Host -ForegroundColor Yellow "Creating new group with displayName $displayName"
+                Switch($PAG) {
+                    $true {New-MgGroup -DisplayName $displayName -MailEnabled:$False -MailNickname $mailNickname -SecurityEnabled -Description $group.description -IsAssignableToRole}
+                    $false {New-MgGroup -DisplayName $displayName -MailEnabled:$False -MailNickname $mailNickname -SecurityEnabled -Description $group.description}
+                }
+            }
+        }
+    }
+}
 #endregion
 
 ### Testing - comment this line
@@ -430,9 +473,18 @@ $params = @{
 Update-MgPolicyAuthenticationMethodPolicy -BodyParameter $params
 #endregion
 
-### Left off here
-
 #region Groups
+$Groups = $ParametersJson.StepParameterSet.Groups.parameters.SecurityGroups
+$PAGs = $ParametersJson.StepParameterSet.Groups.parameters.PAGs
+$MissionAUs = $ParametersJson.GlobalParameterSet.MissionAUs
+
+foreach ($group in $Groups) {
+    New-MLZGroup -Group $Group -MissionAUs $MissionAUs
+}
+
+foreach ($pag in $PAGs) {
+   New-MLZGroup -Group $pag -MissionAUs $MissionAUs -PAG
+}
 
 #endregions
 
@@ -444,6 +496,6 @@ Update-MgPolicyAuthenticationMethodPolicy -BodyParameter $params
 
 #endregion
 
-#region UserGroupCollabSettings
+#region TenantPolicies
 
 #endregion

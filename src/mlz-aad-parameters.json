@@ -209,97 +209,89 @@
             "runstep": true,
             "comments": "",
             "parameters": {
-                "Groups": [
+                "SecurityGroups": [
                     {
-                        "type": "Security",
-                        "permission": "AzureRBAC",
-                        "runsubstep": true,
-                        "Groups": [
-                            {
-                                "name": "Platform Owner",
-                                "scope": [
-                                    "core"
-                                ],
-                                "description": "MLZ - User Access Administrator at the highest management group under /"
-                            },
-                            {
-                                "name": "Subscription Owner",
-                                "scope": [
-                                    "core",
-                                    "mission"
-                                ],
-                                "description": "MLZ - Subscription owner"
-                            },
-                            {
-                                "name": "Security Operations",
-                                "scope": [
-                                    "core"
-                                ],
-                                "description": "MLZ - Sentinel contributor, Logic Apps Contributor, Security Reader."
-                            },
-                            {
-                                "name": "Subscription Contributor",
-                                "scope": [
-                                    "core",
-                                    "mission"
-                                ],
-                                "description": "MLZ - Subscription contributor"
-                            },
-                            {
-                                "name": "Subscription Reader",
-                                "scope": [
-                                    "core",
-                                    "mission"
-                                ],
-                                "description": "MLZ - Subscription Reader"
-                            },
-                            {
-                                "name": "Subscription Owner No Network Write",
-                                "scope": [
-                                    "core",
-                                    "mission"
-                                ],
-                                "description": "MLZ - custom role that grants owner with exception of network write permissions."
-                            },
-                            {
-                                "name": "Application Owners (DevOps)",
-                                "scope": [
-                                    "core",
-                                    "mission"
-                                ],
-                                "description": "MLZ - custom role for Application Owners."
-                            }
-                        ]
+                        "name": "Platform Owner",
+                        "mailNickname": "Platform-Owner",
+                        "core": true,
+                        "mission": false,
+                        "description": "MLZ - User Access Administrator at the highest management group under root"
                     },
                     {
-                        "type": "PAG",
-                        "permission": "AAD",
-                        "runsubstep": true,
-                        "Groups": [
-                            {
-                                "name": "RBAC Groups Administrator",
-                                "scope": [
-                                    "core",
-                                    "mission"
-                                ],
-                                "description": "MLZ - Group Administrator scoped to Administrative Unit."
-                            },
-                            {
-                                "name": "User Administrator",
-                                "scope": [
-                                    "core",
-                                    "mission"
-                                ],
-                                "description": "MLZ - User Administrator scoped to Administrative Unit."
-                            },
-                            {
-                                "name": "Application Developers",
-                                "scope": [
-                                    "core"
-                                ],
-                                "description": "MLZ - Application Developer group."
-                            }
-                        ]
+                        "name": "Subscription Owner",
+                        "mailNickname": "SubOwner",
+                        "core": true,
+                        "mission": true,
+                        "description": "MLZ - Subscription owner"
+                    },
+                    {
+                        "name": "Security Operations",
+                        "mailNickname": "Security-Ops",
+                        "core": true,
+                        "mission": false,
+                        "description": "MLZ - Sentinel contributor, Logic Apps Contributor, Security Reader."
+                    },
+                    {
+                        "name": "Subscription Contributor",
+                        "mailNickname": "SubContributor",
+                        "core": true,
+                        "mission": true,
+                        "description": "MLZ - Subscription contributor"
+                    },
+                    {
+                        "name": "Subscription Reader",
+                        "mailNickname": "SubReader",
+                        "core": true,
+                        "mission": true,
+                        "description": "MLZ - Subscription Reader"
+                    },
+                    {
+                        "name": "Subscription Owner NoNetwork",
+                        "mailNickname": "Sub-Owner-NoNetwork",
+                        "core": true,
+                        "mission": true,
+                        "description": "MLZ - custom role that grants owner with exception of network write permissions."
+                    },
+                    {
+                        "name": "Application Owners",
+                        "mailNickname": "AppOwners-MLZ",
+                        "core": true,
+                        "mission": true,
+                        "description": "MLZ - custom role for Application Owners."
+                    }
+                ],
+                "PAGs": [
+                    {
+                        "name": "RBAC Groups Administrator",
+                        "mailNickname": "RBAC-GroupAdmins",
+                        "core": true,
+                        "mission": true,
+                        "description": "MLZ - Group Administrator scoped to Administrative Unit.",
+                        "aadrole": "Group Administrator"
+                    },
+                    {
+                        "name": "User Administrator",
+                        "mailNickname": "UserAdmin",
+                        "core": true,
+                        "mission": true,
+                        "description": "MLZ - User Administrator scoped to Administrative Unit.",
+                        "aadrole": "User Administrator"
+                    },
+                    {
+                        "name": "Application Developers",
+                        "mailNickname": "AppDev",
+                        "core": true,
+                        "mission": true,
+                        "description": "MLZ - Application Developer group.",
+                        "aadrole": "Application Developer"
+                    },
+                    {
+                        "name": "Application Administrators",
+                        "mailNickname": "AppAdmins",
+                        "core": true,
+                        "mission": false,
+                        "description": "MLZ - Application Administrator group.",
+                        "aadrole": "Application Administrator"
                     }
                 ]
             } 
