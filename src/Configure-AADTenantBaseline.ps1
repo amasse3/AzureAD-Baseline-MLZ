@@ -489,6 +489,68 @@ foreach ($pag in $PAGs) {
 #endregions
 
 #region PIM
+Connect-MgGraph -Scopes 'Application.Read.All', 'Policy.Read.All', 'Policy.ReadWrite.ConditionalAccess'
+$CAPolicies = $ParametersJson.StepParameterSet.ConditionalAccess.parameters.rules
+
+#get current user
+Get-MgUserAuthenticationEmailMethod
+#to do: automate this better. Ideally read in params and loop through to create them all (check if exists)
+### All Users MFA
+$params = @{
+	DisplayName = "MLZ001: MFA - Require multifactor authentication for all users"
+	State = "enabledForReportingButNotEnforced"
+	Conditions = @{
+		ClientAppTypes = @(
+			"all"
+		)
+		Applications = @{
+			IncludeApplications = @(
+				"All"
+			)
+		}
+		Users = @{
+			IncludeUsers = @(
+				"All"
+			)
+		}
+	}
+	GrantControls = @{
+		Operator = "OR"
+		BuiltInControls = @(
+			"mfa"
+		)
+	}
+}
+
+New-MgIdentityConditionalAccessPolicy -BodyParameter $params
+
+###Block Legacy Auth
+$params = @{
+	DisplayName = "MLZ002: MFA - Block Legacy Authentication"
+	State = "enabledForReportingButNotEnforced"
+	Conditions = @{
+		ClientAppTypes = @(
+			"exchangeActiveSync",
+            "other"
+		)
+		Applications = @{
+			IncludeApplications = @(
+				"All"
+			)
+		}
+		Users = @{
+			IncludeUsers = @(
+				"All"
+			)
+		}
+	}
+	GrantControls = @{
+		Operator = "OR"
+		BuiltInControls = @(
+			"block"
+		)
+	}
+}
 
 #endregion
 
