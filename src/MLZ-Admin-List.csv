@@ -1,6 +1,6 @@
-LastName,FirstName,DisplayName,UserPrincipalName,Usagelocation,UserCertificateIds
-Simon,Britta,Britta Simon (MLZ),mlz.bsimon@contoso.onmicrosoft.com,US,012345000678901@mil
-Bischoff,Jimmy,Jimmy Bischoff (MLZ),mlz.jbischoff@contoso.onmicrosoft.com,US,012345000678902@mil
-Parker,McLean,Parker McLean (MLZ),mlz.pmclean@contoso.onmicrosoft.com,US,012345000678903@mil
-Cantrell,Sam,Sam Cantrell (MLZ),mlz.scantrell@contoso.onmicrosoft.com,US,012345000678904@mil
-Gomez,Mateo,Mateo Gomez (MLZ),mlz.mgomez@contoso.onmicrosoft.com,US,012345000678905@mil
+LastName,FirstName,DisplayName,UserPrincipalName,Mail,PhoneNumber,MissionCode,CACPrincipalName,UsageLocation
+Simon,Britta,Britta Simon (MLZ),mlz.bsimon@contoso.onmicrosoft.com,bsimon@contoso.com,555-123-1234,MLZ,012345000678901@mil,US
+Bischoff,Jimmy,Jimmy Bischoff (MLZ),mlz.jbischoff@contoso.onmicrosoft.com,jbischoff@contoso.com,555-123-1234,MLZ,012345000678902@mil,US
+Parker,McLean,Parker McLean (MLZ),mlz.pmclean@contoso.onmicrosoft.com,pmclean@contoso.com,555-123-1234,MLZ,012345000678903@mil,US
+Cantrell,Sam,Sam Cantrell (MLZ),mlz.scantrell@contoso.onmicrosoft.com,scantrell@contoso.com,555-123-1234,Alpha,012345000678904@mil,US
+Gomez,Mateo,Mateo Gomez (MLZ),mlz.mgomez@contoso.onmicrosoft.com,mgomez@contoso.com,555-123-1234,Bravo,012345000678905@mil,US
