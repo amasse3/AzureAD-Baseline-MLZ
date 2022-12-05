@@ -52,7 +52,10 @@ Param(
     [Parameter(Mandatory=$false)]
     [Switch]$TenantPolicies,
     [Parameter(Mandatory=$false)]
+    [Switch]$SkipTools,
+    [Parameter(Mandatory=$false)]
     [Switch]$Verbose
+
 )
 
 
@@ -193,6 +196,96 @@ function New-MLZGroup {
         }
     }
 }
+
+function New-MLZCAPolicy {
+    Param([Object]$policy,[String]$CurrentUserID,[String]$EAGroupID)
+
+    if ($policy.grantControls.authenticationStrength) {
+        Write-Host -ForegroundColor Cyan "UPDATE - Manually add authentication strength using Azure Portal"
+        $policy.grantControls.authenticationStrength
+
+        $policy.grantControls.builtInControls = "mfa"
+    }
+
+    $params = @{
+        DisplayName = $policy.displayname
+        State = $policy.state
+        Conditions = @{
+            UserRiskLevels = @(
+                $policy.conditions.userRiskLevels
+            )
+            ClientAppTypes = @(
+                $policy.conditions.clientAppTypes
+            )
+            Applications = @{
+                IncludeApplications = @(
+                    $policy.conditions.applications.includeApplications
+                )
+                IncludeUserActions = @(
+                    $policy.conditions.applications.includeUserActions
+                )
+            }
+            Users = @{
+                IncludeUsers = @(
+                    $policy.conditions.users.includeUsers
+                )
+                ExcludeUsers = @(
+                    $CurrentUserID
+                )
+                ExcludeGroups = @(
+                    $EAGroupID
+                )
+                IncludeRoles = @(
+                    $policy.conditions.users.includeRoles
+                )
+                ExcludeRoles = @(
+                    $policy.conditions.users.excludeRoles
+                )
+            }
+        }
+        GrantControls = @{
+            Operator = $policy.grantControls.operator
+            BuiltInControls = @(
+                $policy.grantControls.builtInControls
+            )
+        }
+    }
+
+   <# if ($policy.grantControls.authenticationStrength) {
+        $params.GrantControls.authenticationStrength = @{
+            ID = $policy.grantControls.authenticationStrength.id
+            DisplayName = $policy.grantControls.authenticationStrength.displayName
+            Description = $policy.grantControls.authenticationStrength.description
+            PolicyType = $policy.grantControls.authenticationStrength.policyType
+            RequirementsSatisfied = $policy.grantControls.authenticationStrength.requirementsSatisfied
+            AllowedCombinations = $policy.grantControls.authenticationStrength.allowedCombinations
+        }
+    } #>
+
+    if ($policy.conditions.locations) {
+        $params.locations = @{
+            IncludeLocations = @(
+                $policy.conditions.locations.includeLocations
+            )
+            ExcludeLocations = @(
+                $policy.conditions.locations.excludeLocations
+            )
+        }
+    }
+
+
+    Try {
+        $CAObj = Get-MgIdentityConditionalAccessPolicy -Filter "DisplayName eq `'$($policy.displayname)`'" -ErrorAction SilentlyContinue
+    } Catch {} #To do: Implement message
+
+    if ($CAObj) {
+        Write-Host "CA Rule $($policy.displayname) already exists."
+    } else {
+        Write-Host "Creating new Conditional Access Rule: $($policy.displayname)." -ForegroundColor Yellow
+        New-MgIdentityConditionalAccessPolicy -BodyParameter $params
+    }
+}
+
 #endregion
 
 ### Testing - comment this line
@@ -216,12 +309,14 @@ Switch ($Environment) {
 
 #region PSTools
 if ($PSTools -or $All) {
-    $modules = $mlzparams.StepParameterSet.PSTools.parameters.Modules
-    foreach ($module in $modules) {
-        if ($Verbose) {
-            Install-Module $modules -Verbose
-        } else {
-            Install-Module $modules -Confirm
+    if (!($SkipTools)) {
+        $modules = $mlzparams.StepParameterSet.PSTools.parameters.Modules
+        foreach ($module in $modules) {
+            if ($Verbose) {
+                Install-Module $modules -Verbose
+            } else {
+                Install-Module $modules -Confirm
+            }
         }
     }
 }
@@ -363,114 +458,114 @@ $AuthNMethodsConfiguration = $ParametersJson.StepParameterSet.AuthNMethods.param
 
 #Turn on FIDO2
 Write-Host -ForegroundColor Yellow "Enabling FIDO2 Authentication Method"
-$fido2 = $AuthNMethodsConfiguration | ?{$_.id -eq "fido2"}
+$fido2 = $AuthNMethodsConfiguration.Fido2
+$microsoftauthenticator = $AuthNMethodsConfiguration.MicrosoftAuthenticator
+$X509certificate = $AuthNMethodsConfiguration.X509Certificate
+$registrationConfiguration = $ParametersJson.StepParameterSet.AuthNMethods.parameters.RegistrationSettings
 
+$EAGroupName = $ParametersJson.StepParameterSet.EmergencyAccess.parameters.EAGroup.mailNickname
+$EAGroupObj = Get-MgGroup -Filter "MailNickname eq `'$EAGroupName`'"
+
+Write-Host -ForegroundColor Yellow "Setting Authentication Methods:"
+$($ParametersJson.StepParameterSet.AuthNMethods.parameters.AuthenticationMethodsConfigurations)
+Write-Host -ForegroundColor Yellow "Configuring Registration:"
+$($ParametersJson.StepParameterSet.AuthNMethods.parameters.RegistrationSettings)
 $params = @{
 	"@odata.context" = "$MSGraphURI/$metadata#authenticationMethodsPolicy"
 	AuthenticationMethodConfigurations = @(
 		@{
-			"@odata.type" = $fido2.'@odata.type'
-			Id = $fido2.id
+			"@odata.type" = "#microsoft.graph.fido2AuthenticationMethodConfiguration"
+			Id = "fido2"
 			State = $fido2.state
 			IsSelfServiceRegistrationAllowed = $fido2.isSelfServiceRegistrationAllowed
 			IsAttestationEnforced = $fido2.isAttestationEnforced
             IncludeTargets = @(
                 @{
-                    targetType = "group"
-                    Id = "all_users"
+                    targetType = $fido2.targetType
+                    Id = $fido2.targetId
                 }
             )
 		}
-	)
-}
-Update-MgPolicyAuthenticationMethodPolicy -BodyParameter $params
-
-#Turn on MS Authenticator
-Write-Host -ForegroundColor Yellow "Enabling Microsoft Authenticator Authentication Method"
-$MicrosoftAuthenticator = $AuthNMethodsConfiguration | ?{$_.id -eq "MicrosoftAuthenticator"}
-$params = @{
-	"@odata.context" = "$MSGraphURI/$metadata#authenticationMethodsPolicy"
-	AuthenticationMethodConfigurations = @(
-		@{
-			"@odata.type" = $MicrosoftAuthenticator.'@odata.type'
-			Id = $MicrosoftAuthenticator.id
-			State = $MicrosoftAuthenticator.state
+        @{
+			"@odata.type" = "#microsoft.graph.microsoftAuthenticatorAuthenticationMethodConfiguration"
+			Id = "MicrosoftAuthenticator"
+			State = $microsoftauthenticator.state
 			IncludeTargets = @(
                 @{
-                    targetType = "group"
-                    Id = "all_users"
+                    targetType = $microsoftauthenticator.targetType
+                    Id = $microsoftauthenticator.targetId
                 }
             )
-		}
-	)
-}
-Update-MgPolicyAuthenticationMethodPolicy -BodyParameter $params
-
-#Turn on x509certificates
-Write-Host -ForegroundColor Yellow "Enabling Azure AD native CBA Authentication Method"
-$X509Certificate = $AuthNMethodsConfiguration | ?{$_.id -eq "X509Certificate"}
-$params = @{
-	"@odata.context" = "$MSGraphURI/$metadata#authenticationMethodsPolicy/$entity"
-	AuthenticationMethodConfigurations = @(
-		@{
-			"@odata.type" = $X509Certificate.'@odata.type'
-			Id = $X509Certificate.id
-			State = $X509Certificate.state
+        }
+        @{
+            "@odata.type" = "#microsoft.graph.x509CertificateAuthenticationMethodConfiguration"
+            Id = "X509Certificate"
+            State = $X509certificate.state
+			IncludeTargets = @(
+                @{
+                    targetType = $X509certificate.targetType
+                    Id = $X509certificate.targetId
+                }
+            )
+            IsRegistrationRequired = $X509certificate.isRegistrationRequired
             CertificateUserBindings = @(
-                @{ 
-                    x509CertificateField = "PrincipalName" 
-                    userProperty = "certificateUserIds" 
-                    priority = 1 
-                },
-                @{ 
-                    x509CertificateField = "PrincipalName"
-                    userProperty= "onPremisesUserPrincipalName"
-                    priority= 2 
-                }
-            )
-			IncludeTargets = @(
                 @{
-                    targetType = "group"
-                    Id = "all_users"
+                    X509CertificateField = $($X509certificate.certificateUserBindings[0]).x509CertificateField
+                    UserProperty = $($X509certificate.certificateUserBindings[0]).userProperty
+                    Priority =  $($X509certificate.certificateUserBindings[0]).priority
                 }
             )
             AuthenticationModeConfiguration = @{
-                X509CertificateAuthenticationDefaultMode = $X509Certificate.authenticationModeConfiguration.x509CertificateAuthenticationDefaultMode
+                X509CertificateAuthenticationDefaultMode = $X509certificate.authenticationModeConfiguration.x509CertificateAuthenticationDefaultMode
+                Rules = @()
             }
         }
-	)
-}
-$body = $params | ConvertTo-Json
-Update-MgPolicyAuthenticationMethodPolicy -BodyParameter $body
-
-#disable other policies
-Write-Host -ForegroundColor Yellow "Disabling Softrware Oath, SMS, TAP, Email"
-$params = @{
-	"@odata.context" = "$MSGraphURI/$metadata#authenticationMethodsPolicy"
-	AuthenticationMethodConfigurations = @(
-		@{
+        <# #To do: Figure out why this can't be disabled (invalid odata type specified)
+        @{
 			"@odata.type" = "#microsoft.graph.softwareOathAuthenticationMethodConfiguration"
 			Id = "SoftwareOath"
 			State = "disabled"
-        }
+        }#>
         @{
             "@odata.type" = "#microsoft.graph.temporaryAccessPassAuthenticationMethodConfiguration"
 			Id = "TemporaryAccessPass"
 			State = "disabled"
         }
-        @{
+        <#@{ #To do: Figure out why this can't be disabled (invalid odata type specified)
             "@odata.type" = "#microsoft.graph.smsAuthenticationMethodConfiguration"
 			Id = "Sms"
 			State = "disabled"
-        }
+        }#>
          @{
             "@odata.type" = "#microsoft.graph.emailAuthenticationMethodConfiguration"
 			Id = "Email"
 			State = "disabled"
         }
 	)
+    RegistrationEnforcement = @{
+        AuthenticationMethodsRegistrationCampaign = @{
+            SnoozeDurationInDays = $registrationConfiguration.snoozeDurationInDays
+            State = $registrationConfiguration.state
+            ExcludeTargets = @(
+                @{
+                    Id = $EAGroupObj.Id
+                    TargetType = "group"
+                }
+            )
+            IncludeTargets = @(
+                @{
+                    Id = "all_users"
+                    TargetType = "group"
+                    TargetedAuthenticationMethod = $registrationConfiguration.targetAuthenticationMethod
+                }
+            )
+        }
+    }
 }
+
 Update-MgPolicyAuthenticationMethodPolicy -BodyParameter $params
+
+
 #endregion
 
 #region Groups
@@ -489,75 +584,214 @@ foreach ($pag in $PAGs) {
 #endregions
 
 #region PIM
-Connect-MgGraph -Scopes 'Application.Read.All', 'Policy.Read.All', 'Policy.ReadWrite.ConditionalAccess'
-$CAPolicies = $ParametersJson.StepParameterSet.ConditionalAccess.parameters.rules
+##### Left off here - figure out how to do this with MS Graph using v3.
+Import-Module Microsoft.Graph.Identity.Governance
+Connect-MgGraph -Scopes "Directory.AccessAsUser.All","RoleManagement.ReadWrite.Directory"
 
-#get current user
-Get-MgUserAuthenticationEmailMethod
-#to do: automate this better. Ideally read in params and loop through to create them all (check if exists)
-### All Users MFA
-$params = @{
-	DisplayName = "MLZ001: MFA - Require multifactor authentication for all users"
-	State = "enabledForReportingButNotEnforced"
-	Conditions = @{
-		ClientAppTypes = @(
-			"all"
-		)
-		Applications = @{
-			IncludeApplications = @(
-				"All"
-			)
-		}
-		Users = @{
-			IncludeUsers = @(
-				"All"
-			)
-		}
-	}
-	GrantControls = @{
-		Operator = "OR"
-		BuiltInControls = @(
-			"mfa"
-		)
-	}
+$roles = $ParametersJson.StepParameterSet.PIM.parameters.Roles
+$coreroles = $roles | ?{"tenant" -in $_.scope}
+$missionroles = $roles | ?{"mission" -in $_.scope}
+$MissionAUs = $ParametersJson.GlobalParameterSet.MissionAUs
+
+$GARoleObj = Get-MgRoleManagementDirectoryRoleDefinition -UnifiedRoleDefinitionId "62e90394-69f5-4237-9190-012177145e10"
+
+New-MgPolicyRoleManagementPolicyRule -UnifiedRoleManagementPolicyId -BodyParameter -Confirm
+
+function New-MLZPIMRoleAssignment {
+    Param([String]$RoleID,[String]$PrincipalID,[String]$EligibilityDuration,[STring]$RequestDuration)
+
+    New-MgPrivilegedRole -WhatIf
+    $params = @{
+        "PrincipalId" = $PrincipalID
+        "RoleDefinitionId" = $RoleID
+        "Justification" = "Add permanent assignment for Emergency Access accounts."
+        "DirectoryScopeId" = "/"
+        "Action" = "AdminAssign"
+        "ScheduleInfo" = @{
+            "StartDateTime" = Get-Date
+            "Expiration" = @{
+                "Type" = "AfterDuration"
+                "Duration" = $EligibilityDuration
+            }
+        }
+    }
+    New-MgRoleManagementDirectoryRoleEligibilityScheduleRequest -BodyParameter $params
 }
 
-New-MgIdentityConditionalAccessPolicy -BodyParameter $params
+foreach ($role in $coreroles) {
 
-###Block Legacy Auth
-$params = @{
-	DisplayName = "MLZ002: MFA - Block Legacy Authentication"
-	State = "enabledForReportingButNotEnforced"
-	Conditions = @{
-		ClientAppTypes = @(
-			"exchangeActiveSync",
-            "other"
-		)
-		Applications = @{
-			IncludeApplications = @(
-				"All"
-			)
-		}
-		Users = @{
-			IncludeUsers = @(
-				"All"
-			)
-		}
-	}
-	GrantControls = @{
-		Operator = "OR"
-		BuiltInControls = @(
-			"block"
-		)
-	}
+
+}
+
+foreach ($role in $missionroles) {
+    foreach ($au in $MissionAUs) {
+
+    }
 }
 
 #endregion
 
-#region CA
+#region ConditionalAccess
+Write-Host -ForegroundColor Cyan "Configuring Conditional Access Policies for MLZ Baseline."
+
+Connect-MgGraph -Scopes 'Application.Read.All', 'Policy.Read.All', 'Policy.ReadWrite.ConditionalAccess'
+$CAPolicies = $ParametersJson.StepParameterSet.ConditionalAccess.parameters
+
+#get current user
+$CurrentUserID = $(Get-MgUser -Filter "UserPrincipalName eq `'$($(Get-MgContext).Account)`'").Id
+
+#get EA Groupname
+$EAGroupName = $($ParametersJson.StepParameterSet.EmergencyAccess.parameters.EAGroup).displayName
+$EAGroupID = $(Get-MGGroup -Filter "DisplayName eq `'$EAGroupName`'").Id
+### All Users MFA
+
+$AllRules = $ParametersJson.StepParameterSet.ConditionalAccess.parameters
+New-MLZCAPolicy -policy $AllRules.MLZ01 -CurrentUserID $CurrentUserID -EAGroupID $EAGroupID
+New-MLZCAPolicy -policy $AllRules.MLZ02 -CurrentUserID $CurrentUserID -EAGroupID $EAGroupID
+New-MLZCAPolicy -policy $AllRules.MLZ03 -CurrentUserID $CurrentUserID -EAGroupID $EAGroupID
+New-MLZCAPolicy -policy $AllRules.MLZ04 -CurrentUserID $CurrentUserID -EAGroupID $EAGroupID
+New-MLZCAPolicy -policy $AllRules.MLZ05 -CurrentUserID $CurrentUserID -EAGroupID $EAGroupID
+New-MLZCAPolicy -policy $AllRules.MLZ06 -CurrentUserID $CurrentUserID -EAGroupID $EAGroupID
+
+function New-MLZCAPolicy {
+    Param([Object]$policy,[String]$CurrentUserID,[String]$EAGroupID)
+
+    if ($policy.grantControls.authenticationStrength) {
+        Write-Host -ForegroundColor Cyan "UPDATE - Manually add authentication strength using Azure Portal"
+        $policy.grantControls.authenticationStrength
+
+        $policy.grantControls.builtInControls = "mfa"
+    }
+
+    $params = @{
+        DisplayName = $policy.displayname
+        State = $policy.state
+        Conditions = @{
+            UserRiskLevels = @(
+                $policy.conditions.userRiskLevels
+            )
+            ClientAppTypes = @(
+                $policy.conditions.clientAppTypes
+            )
+            Applications = @{
+                IncludeApplications = @(
+                    $policy.conditions.applications.includeApplications
+                )
+                IncludeUserActions = @(
+                    $policy.conditions.applications.includeUserActions
+                )
+            }
+            Users = @{
+                IncludeUsers = @(
+                    $policy.conditions.users.includeUsers
+                )
+                ExcludeUsers = @(
+                    $CurrentUserID
+                )
+                ExcludeGroups = @(
+                    $EAGroupID
+                )
+                IncludeRoles = @(
+                    $policy.conditions.users.includeRoles
+                )
+                ExcludeRoles = @(
+                    $policy.conditions.users.excludeRoles
+                )
+            }
+        }
+        GrantControls = @{
+            Operator = $policy.grantControls.operator
+            BuiltInControls = @(
+                $policy.grantControls.builtInControls
+            )
+        }
+    }
+
+   <# if ($policy.grantControls.authenticationStrength) {
+        $params.GrantControls.authenticationStrength = @{
+            ID = $policy.grantControls.authenticationStrength.id
+            DisplayName = $policy.grantControls.authenticationStrength.displayName
+            Description = $policy.grantControls.authenticationStrength.description
+            PolicyType = $policy.grantControls.authenticationStrength.policyType
+            RequirementsSatisfied = $policy.grantControls.authenticationStrength.requirementsSatisfied
+            AllowedCombinations = $policy.grantControls.authenticationStrength.allowedCombinations
+        }
+    } #>
+
+    if ($policy.conditions.locations) {
+        $params.locations = @{
+            IncludeLocations = @(
+                $policy.conditions.locations.includeLocations
+            )
+            ExcludeLocations = @(
+                $policy.conditions.locations.excludeLocations
+            )
+        }
+    }
+
+
+    Try {
+        $CAObj = Get-MgIdentityConditionalAccessPolicy -Filter "DisplayName eq `'$($policy.displayname)`'" -ErrorAction SilentlyContinue
+    } Catch {} #To do: Implement message
+
+    if ($CAObj) {
+        Write-Host "CA Rule $($policy.displayname) already exists."
+    } else {
+        Write-Host "Creating new Conditional Access Rule: $($policy.displayname)." -ForegroundColor Yellow
+        New-MgIdentityConditionalAccessPolicy -BodyParameter $params
+    }
+}
 
 #endregion
 
 #region TenantPolicies
+Connect-MgGraph -Scopes Policy.ReadWrite.Authorization
+
+
+$authorizationPolicy = $ParametersJson.StepParameterSet.TenantPolicies.parameters.authorizationPolicy
+$externalIdentityPolicy = $ParametersJson.StepParameterSet.TenantPolicies.parameters.externalIdentityPolicy
+$adminConsentRequestPolicy = $ParametersJson.StepParameterSet.TenantPolicies.parameters.adminConsentRequestPolicy
+
+Write-host -ForegroundColor Cyan "Updating AuthorizationPolicy"
+
+$params = @{
+    "@odata.context" = "$MSGraphURI/`$metadata#policies/authorizationPolicy"
+    allowInvitesFrom = $authorizationPolicy.allowInvitesFrom
+    allowedToSignUpEmailBasedSubscriptions = $authorizationPolicy.allowedToSignUpEmailBasedSubscriptions
+    allowedToUseSSPR = $authorizationPolicy.allowedToUseSSPR
+    allowEmailVerifiedUsersToJoinOrganization = $authorizationPolicy.allowEmailVerifiedUsersToJoinOrganization
+    allowUserConsentForRiskyApps = $authorizationPolicy.allowUserConsentForRiskyApps
+    blockMsolPowerShell = $authorizationPolicy.blockMsolPowerShell
+    enabledPreviewFeatures = @(
+        $authorizationPolicy.enabledPreviewFeatures
+    )
+    guestUserRoleId = $authorizationPolicy.guestUserRoleId
+    permissionGrantPolicyIdsAssignedToDefaultUserRole = @(
+        "ManagePermissionGrantsForSelf.microsoft-user-default-legacy"
+    )
+    defaultUserRolePermissions = @{
+        AllowedToCreateApps = $authorizationPolicy.defaultUserRolePermissions.allowedToCreateApps
+        AllowedToCreateSecurityGroups = $authorizationPolicy.defaultUserRolePermissions.allowedToCreateSecurityGroups
+        AllowedToCreateTenants = $authorizationPolicy.defaultUserRolePermissions.allowedToCreateTenants
+        AllowedToReadBitlockerKeysForOwnedDevice = $authorizationPolicy.defaultUserRolePermissions.allowedToReadBitlockerKeysForOwnedDevice
+        AllowedToReadOtherUsers = $authorizationPolicy.defaultUserRolePermissions.allowedToReadOtherUsers
+    }
+}
+Update-MgPolicyAuthorizationPolicy -AuthorizationPolicyId "authorizationPolicy" -BodyParameter $params
+
+Write-host -ForegroundColor Cyan "Updating External Identity Policies"
+
+$params = @{
+    "@odata.context" = "$MSGraphURI/`$metadata#policies/externalIdentitiesPolicy/$entity"
+    AllowExternalIdentitiesToLeave = $externalIdentityPolicy.allowExternalIdentitiesToLeave
+    AllowDeletedIdentitiesDataRemoval = $externalIdentityPolicy.allowDeletedIdentitiesDataRemoval
+}
+
+Update-MgPolicyExternalIdentityPolicy -BodyParameter $params
+
+Write-host -ForegroundColor Cyan "Updating Admin Consent Policy"
+Update-MgPolicyAdminConsentRequestPolicy -IsEnabled:$adminConsentRequestPolicy.isEnabled
 
 #endregion
+
+Write-Host -ForegroundColor Green "Completed AAD Tenant Baseline Script"
