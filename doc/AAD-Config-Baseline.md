@@ -27,7 +27,7 @@ This section outlines the preliminary activities for configuring a new Azure AD 
 - [ ] [Prepare a secure workstation for managing Azure AD](#2-prepare-a-secure-workstation-for-managing-azure-ad)
 - [ ] [Modify the parameters file](#3-modify-the-mlz-aad-parametersjson-configuration-file)
 - [ ] [Load the parameters file](#4-load-the-mlz-aad-parametersjson)
-- [ ] [🗒️ Install the PowerShell modules](#5-🗒️-install-the-powershell-modules)
+- [ ] [🗒️ Run the script: PSTools](#5-🗒️-run-the-script-pstools)
 - [ ] [Bookmark the Azure AD Portal URLs](#6-bookmark-the-azure-portal-urls)
 - [ ] [Create and the first Global Administrator](#7-create-the-first-global-administrator)
 - [ ] [License the first global administrator](#8-license-the-first-global-administrator)
@@ -118,7 +118,7 @@ Import the modified parameters file for use in the baseline configuration script
 
 > **Note:** the parameters will be referenced by the `$mlzparams` variable throughout this document.
 
-### 5. 🗒️ Install the PowerShell modules
+### 5. 🗒️ Run the script: PSTools
 Install the PowerShell modules by running:
 `PS> .\Configure-AADTenantBaseline.ps1 -ParametersJson $mlzparams -PSTools`
 
@@ -200,7 +200,7 @@ This section covers account creation for Emergency Access and day-to-day Azure A
 
 - [ ] [Develop emergency access procedures](#1-develop-emergency-access-procedures)
 - [ ] [Plan for monitoring and alerting emergency access account usage](#2-plan-for-monitoring-and-alerting-on-emergency-access-account-usage)
-- [ ] [🗒️ Create emergency access accounts](#3-🗒️-create-emergency-access-accounts)
+- [ ] [🗒️ Run the script: EmergencyAccess](#3-🗒️-run-the-script-emergencyaccess)
 - [ ] [Complete setup for emergency access accounts](#4-complete-setup-for-emergency-access-accounts)
 
 <details><summary><b>Show Content</b></summary>
@@ -230,7 +230,7 @@ Azure AD logs must be connected to the Microsoft SIEM, Sentinel, to set up autom
 1. [Connect Azure AD Sign-In Logs to Microsoft Sentinel](https://docs.microsoft.com/en-us/azure/sentinel/connect-azure-active-directory)
 2. [Configure an Analytics Rule to alert when Emergency Access account is used](https://docs.microsoft.com/en-us/azure/active-directory/roles/security-emergency-access#monitor-sign-in-and-audit-logs)
 
-### 3. 🗒️ Create Emergency Access accounts
+### 3. 🗒️ Run the script: EmergencyAccess
 Run the script to create Emergency Access accounts in Azure AD:
 
 `PS> .\Configure-AADTenantBaseline -ParametersJson $mlzparams -EmergencyAccess`
@@ -259,9 +259,12 @@ Perform the following manual steps to complete the configuration:
 ## 3. Create Administrative Units
 Administrative Units allow for scoping Azure AD privileges to certain resources. This section sets a baseline framework for delegated management in Azure AD. Once applied, the baseline will allow each Mission to manage their own users and RBAC groups for assigning access to resources in their own Azure subscription.
 
+ - [ ] [🗒️ Run the script: AdminUnits](#🗒️-run-the-script-adminunits))
+
 <details><summary><b>Show Content</b></summary>
 <p>
 
+### 🗒️ Run the script: AdminUnits
 Run the script to create Administrative Units.
 `PS> .\Configure-AADTenantBaseline.ps1 -ParametersJson $mlzparams -AdminUnits`
 
@@ -342,7 +345,7 @@ Steps for setting up Azure AD CBA with the DoD PKI can be found in [AAD-Certific
 ## 6. Deploy MLZ Conditional Access Policies
 This section enables key recommended access policies for all apps protected by Azure AD. This includes the Azure portal, Microsoft Graph, Azure Resource Manager, M365 applications, and any future applications integrated with Azure AD.
 
-- [🗒️ Conigure Conditional Access](#🗒️-configure-conditional-access)
+- [🗒️ Run the script: ConditionalAccess](#🗒️-run-the-script-conditionalaccess)
   - [Azure AD Free only - turn on security defaults](#azure-ad-free---turn-on-security-defaults)
   - [Azure AD P2 - CA Policies for MLZ](#azure-ad-premium-p2---create-conditional-access-policies-for-mlz)
 - [Review and enable the policies](#review-and-enable-the-policies)
@@ -350,7 +353,7 @@ This section enables key recommended access policies for all apps protected by A
 <details><summary><b>Show Content</b></summary>
 <p>
 
-### 🗒️ Configure Conditional Access
+### 🗒️ Run the script: ConditionalAccess
 Run the script below to configure Conditional Access Policies:
 
 `PS> .\Configure-AADTenantBaseline.ps1 -ParametersJson $mlzparams -ConditionalAccess`
@@ -395,8 +398,8 @@ Sign in to the Azure Portal as an administrator and review the created policies.
 ## 7. Create accounts for Azure management
 This step will create "named" administrator accounts. These are cloud-only Azure AD users mapped to individual administrators in the organization. Attributes should align to real people to assist in assigning least-privilege permissions and correlating admin activities.
 
-- [ ] [Create a named admin list CSV](#🗒️-create-named-admin-list-csv-file)
-- [ ] [Run the script](#🗒️-run-the-script)
+- [ ] [🗒️ Create a named admin list CSV](#🗒️-create-named-admin-list-csv-file)
+- [ ] [🗒️ Run the script: NamedAccounts](#🗒️-run-the-script-namedaccounts)
 - [ ] [Complete setup for named administrator acccounts](#complete-setup-for-named-administrator-accounts)
 
 <details><summary><b>Show Content</b></summary>
@@ -454,7 +457,7 @@ foreach ($row in $CSV) {
 #Optional: use Export-Csv to write the new values back to CSV.
 ```
 
-### 🗒️ Run the script
+### 🗒️ Run the script: NamedAccounts
 Run the script to create named administrator accounts in Azure AD:
 
 `PS> .\Configure-AADTenantBaseline -ParametersJson $mlzparams -NamedAccounts`
@@ -519,7 +522,7 @@ Complete setup for the named administrator accounts:
 Use this set of Azure AD Security Groups and RBAC role assignments as a baseline.
 - [ ] [Azure Resource RBAC](#1-azure-resource-rbac)
 - [ ] [Azure AD Directory Roles](#2-azure-ad-directory-roles)
-- [ ] [🗒️ Create AAD Security Groups](#3-🗒️-create-azure-ad-security-groups)
+- [ ] [🗒️ Run the script: Groups](#3-🗒️-run-the-script-groups)
 
 <details><summary><b>Show Content</b></summary>
 <p>
@@ -576,7 +579,7 @@ The following role-assignable groups are used in the AAD Configuration Baseline:
 
 > **Note**: These security group and role assignments represent baseline configuration. Modify with additional roles as needed, starting with built-in roles when possible.
 
-### 3. 🗒️ Create Azure AD security groups
+### 3. 🗒️ Run the script: Groups
 Run the script below to create Azure AD security groups:
 
 `PS> .\Configure-AADTenantBaseline.ps1 -ParametersJson $mlzparams -Groups`
@@ -588,10 +591,10 @@ The script will:
 ## 9. Configure Privileged Identity Management (PIM)
 We enabled PIM when we signed in with the first AADP2-licensed Global Administrator in [step 1](#1-prepare-to-manage-azure-ad). This section assigns the groups created in the [previous section](#5-create-mlz-rbac-security-groups) to Azure and AAD roles using PIM:
 
-- [ ] [🗒️ Conigure PIM](#1-🗒️-configure-pim)
+- [ ] [🗒️ Run the script: PIM](#1-🗒️-run-the-script-pim)
 - [ ] [Review Securing Privileged Access in Azure AD](#2-review-securing-privileged-access-in-azure-ad)
 
-### 1. 🗒️ Configure PIM
+### 1. 🗒️ Run the script: PIM
 Run the script below to configure PIM:
 
 `PS> .\Configure-AADTenantBaseline.ps1 -ParametersJson $mlzparams -PIM`
@@ -634,22 +637,22 @@ Familiarize yourself with the Securing Privileged Access guidance for Azure AD a
 ## 10. Configure user, group, and external collaboration settings
 This section contains basic tenant-level settings applicable to all Azure AD versions. The MLZ baseline AAD script will set these configuration items according to the defaults outlined in each section. This configuration can be changed at any time. The baseline settings represent a starting point, and may not be functional for certain scenarios. For example, tenants that will be accessed by guests from another tenant must set the External Collaboration settings accordingly. The baseline offers a most restrictive experience, which turns off these collaboration features.
 
-- [ ] [🗒️ Configure user, group, collaboration settings](#1-🗒️-configure-user-group-collaboration-settings)
-- [ ] [User Settings](#2-user-settings)
-- [ ] [Group Settings](#3-group-settings)
-- [ ] [External Collaboration Settings](#4-external-collaboration-settings)
+- [ ] [🗒️ Run the script: TenantPolicies](#🗒️-run-the-script-tenantpolicies)
+- [ ] [User Settings](#user-settings)
+- [ ] [Group Settings](#group-settings)
+- [ ] [External Collaboration Settings](#external-collaboration-settings)
 
 <details><summary><b>Show Content</b></summary>
 <p>
 
-### 1. 🗒️ Configure user, group, collaboration settings
+### 🗒️ Run the script: TenantPolicies
 Run the script below to configure user, group, collaboration settings:
 
 `PS> .\Configure-AADTenantBaseline.ps1 -ParametersJson $mlzparams -TenantPolicies`
 
 The settings applied by the baseline are outlined below.
 
-### 2. User settings
+#### User settings
 The MLZ AAD baseline will set the following Azure AD user settings:
 
 |Setting|MLZ-Baseline|
@@ -665,7 +668,7 @@ The MLZ AAD baseline will set the following Azure AD user settings:
 
 > **Note**: Some settings are set during tenant creation and cannot be changed. All settings may not be available in Azure AD Government.
 
-### 3. Group settings
+#### Group settings
 The MLZ AAD baseline will set the following Azure AD group settings:
 |Setting|MLZ-Baseline|
 |-------|------------|
@@ -676,7 +679,7 @@ The MLZ AAD baseline will set the following Azure AD group settings:
 |Group Naming Policy Prefix|Baseline script parameter|
 |Group Naming Policy Suffix|Baseline script parameter|
 
-### 4. External collaboration settings
+#### External collaboration settings
 MLZ AAD baseline will set the following Azure AD external collaboration settings:
 |Setting|MLZ-Baseline|
 |-------|------------|
@@ -695,13 +698,13 @@ MLZ AAD baseline will set the following Azure AD external collaboration settings
 ## Optional Configuration
 This section is not applicable for Azure Platform tenants ([Type 2](/MLZ-Identity-AzureADSetup/doc/MLZ-Common-Patterns.md#type-2-mlz-deployed-to-standalone-azure-platform-tenant)).
 
+<details><summary><b>Show Content</b></summary>
+<p>
+
 ### Add a custom domain to Azure AD
 When an Azure AD tenant is created, a default domain is assigned that looks like *tenantname.onmicrosoft.com* (*tenantname.onmicrosoft.us* for Azure AD Government). By default, all users in Azure AD get a UserPrincipalName (UPN) with the default domain suffix.
 
 [Custom domains](https://docs.microsoft.com/en-us/azure/active-directory/fundamentals/add-custom-domain) let tenant administrators use an organization's DNS domain for username suffixes, mail routing, etc.
-
-<details><summary><b>Show Content</b></summary>
-<p>
 
 1. Create a custom domain using the Microsoft Portal or MS Graph PowerShell:
 
@@ -724,18 +727,12 @@ Now you can create users with the custom domain as the UPN suffix. Existing clou
 > **Note**:
 Sometimes when custom domains are added to an Azure AD tenant, users who signed up for trial Microsoft services with their organization email address will appear in the tenant once the domain is verified. Do not be alarmed by this. To verify no other users have privileges within the tenant, [view the Azure AD role members](https://docs.microsoft.com/en-us/azure/active-directory/roles/view-assignments).
 
-</p>
-</details>
-
 ### Evaluate hybrid identity options
 Microsoft’s identity solutions span on-premises and cloud-based capabilities. These solutions create a common user identity for authentication and authorization to all resources. This configuration has 2 parts:
 - [ ] [Synchronization](#synchronization)
 - [ ] [Authentication](#authentication)
 
 > 📘 **Reference**: [What is hybrid identity with Azure AD?](https://docs.microsoft.com/en-us/azure/active-directory/hybrid/whatis-hybrid-identity)
-
-<details><summary><b>Show Content</b></summary>
-<p>
 
 ### Synchronization
 Hybrid identity should be configured if an organization uses Active Directory Domain Services and wishes to synchronize users and groups to Azure AD. Microsoft offers 2 tools (named very similarly) to accomolish this function:
@@ -786,6 +783,7 @@ Pass-Through Authentication (PTA) and federation with ADFS are not recommended. 
 </details>
 
 ## Enterprise Azure AD and Zero Trust
+One of the first steps an organization can take in adopting zero trust principals is consolidating around a single cloud-based Identity as a Service (IdaaS) platform like Azure Active Directory. This section describes some next steps after establishing the tenant.
 
 - [ ] [Connect applications to Azure AD](#connect-applications-to-azure-ad)
 - [ ] [Enforce strong cloud-native authentication](#authentication-strength-preview)
@@ -793,9 +791,10 @@ Pass-Through Authentication (PTA) and federation with ADFS are not recommended. 
 - [ ] [Identity Governance (IGA)](#identity-governance)
 - [ ] [Register and manage devices in the cloud](#register-and-manage-devices-in-the-cloud)
 
-### Connect applications to Azure AD
-One of the first steps an organization can take in adopting zero trust principals is consolidating around a single cloud-based Identity as a Service (IdaaS) platform like Azure Active Directory.
+<details><summary><b>Show Content</b></summary>
+<p>
 
+### Connect applications to Azure AD
 This section describes steps to integrate applications with Azure AD.
 
 - [ ] [Review Identity for MLZ Applications](#review-mlz-application-identity)
@@ -803,9 +802,6 @@ This section describes steps to integrate applications with Azure AD.
 - [ ] [Add Enterprise Applications to Azure AD](#add-enterprise-applications-to-azure-ad)
 - [ ] [Develop New Applications for Azure AD](#develop-new-applications-for-azure-ad)
 - [ ] [Add On-Premises Applications to Azure AD](#add-on-premises-applications-to-azure-ad)
-
-<details><summary><b>Show Content</b></summary>
-<p>
 
 #### 📘 Review MLZ-Application-Identity
 Detailed guidance around identity for MLZ applications can be found in the referenced document below.
@@ -850,9 +846,6 @@ Azure AD Application Proxy is an on-premises agent and cloud service that [secur
 > - [Optimize traffic flow with Azure Active Directory Application Proxy](https://learn.microsoft.com/en-us/azure/active-directory/app-proxy/application-proxy-network-topology)
 > - [Security Benefits for Azure AD Application Proxy](https://learn.microsoft.com/en-us/azure/active-directory/app-proxy/what-is-application-proxy#security-benefits)
 > - [Secure Hybrid Access Partner Integrations](https://learn.microsoft.com/en-us/azure/active-directory/manage-apps/secure-hybrid-access#secure-hybrid-access-through-azure-ad-partner-integrations)
-
-</p>
-</details>
 
 ### Authentication Strength (Preview)
 Authentication Strengths is a feature that allows a tenant administrator to label authenticators (and combinations) according to the strength of the credential. Out-of-Box settings include:
@@ -924,6 +917,9 @@ Make Azure AD Conditional Access a well-informed Policy Enforcement Point (PEP) 
 > - [Secure Endpoints with Zero Trust](https://learn.microsoft.com/en-us/security/zero-trust/deploy/endpoints)
 > - [Zero Trust Rapid Modernization Plan](https://learn.microsoft.com/en-us/security/zero-trust/zero-trust-ramp-overview)
 > - [Zero Trust Resource Center](https://learn.microsoft.com/en-us/security/zero-trust/)
+
+</p>
+</details>
 
 ## See Also
 ### MLZ Identity Add-On
