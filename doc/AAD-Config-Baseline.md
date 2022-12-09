@@ -698,6 +698,11 @@ MLZ AAD baseline will set the following Azure AD external collaboration settings
 ## Optional Configuration
 This section is not applicable for Azure Platform tenants ([Type 2](/MLZ-Identity-AzureADSetup/doc/MLZ-Common-Patterns.md#type-2-mlz-deployed-to-standalone-azure-platform-tenant)).
 
+ - [ ] [Add a custom domain](#add-a-custom-domain-to-azure-ad)
+ - [ ] [Evaluate hybrid identity options](#evaluate-hybrid-identity-options)
+ - [ ] [Synchronization](#synchronization)
+ - [ ] [Authentication](#authentication)
+
 <details><summary><b>Show Content</b></summary>
 <p>
 
