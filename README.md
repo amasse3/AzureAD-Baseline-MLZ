@@ -22,7 +22,7 @@ Furthermore, this content is not intended to replace or contradict guidance prov
 Now that we have the warnings out of the way, we can get started with the MLZ identity add-on.  Use the links below to navigate the MLZ Identity Add-On components.
 
 ## Table of Contents
-- [MLZ Azure AD Configuration Baseline](doc/AAD-Config-Baseline.md)
+- **[MLZ Azure AD Configuration Baseline](doc/AAD-Config-Baseline.md)**
 - [DOD CAC Authentication](doc/AAD-CertificateBasedAuthentication-DODPKI.md)
 - [Identity for MLZ Applications](doc/MLZ-Application-Identity.md)
 - [Permissions in Azure and Azure AD](/doc/AAD-Permissions-Management.md)
