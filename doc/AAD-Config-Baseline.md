@@ -808,7 +808,6 @@ Detailed guidance around identity for MLZ applications can be found in the refer
 
 > 📘  **Reference**: [Identity for MLZ Applications](./MLZ-Application-Identity.md)
 
-
 #### Consolidate around an Azure AD tenant
 Standardizing around a common identity platform often requires changes to IT policy mandating new applications (procured and developed in house) targets Azure Active Directory. The Azure AD tenant containing all users in the organization, especially if it is used for M365, is a good choice because the same zero trust access and device management policies for M365 can be re-used for any application in the organization.
 
@@ -909,17 +908,20 @@ Joining devices to Azure Active Directory (also using Hybrid Azure AD Join) lets
 
 Intune management enables the use of device compliance rules within Conditional Access. Microsoft Defender for Endpoint can ensure managed devices are healthy and clean.
 
+> 📘 **Reference**: [Secure Endpoints with Zero Trust](https://learn.microsoft.com/en-us/security/zero-trust/deploy/endpoints)
+
+</p>
+</details>
+
+### Plan for Zero Trust
 The Microsoft cloud includes a vast array of tools and security capabilities that enable advanced zero trust outcomes. These capabilities are enhanced by cross-product integration and additional datapoints. The more Azure AD knows about the context of a user's access, the better it's access control capabilities become. The AI models powering risk-based conditional access with Azure AD Identity Protection, Sentinel User Entity Behavior Analytics, and Insider Risk, are just a few capabilties that get even better with more data.
 
 Make Azure AD Conditional Access a well-informed Policy Enforcement Point (PEP) by integrating signals across identities, endpoints, applications, data, infrastructure, networks, and risk.
 
 > 📘 **Reference**: 
-> - [Secure Endpoints with Zero Trust](https://learn.microsoft.com/en-us/security/zero-trust/deploy/endpoints)
 > - [Zero Trust Rapid Modernization Plan](https://learn.microsoft.com/en-us/security/zero-trust/zero-trust-ramp-overview)
 > - [Zero Trust Resource Center](https://learn.microsoft.com/en-us/security/zero-trust/)
 
-</p>
-</details>
 
 ## See Also
 ### MLZ Identity Add-On
