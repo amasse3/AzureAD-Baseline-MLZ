@@ -44,13 +44,13 @@
                 },
                 "MissionAUGroupTemplate": 
                 {
-                    "displayName": "Mission ZZZ RBAC Groups",
+                    "displayName": "ZZZ RBAC Groups",
                     "description": "Contains groups created by the MLZ identity add-on for assigning RBAC roles for Mission spoke subscription ZZZ.",
                     "membershipType": null
                 },
                 "MissionAUUserTemplate": 
                 {
-                    "displayName": "Mission ZZZ Users",
+                    "displayName": "ZZZ Users",
                     "description": "Contains users with management access for Mission spoke subscription ZZZ.",
                     "membershipType": "Dynamic",
                     "membershipRule": "(user.department -match \"ZZZ\")",
@@ -257,14 +257,16 @@
                         "mailNickname": "RBAC-GroupAdmins",
                         "core": true,
                         "mission": true,
+                        "scope": "/administrativeUnits/",
                         "description": "MLZ - Group Administrator scoped to Administrative Unit.",
-                        "aadrole": "Group Administrator"
+                        "aadrole": "Groups Administrator"
                     },
                     {
                         "name": "User Administrator",
                         "mailNickname": "UserAdmin",
                         "core": true,
                         "mission": true,
+                        "scope": "/administrativeUnits/",
                         "description": "MLZ - User Administrator scoped to Administrative Unit.",
                         "aadrole": "User Administrator"
                     },
@@ -272,7 +274,8 @@
                         "name": "Application Developers",
                         "mailNickname": "AppDev",
                         "core": true,
-                        "mission": true,
+                        "mission": false,
+                        "scope": "/",
                         "description": "MLZ - Application Developer group.",
                         "aadrole": "Application Developer"
                     },
@@ -281,6 +284,7 @@
                         "mailNickname": "AppAdmins",
                         "core": true,
                         "mission": false,
+                        "scope": "/",
                         "description": "MLZ - Application Administrator group.",
                         "aadrole": "Application Administrator"
                     }
@@ -290,42 +294,46 @@
         "PIM": {
             "description": "Configure Privileged Identity Management Roles",
             "runstep": true,
-            "comments": "To Do: approvals and notifications, custom roles",
+            "comments": "Access Reviews Enabled Automatically.",
             "parameters": {
-                "CreateAdminUnits": "True",
+                "comment": "Eligibility and Duration must be in proper format (PT#H for hours) (P#D for days)",
                 "Roles": [
                     {
                         "name": "Global Administrator",
                         "scope": [
                             "tenant"
                         ],
-                        "eligibility": "180d",
-                        "duration": "4h"
+                        "EligibilityMaxDurationInDays": "P180D",
+                        "ActivationMaxDurationInHours": "PT4H",
+                        "isExpirationRequired": false
                     },
                     {
                         "name": "Application Administrator",
                         "scope": [
                             "tenant"
                         ],
-                        "eligibility": "180d",
-                        "duration": "4h"
+                        "EligibilityMaxDurationInDays": "P180D",
+                        "ActivationMaxDurationInHours": "PT4H",
+                        "isExpirationRequired": false
                     },
                     {
                         "name": "Application Developer",
                         "scope": [
                             "tenant"
                         ],
-                        "eligibility":"180d",
-                        "duration": "4h"
+                        "EligibilityMaxDurationInDays":"P180D",
+                        "ActivationMaxDurationInHours": "PT4H",
+                        "isExpirationRequired": false
                     },
                     {
-                        "name": "Group Administrator",
+                        "name": "Groups Administrator",
                         "scope": [
                             "tenant",
                             "mission"
                         ],
-                        "eligibility": "180d",
-                        "duration": "4h"
+                        "EligibilityMaxDurationInDays": "P180D",
+                        "ActivationMaxDurationInHours": "PT4H",
+                        "isExpirationRequired": false
                     },
                     {
                         "name": "User Administrator",
@@ -333,8 +341,9 @@
                             "tenant",
                             "mission"
                         ],
-                        "eligibility": "180d",
-                        "duration": "4h"
+                        "EligibilityMaxDurationInDays": "P180D",
+                        "ActivationMaxDurationInHours": "PT4H",
+                        "isExpirationRequired": false
                     }
                 ]
             }
