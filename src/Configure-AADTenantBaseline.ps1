@@ -65,10 +65,7 @@ Param(
     [Parameter(Mandatory=$false)]
     [Switch]$TenantPolicies,
     [Parameter(Mandatory=$false)]
-    [Switch]$IncludeTools,
-    [Parameter(Mandatory=$false)]
-    [Switch]$Verbose
-
+    [Switch]$IncludeTools
 )
 
 #region warning
@@ -83,9 +80,23 @@ if (!$continue) {
     exit
 }
 
-### Testing - comment this line
-#$ParametersJson = $(Get-Content .\mlz-aad-parameters.json) | ConvertFrom-Json
-###
+#See if the Parameters JSON file is there
+if (!$ParametersJson) {
+    #Set parameter value if missing
+    $ParametersJson = "mlz-aad-parameters.json"
+}
+
+#Check the path
+if (!$(Test-Path $ParametersJson)) {
+    Write-Host "Cannot find parameters file name $ParametersJson"
+    write-host "Exiting script..."
+    start-sleep -Seconds 3
+    exit
+} else {
+    #Load the file
+    Write-Host "Loading parameters from $ParametersJson..."
+    $Parameters = $(Get-Content $ParametersJson) | ConvertFrom-Json
+}
 
 #region functions
 function New-TempPassword {
@@ -146,7 +157,7 @@ function New-MLZAdminUnit {
     Param([object]$BodyParameter)
 
     Try{
-        $AU = Get-MgAdministrativeUnit | ?{$_.DisplayName -eq $($BodyParameter.displayName)} -ErrorAction SilentlyContinue
+        $AU = Get-MgAdministrativeUnit | Where-Objecthere-Object{$_.DisplayName -eq $($BodyParameter.displayName)} -ErrorAction SilentlyContinue
     } Catch {}
 
     if ($AU) {
@@ -166,12 +177,16 @@ function Convert-MLZAUFromTemplate {
 
     #update fields
     $mt.displayName = $mt.displayName -replace "ZZZ",$missionAU
-    $mt.description = $mt.description -replace "ZZZ",$missionAU  
+    $mt.description = $mt.description -replace "ZZZ",$missionAU
+
+    if ($mt.membershipType -eq "Dynamic") {
+        $mt.membershipRule = $mt.membershipRule -replace "ZZZ",$missionAU
+    }
     Return $mt
 }
 
 function Build-MemberberArrayParams {
-    Param([Array]$members,$MSGraphURI,$objectType)
+    Param([Array]$members,[String]$MSGraphURI,[String]$objectType)
     $out = @()
     foreach ($member in $members) {
         $out += "$MSGraphURI/$objectType/$member"
@@ -226,14 +241,14 @@ function New-MLZGroup {
 }
 
 function New-MLZCAPolicy {
-    Param([Object]$policy,[String]$CurrentUserID,[String]$EAGroupID)
-
+    Param([Object]$policy,[String]$CurrentUserID,[String]$EAGroupID,[String]$MSGraphURI)
+    <#
     if ($policy.grantControls.authenticationStrength) {
         Write-Host -ForegroundColor Cyan "UPDATE - Manually add authentication strength using Azure Portal"
         $policy.grantControls.authenticationStrength
 
         $policy.grantControls.builtInControls = "mfa"
-    }
+    } #>
 
     $params = @{
         DisplayName = $policy.displayname
@@ -279,16 +294,11 @@ function New-MLZCAPolicy {
         }
     }
 
-   <# if ($policy.grantControls.authenticationStrength) {
+    if ($policy.grantControls.authenticationStrength) {
         $params.GrantControls.authenticationStrength = @{
             ID = $policy.grantControls.authenticationStrength.id
-            DisplayName = $policy.grantControls.authenticationStrength.displayName
-            Description = $policy.grantControls.authenticationStrength.description
-            PolicyType = $policy.grantControls.authenticationStrength.policyType
-            RequirementsSatisfied = $policy.grantControls.authenticationStrength.requirementsSatisfied
-            AllowedCombinations = $policy.grantControls.authenticationStrength.allowedCombinations
-        }
-    } #>
+         }
+    }
 
     if ($policy.conditions.locations) {
         $params.locations = @{
@@ -318,8 +328,8 @@ function Update-MLZPIMPolicyRules {
     Param([String]$UnifiedRoleManagementPolicyId,[String]$EligibilityMaxDurationInDays,[String]$ActivationMaxDurationInHours)
 
     $rules = Get-MgPolicyRoleManagementPolicyRule -UnifiedRoleManagementPolicyId $UnifiedRoleManagementPolicyId
-    $eligibilityexpiration = $rules | ?{$_.Id -eq "Expiration_Admin_Eligibility"}
-    $activationduration = $rules | ?{$_.Id -eq "Expiration_EndUser_Assignment"}
+    $eligibilityexpiration = $rules | Where-Object{$_.Id -eq "Expiration_Admin_Eligibility"}
+    $activationduration = $rules | Where-Object{$_.Id -eq "Expiration_EndUser_Assignment"}
 
     $params = @{
         "@odata.type" = "#microsoft.graph.unifiedRoleManagementPolicyExpirationRule"
@@ -409,7 +419,7 @@ function Find-MLZMissionAUObj {
         $obj = Get-MgAdministrativeUnit -Filter "DisplayName eq `'$f`'"
     return $obj
 }
-
+<#
 function New-MLZCAPolicy {
     Param([Object]$policy,[String]$CurrentUserID,[String]$EAGroupID)
 
@@ -463,8 +473,8 @@ function New-MLZCAPolicy {
             )
         }
     }
-
-   <# if ($policy.grantControls.authenticationStrength) {
+    ###LEFT OFF HERE
+    if ($policy.grantControls.authenticationStrength) {
         $params.GrantControls.authenticationStrength = @{
             ID = $policy.grantControls.authenticationStrength.id
             DisplayName = $policy.grantControls.authenticationStrength.displayName
@@ -473,7 +483,7 @@ function New-MLZCAPolicy {
             RequirementsSatisfied = $policy.grantControls.authenticationStrength.requirementsSatisfied
             AllowedCombinations = $policy.grantControls.authenticationStrength.allowedCombinations
         }
-    } #>
+    }
 
     if ($policy.conditions.locations) {
         $params.locations = @{
@@ -498,22 +508,25 @@ function New-MLZCAPolicy {
         New-MgIdentityConditionalAccessPolicy -BodyParameter $params
     }
 }
+#>
 
 #endregion
 
 #region parameters
 #sets variables for some global parameters
-$Environment = $ParametersJson.GlobalParameterSet.Environment
-$PWDLength = $ParametersJson.GlobalParameterSet.PWDLength
-$MissionAUs = $ParametersJson.GlobalParameterSet.MissionAUs
-$License = $ParametersJson.GlobalParameterSet.License | ConvertTo-Json
+$Environment = $Parameters.GlobalParameterSet.Environment
+$PWDLength = $Parameters.GlobalParameterSet.PWDLength
+$MissionAUs = $Parameters.GlobalParameterSet.MissionAUs
+$License = $Parameters.GlobalParameterSet.License | ConvertTo-Json
 
-$upnsuffix = $(Get-MgDomain | ?{$_.IsInitial -eq $true}).Id
+Connect-MgGraph -Environment $Environment -Scopes Directory.Read.All
+$upnsuffix = $(Get-MgDomain | Where-Object{$_.IsInitial -eq $true}).Id
 Switch ($Environment) {
     Global {$MSGraphURI = "https://graph.microsoft.com/beta"}
 	USGov {$MSGraphURI = "https://graph.microsoft.us/beta"}
     USGovDoD {$MSGraphURI = "https://graph.microsoft.us/beta"}
 }
+
 #endregion
 
 #region PSTools
@@ -533,14 +546,15 @@ if ($PSTools -or ($All -and $IncludeTools)) {
 if ($AdminUnits -or $All) {
     Import-Module Microsoft.Graph.Identity.DirectoryManagement
     Connect-MgGraph -Scopes AdministrativeUnit.ReadWrite.All -Environment $Environment
+    Select-MgProfile beta
 
     #create core AU
-    $CoreAU = $ParametersJson.StepParameterSet.AdminUnits.parameters.CoreAU
+    $CoreAU = $Parameters.StepParameterSet.AdminUnits.parameters.CoreAU
     $CoreAUObj = New-MLZAdminUnit -BodyParameter $CoreAU
 
     #read in templates
-    $MissionAUGroupTemplate = $ParametersJson.StepParameterSet.AdminUnits.parameters.MissionAUGroupTemplate
-    $MissionAUUserTemplate = $ParametersJson.StepParameterSet.AdminUnits.parameters.MissionAUUserTemplate
+    $MissionAUGroupTemplate = $Parameters.StepParameterSet.AdminUnits.parameters.MissionAUGroupTemplate
+    $MissionAUUserTemplate = $Parameters.StepParameterSet.AdminUnits.parameters.MissionAUUserTemplate
 
     #Add Mission AUs
     foreach ($missionAU in $MissionAUs) {
@@ -552,6 +566,8 @@ if ($AdminUnits -or $All) {
         $UsersAU = Convert-MLZAUFromTemplate -template $MissionAUUserTemplate -missionAU $MissionAU
         New-MLZAdminUnit -BodyParameter $UsersAU | Out-Null
     }
+
+    Write-Host -ForegroundColor Green "Completed creating Administrative Units"
 }
 #endregion
 
@@ -560,11 +576,11 @@ if ($EmergencyAccess -or $All) {
     Import-Module Microsoft.Graph.Identity.DirectoryManagement
     Import-Module Microsoft.Graph.Users
     Import-Module Microsoft.Graph.Groups
-    Connect-MgGraph -Scopes AdministrativeUnit.ReadWrite.All,User.ReadWrite.All,Group.ReadWrite.All -Environment $Environment
+    Connect-MgGraph -Scopes AdministrativeUnit.ReadWrite.All,User.ReadWrite.All,Group.ReadWrite.All,RoleManagement.ReadWrite.Directory -Environment $Environment
 
-    $EAUsers = $ParametersJson.StepParameterSet.EmergencyAccess.parameters.Users
-    $EAGroup = $ParametersJson.StepParameterSet.EmergencyAccess.parameters.EAGroup | ConvertTo-Json
-    $EAAU = $ParametersJson.StepParameterSet.EmergencyAccess.parameters.AdministrativeUnit | ConvertTo-Json
+    $EAUsers = $Parameters.StepParameterSet.EmergencyAccess.parameters.Users
+    $EAGroup = $Parameters.StepParameterSet.EmergencyAccess.parameters.EAGroup | ConvertTo-Json
+    $EAAU = $Parameters.StepParameterSet.EmergencyAccess.parameters.AdministrativeUnit | ConvertTo-Json
 
     #Create Emergency Access Accounts
     $EAAccountObjects = @()
@@ -575,9 +591,11 @@ if ($EmergencyAccess -or $All) {
     }
 
     #Create the Admin Unit
+    Write-Host -ForegroundColor Yellow "Creating Emergency Access Account AU"
     $EAAUObj = New-MgAdministrativeUnit -BodyParameter $EAAU
 
     #Create Emergency Access Accounts group
+    Write-Host -ForegroundColor Yellow "Creating Emergency Access Security Group"
     $EAGroupObj = New-MgGroup -BodyParameter $EAGroup
 
     #Add users to the group and AU
@@ -592,23 +610,45 @@ if ($EmergencyAccess -or $All) {
     #Assign Global Admin role
     $GARoleObj = Get-MgRoleManagementDirectoryRoleDefinition -UnifiedRoleDefinitionId "62e90394-69f5-4237-9190-012177145e10"
 
-    $params = @{
-        "PrincipalId" = $EAGroupObj.Id
-        "RoleDefinitionId" = $GARoleObj.Id
-        "Justification" = "Add permanent assignment for Emergency Access accounts."
-        "DirectoryScopeId" = "/"
-        "Action" = "AdminAssign"
-        "ScheduleInfo" = @{
-            "StartDateTime" = Get-Date
-            "Expiration" = @{
-                "Type" = "NoExpiration"
+    if ($Parameters.StepParameterSet.EmergencyAccess.parameters.PIM.permanentActiveAssignment) {
+        Write-Host -ForegroundColor Yellow "Adding permanent active assignment for Global Administrator role"
+        $params = @{
+	        Action = "adminAssign"
+	        Justification = "Add permanent assignment for Emergency Access accounts."
+	        RoleDefinitionId = $GARoleObj.Id
+	        DirectoryScopeId = "/"
+	        PrincipalId = $EAGroupObj.Id
+	        ScheduleInfo = @{
+		        StartDateTime = Get-Date
+		        Expiration = @{
+			        Type = "NoExpiration"
+		        }
+	        }
+        }
+
+        New-MgRoleManagementDirectoryRoleAssignmentScheduleRequest -BodyParameter $params
+    } else {
+        Write-Host -ForegroundColor Yellow "Adding permanent eligibility for Global Administrator role"
+        $params = @{
+            "PrincipalId" = $EAGroupObj.Id
+            "RoleDefinitionId" = $GARoleObj.Id
+            "Justification" = "Add permanent assignment for Emergency Access accounts."
+            "DirectoryScopeId" = "/"
+            "Action" = "AdminAssign"
+            "ScheduleInfo" = @{
+                "StartDateTime" = Get-Date
+                "Expiration" = @{
+                    "Type" = "NoExpiration"
+                }
             }
         }
+
+        New-MgRoleManagementDirectoryRoleEligibilityScheduleRequest -BodyParameter $params
     }
-    New-MgRoleManagementDirectoryRoleEligibilityScheduleRequest -BodyParameter $params
+
+    Write-Host -ForegroundColor Green "Completed creating EA accounts"
 }
 
-Write-Host -ForegroundColor Green "Completed creating EA accounts"
 #endregion
 
 #region NamedAccounts
@@ -617,28 +657,28 @@ if ($NamedAccounts -or $All) {
     Import-Module Microsoft.Graph.Groups
     Connect-MgGraph -Scopes AdministrativeUnit.ReadWrite.All,User.ReadWrite.All,Group.ReadWrite.All -Environment $Environment
 
-    $UserCSV = Import-Csv $ParametersJson.GlobalParameterSet.UserCSVRelativePath
+    $UserCSV = Import-Csv $Parameters.GlobalParameterSet.UserCSVRelativePath
 
     <#testing
     $UserCSV = Import-Csv -Path .\mlztest.csv
     #>
 
-    $validdomains = Get-MgDomain | ?{$_.IsVerified -eq $true}
-    $initialdomain = $validdomains | ?{$_.IsInitial -eq $true}
+    $validdomains = Get-MgDomain | Where-Object{$_.IsVerified -eq $true}
+    $initialdomain = $validdomains | Where-Object{$_.IsInitial -eq $true}
 
     $NamedAdmins = @()
     foreach ($user in $UserCSV) {
         #verify domain suffix is correct, set to intial domain otherwise
         $suffix = $user.UserPrincipalName.Split("@")[1]
         if (!($validdomains.id -match $suffix)) {
-            $user.UserPrincipalName = $user.UserPrincipalName.Split("@")[0]+"@"+$initialdomain
+            $user.UserPrincipalName = $user.UserPrincipalName.Split("@")[0]+"@"+$initialdomain.Id
         }
         #create the admin account
         $NamedAdmins += New-MLZAADUser -user $user -PasswordLength $PWDLength
     }
 
     #update users that have certificateUserIds value
-    $certificateUserIDUsers = $UserCSV | ?{$_.CACPrincipalName}
+    $certificateUserIDUsers = $UserCSV | Where-Object{$_.CACPrincipalName}
 
     #if ($certificateUserIDUsers) {write-host "waiting 5 seconds...";Start-Sleep -s 5}
     foreach ($user in $certificateUserIDUsers) {
@@ -646,12 +686,14 @@ if ($NamedAccounts -or $All) {
     }
 
     #create license group and assign licenses
-    $LicenseGroup = $ParametersJson.StepParameterSet.NamedAccounts.parameters.LicenseGroup | ConvertTo-Json
+    Write-host -ForegroundColor Yellow "Creating licensing group"
+    $LicenseGroup = $Parameters.StepParameterSet.NamedAccounts.parameters.LicenseGroup | ConvertTo-Json
     $LicenseGroupObj = New-MgGroup -BodyParameter $LicenseGroup
     Set-MgGroupLicense -GroupId $LicenseGroupObj.Id -BodyParameter $License
 
     #add to MLZ core admin unit
-    $CoreAU = $ParametersJson.StepParameterSet.AdminUnits.parameters.CoreAU
+    Write-host -ForegroundColor Yellow "Adding MLZ core users to an Administrative Unit"
+    $CoreAU = $Parameters.StepParameterSet.AdminUnits.parameters.CoreAU
     $CoreAUObj = Get-MgAdministrativeUnit -Filter "startsWith(DisplayName, `'$($CoreAU.displayName)`')"
     $CoreUserObj = Get-MgUser -Filter "startsWith(Department,`'MLZ`')"
     $CoreUserRefArray = @($CoreUserObj.Id)
@@ -665,22 +707,22 @@ if ($NamedAccounts -or $All) {
 if ($AuthNMethods -or $All) {
     Import-Module Microsoft.Graph.Identity.SignIns
     Connect-MgGraph -Scopes Policy.ReadWrite.AuthenticationMethod
-    $AuthNMethodsConfiguration = $ParametersJson.StepParameterSet.AuthNMethods.parameters.AuthenticationMethodsConfigurations
+    $AuthNMethodsConfiguration = $Parameters.StepParameterSet.AuthNMethods.parameters.AuthenticationMethodsConfigurations
 
     #Turn on FIDO2
     Write-Host -ForegroundColor Yellow "Enabling FIDO2 Authentication Method"
     $fido2 = $AuthNMethodsConfiguration.Fido2
     $microsoftauthenticator = $AuthNMethodsConfiguration.MicrosoftAuthenticator
     $X509certificate = $AuthNMethodsConfiguration.X509Certificate
-    $registrationConfiguration = $ParametersJson.StepParameterSet.AuthNMethods.parameters.RegistrationSettings
+    $registrationConfiguration = $Parameters.StepParameterSet.AuthNMethods.parameters.RegistrationSettings
 
-    $EAGroupName = $ParametersJson.StepParameterSet.EmergencyAccess.parameters.EAGroup.mailNickname
+    $EAGroupName = $Parameters.StepParameterSet.EmergencyAccess.parameters.EAGroup.mailNickname
     $EAGroupObj = Get-MgGroup -Filter "MailNickname eq `'$EAGroupName`'"
 
     Write-Host -ForegroundColor Yellow "Setting Authentication Methods:"
-    $($ParametersJson.StepParameterSet.AuthNMethods.parameters.AuthenticationMethodsConfigurations)
+    $($Parameters.StepParameterSet.AuthNMethods.parameters.AuthenticationMethodsConfigurations)
     Write-Host -ForegroundColor Yellow "Configuring Registration:"
-    $($ParametersJson.StepParameterSet.AuthNMethods.parameters.RegistrationSettings)
+    $($Parameters.StepParameterSet.AuthNMethods.parameters.RegistrationSettings)
     $params = @{
 	    "@odata.context" = "$MSGraphURI/$metadata#authenticationMethodsPolicy"
 	    AuthenticationMethodConfigurations = @(
@@ -731,22 +773,23 @@ if ($AuthNMethods -or $All) {
                     Rules = @()
                 }
             }
-            <# #To do: Figure out why this can't be disabled (invalid odata type specified)
+             #To do: Errors testing in some environments
             @{
 			    "@odata.type" = "#microsoft.graph.softwareOathAuthenticationMethodConfiguration"
 			    Id = "SoftwareOath"
 			    State = "disabled"
-            }#>
+            }
             @{
                 "@odata.type" = "#microsoft.graph.temporaryAccessPassAuthenticationMethodConfiguration"
 			    Id = "TemporaryAccessPass"
 			    State = "disabled"
             }
-            <#@{ #To do: Figure out why this can't be disabled (invalid odata type specified)
+            #To do: Errors testing in some environments
+            @{
                 "@odata.type" = "#microsoft.graph.smsAuthenticationMethodConfiguration"
 			    Id = "Sms"
 			    State = "disabled"
-            }#>
+            }
              @{
                 "@odata.type" = "#microsoft.graph.emailAuthenticationMethodConfiguration"
 			    Id = "Email"
@@ -782,11 +825,11 @@ if ($AuthNMethods -or $All) {
 
 #region Groups
 if ($Groups -or $All) {
-    $Groups = $ParametersJson.StepParameterSet.Groups.parameters.SecurityGroups
-    $PAGs = $ParametersJson.StepParameterSet.Groups.parameters.PAGs
-    $MissionAUs = $ParametersJson.GlobalParameterSet.MissionAUs
+    $SGs = $Parameters.StepParameterSet.Groups.parameters.SecurityGroups
+    $PAGs = $Parameters.StepParameterSet.Groups.parameters.PAGs
+    $MissionAUs = $Parameters.GlobalParameterSet.MissionAUs
 
-    foreach ($group in $Groups) {
+    foreach ($group in $SGs) {
         New-MLZGroup -Group $Group -MissionAUs $MissionAUs
     }
 
@@ -794,7 +837,7 @@ if ($Groups -or $All) {
        New-MLZGroup -Group $pag -MissionAUs $MissionAUs -PAG
     }
 }
-#endregions
+#endregion
 
 #region PIM
 if ($PIM -or $All) {
@@ -802,10 +845,10 @@ if ($PIM -or $All) {
     Import-Module Microsoft.Graph.Identity.DirectoryManagement
     Connect-MgGraph -Scopes "RoleManagement.ReadWrite.Directory"
 
-    $roles = $ParametersJson.StepParameterSet.PIM.parameters.Roles
+    $roles = $Parameters.StepParameterSet.PIM.parameters.Roles
     #$coreroles = $roles | ?{"tenant" -in $_.scope}
     #$missionroles = $roles | ?{"mission" -in $_.scope}
-    $PAGs = $ParametersJson.StepParameterSet.Groups.parameters.PAGs
+    $PAGs = $Parameters.StepParameterSet.Groups.parameters.PAGs
 
     #find the role definition templates and assigned policies
     Write-Host "Finding role templates and policy assignments. This may take a few minutes..."
@@ -814,7 +857,7 @@ if ($PIM -or $All) {
     $roles | Add-Member -MemberType NoteProperty -Name "RoleId" -Value "" -Force
 
     foreach ($role in $roles) {
-        $role.RoleTemplateId = $(Get-MgRoleManagementDirectoryRoleDefinition -Property "DisplayName","TemplateId" | ?{$_.Displayname -eq $role.name}).TemplateId
+        $role.RoleTemplateId = $(Get-MgRoleManagementDirectoryRoleDefinition -Property "DisplayName","TemplateId" | Where-Object{$_.Displayname -eq $role.name}).TemplateId
         $role.AssignedPolicies = Get-MgPolicyRoleManagementPolicyAssignment -Filter "scopeId eq '/' and scopeType eq 'Directory' and RoleDefinitionId eq `'$($role.RoleTemplateId)`'"
         $role.RoleId = $(Get-MgDirectoryRole -Filter "DisplayName eq `'$($role.name)`'").Id
     }
@@ -832,18 +875,18 @@ if ($PIM -or $All) {
     $PAGs | Add-Member -MemberType NoteProperty -Name "Role" -Value "" -Force
     foreach ($PAG in $PAGs) {
         $PAG.Groups = Get-MgGroup -Filter "StartsWith(MailNickname, '$($PAG.mailNickname)`')" -Property "MailNickname","DisplayName","GroupTypes","Id"
-        $PAG.Role = $roles | ?{$_.name -eq $PAG.aadrole}
+        $PAG.Role = $roles | Where-Object{$_.name -eq $PAG.aadrole}
     }
 
-    $CoreAU = $ParametersJson.StepParameterSet.AdminUnits.parameters.CoreAU
+    $CoreAU = $Parameters.StepParameterSet.AdminUnits.parameters.CoreAU
     $CoreAUObj = Get-MgAdministrativeUnit -Filter "DisplayName eq `'$($CoreAU.displayName)`'"
-    $MissionAUs = $ParametersJson.GlobalParameterSet.MissionAUs
-    $UserTemplate = $ParametersJson.StepParameterSet.AdminUnits.parameters.MissionAUUserTemplate
-    $GroupTemplate = $ParametersJson.StepParameterSet.AdminUnits.parameters.MissionAUGroupTemplate
+    $MissionAUs = $Parameters.GlobalParameterSet.MissionAUs
+    $UserTemplate = $Parameters.StepParameterSet.AdminUnits.parameters.MissionAUUserTemplate
+    $GroupTemplate = $Parameters.StepParameterSet.AdminUnits.parameters.MissionAUGroupTemplate
 
     #Find the right PAG
-    $groupPAG = $($PAGs | ?{$_.mission -eq $true -and $_.aadrole -eq "Groups Administrator"})
-    $userPAG = $($PAGs | ?{$_.mission -eq $true -and $_.aadrole -eq "User Administrator"})
+    $groupPAG = $($PAGs | Where-Object{$_.mission -eq $true -and $_.aadrole -eq "Groups Administrator"})
+    $userPAG = $($PAGs | Where-Object{$_.mission -eq $true -and $_.aadrole -eq "User Administrator"})
 
     #Loop through each AU and make assignments for each Mission
     foreach ($AU in $MissionAUs) {
@@ -853,8 +896,8 @@ if ($PIM -or $All) {
         $UserAUObj = $(Find-MLZMissionAUObj -AU $AU -Type user -Template $UserTemplate)
 
         #Find the groups
-        $GAdminGroup = $groupPAG.Groups | ?{$_.MailNickName -match "$($AU)$"}
-        $UAdminGroup = $userPAG.Groups | ?{$_.MailNickName -match "$($AU)$"}
+        $GAdminGroup = $groupPAG.Groups | Where-Object{$_.MailNickName -match "$($AU)$"}
+        $UAdminGroup = $userPAG.Groups | Where-Object{$_.MailNickName -match "$($AU)$"}
 
         #Create eligibility schedules
         New-MLZPIMRoleEligibilitySchedule -role $groupPAG.Role -PrincipalID $GAdminGroup.Id -Scope "$($groupPAG.scope)$($GroupAUObj.Id)" -Permanent
@@ -863,15 +906,17 @@ if ($PIM -or $All) {
 
     #Assign Core roles
     Write-Host -ForegroundColor Cyan "Assigning eligibility to core roles"
-    $groupPAG = $($PAGs | ?{$_.core -eq $true -and $_.aadrole -eq "Groups Administrator"})
-    $userPAG = $($PAGs | ?{$_.core -eq $true -and $_.aadrole -eq "User Administrator"})
-    $GAdminGroup = $groupPAG.Groups | ?{$_.MailNickName -match "MLZ"}
-    $UAdminGroup = $userPAG.Groups | ?{$_.MailNickName -match "MLZ"}
+    $groupPAG = $($PAGs | Where-Object{$_.core -eq $true -and $_.aadrole -eq "Groups Administrator"})
+    $userPAG = $($PAGs | Where-Object{$_.core -eq $true -and $_.aadrole -eq "User Administrator"})
+    $GAdminGroup = $groupPAG.Groups | Where-Object{$_.MailNickName -match "MLZ"}
+    $UAdminGroup = $userPAG.Groups | Where-Object{$_.MailNickName -match "MLZ"}
 
     New-MLZPIMRoleEligibilitySchedule -role $groupPAG.Role -PrincipalID $GAdminGroup.Id -Scope "$($groupPAG.scope)$($CoreAUObj.Id)" -Permanent
     New-MLZPIMRoleEligibilitySchedule -role $userPAG.Role -PrincipalID $UAdminGroup.Id -Scope "$($userPAG.scope)$($CoreAUObj.Id)" -Permanent
 
-    #To Do - evaluate adding Access Review configuration
+    #To Do - Add a 6 month access review.
+
+    Write-Host -ForegroundColor Green "Completed PIM configuration"
 }
 
 #endregion
@@ -881,17 +926,17 @@ if ($ConditionalAccess -or $All) {
     Write-Host -ForegroundColor Cyan "Configuring Conditional Access Policies for MLZ Baseline."
 
     Connect-MgGraph -Scopes 'Application.Read.All', 'Policy.Read.All', 'Policy.ReadWrite.ConditionalAccess'
-    $CAPolicies = $ParametersJson.StepParameterSet.ConditionalAccess.parameters
+    #$CAPolicies = $Parameters.StepParameterSet.ConditionalAccess.parameters
 
     #get current user
     $CurrentUserID = $(Get-MgUser -Filter "UserPrincipalName eq `'$($(Get-MgContext).Account)`'").Id
 
     #get EA Groupname
-    $EAGroupName = $($ParametersJson.StepParameterSet.EmergencyAccess.parameters.EAGroup).displayName
+    $EAGroupName = $($Parameters.StepParameterSet.EmergencyAccess.parameters.EAGroup).displayName
     $EAGroupID = $(Get-MGGroup -Filter "DisplayName eq `'$EAGroupName`'").Id
     ### All Users MFA
 
-    $AllRules = $ParametersJson.StepParameterSet.ConditionalAccess.parameters
+    $AllRules = $Parameters.StepParameterSet.ConditionalAccess.parameters
     New-MLZCAPolicy -policy $AllRules.MLZ01 -CurrentUserID $CurrentUserID -EAGroupID $EAGroupID
     New-MLZCAPolicy -policy $AllRules.MLZ02 -CurrentUserID $CurrentUserID -EAGroupID $EAGroupID
     New-MLZCAPolicy -policy $AllRules.MLZ03 -CurrentUserID $CurrentUserID -EAGroupID $EAGroupID
@@ -905,9 +950,9 @@ if ($ConditionalAccess -or $All) {
 if ($TenantPolicies -or $All) {
     Connect-MgGraph -Scopes Policy.ReadWrite.Authorization
 
-    $authorizationPolicy = $ParametersJson.StepParameterSet.TenantPolicies.parameters.authorizationPolicy
-    $externalIdentityPolicy = $ParametersJson.StepParameterSet.TenantPolicies.parameters.externalIdentityPolicy
-    $adminConsentRequestPolicy = $ParametersJson.StepParameterSet.TenantPolicies.parameters.adminConsentRequestPolicy
+    $authorizationPolicy = $Parameters.StepParameterSet.TenantPolicies.parameters.authorizationPolicy
+    $externalIdentityPolicy = $Parameters.StepParameterSet.TenantPolicies.parameters.externalIdentityPolicy
+    $adminConsentRequestPolicy = $Parameters.StepParameterSet.TenantPolicies.parameters.adminConsentRequestPolicy
 
     Write-host -ForegroundColor Cyan "Updating AuthorizationPolicy"
 
@@ -947,6 +992,7 @@ if ($TenantPolicies -or $All) {
     Update-MgPolicyExternalIdentityPolicy -BodyParameter $params
 
     Write-host -ForegroundColor Cyan "Updating Admin Consent Policy"
+    #To do: figure out error in this cmd in some tenants
     Update-MgPolicyAdminConsentRequestPolicy -IsEnabled:$adminConsentRequestPolicy.isEnabled
 }
 #endregion

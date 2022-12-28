@@ -12,13 +12,13 @@
             "addLicenses": [
                 {
                 "disabledPlans": [],
-                "skuId": "dcb1a3ae-b33f-4487-846a-a640262fadf4"
+                "skuId": "b05e124f-c7cc-45a0-a6aa-8cf78c946968"
                 }
             ],
             "removeLicenses": []
         },
         "PKIConfig": "DOD",
-        "comments": "Update these global parameters."
+        "comments": "Update these global parameters. Test SKU ID dcb1a3ae-b33f-4487-846a-a640262fadf4"
     },
     "StepParameterSet": {
         "PSTools": {
@@ -68,13 +68,15 @@
                         "userPrincipalName": "MLZEA01",
                         "displayName": "MLZ Emergency 01",
                         "mailNickname": "MLZEA01",
-                        "MissionCode": "EA"
+                        "MissionCode": "EA",
+                        "PhoneNumber": "555-123-1234"
                     },
                     {
                         "userPrincipalName": "MLZEA02",
                         "displayName": "MLZ Emergency 02",
                         "mailNickname": "MLZEA02",
-                        "MissionCode": "EA"
+                        "MissionCode": "EA",
+                        "PhoneNumber": "555-123-1234"
                     }
                 ],
                 "EAGroup": {
@@ -91,6 +93,10 @@
                     "membershipType": null,
                     "isMemberManagementRestricted": true,
                     "visibility": "HiddenMembership"
+                },
+                "PIM": {
+                    "permanentActiveAssignment": true,
+                    "comment": "Change to false for permanent eligible assignment"
                 }
             }
         },
@@ -123,7 +129,6 @@
             "runstep": true,
             "comments": "",
             "parameters": {
-                "SettingsFile": "/settings/AuthenticationMethods.txt",
                 "RegistrationSettings": {
                     "snoozeDurationInDays": "3",
                     "state": "Default",
@@ -190,12 +195,10 @@
             }
         },
         "CBA": {
-            "id": "06",
             "description": "Configures CBA for DOD CAC",
             "comments": "This could include the exact CBA configuration and certificates for DOD PKI. Need ability to upload certificates via MS Graph PowerShell."
         },
         "Groups": {
-            "id": "07",
             "description": "Creates RBAC groups for MLZ",
             "runstep": true,
             "comments": "",
@@ -294,7 +297,7 @@
         "PIM": {
             "description": "Configure Privileged Identity Management Roles",
             "runstep": true,
-            "comments": "Access Reviews Enabled Automatically.",
+            "comments": "to do: Add access reviews automatically",
             "parameters": {
                 "comment": "Eligibility and Duration must be in proper format (PT#H for hours) (P#D for days)",
                 "Roles": [
@@ -386,8 +389,7 @@
                         "operator": "OR",
                         "builtInControls": [
                             "mfa"
-                        ],
-                        "authenticationStrength": null
+                        ]
                     }
                 },
                 "MLZ02": {
@@ -424,8 +426,7 @@
                         "operator": "OR",
                         "builtInControls": [
                             "block"
-                        ],
-                        "authenticationStrength": null
+                        ]
                     }
                 },
                 "MLZ03": {
@@ -516,19 +517,10 @@
                         }
                     },
                     "grantControls": {
-                        "operator": "OR",
+                        "operator": "AND",
                         "builtInControls": [],
                         "authenticationStrength": {
-                            "id": "00000000-0000-0000-0000-000000000004",
-                            "displayName": "Phishing resistant MFA",
-                            "description": "Phishing-resistant, Passwordless methods for the strongest authentication, such as a FIDO2 security key",
-                            "policyType": "builtIn",
-                            "requirementsSatisfied": "mfa",
-                            "allowedCombinations": [
-                                "windowsHelloForBusiness",
-                                "fido2",
-                                "x509CertificateMultiFactor"
-                            ]
+                            "id": "00000000-0000-0000-0000-000000000004"
                         }
                     }
                 },
@@ -562,19 +554,10 @@
                         }
                     },
                     "grantControls": {
-                        "operator": "OR",
+                        "operator": "AND",
                         "builtInControls": [],
                         "authenticationStrength": {
-                            "id": "00000000-0000-0000-0000-000000000004",
-                            "displayName": "Phishing resistant MFA",
-                            "description": "Phishing-resistant, Passwordless methods for the strongest authentication, such as a FIDO2 security key",
-                            "policyType": "builtIn",
-                            "requirementsSatisfied": "mfa",
-                            "allowedCombinations": [
-                                "windowsHelloForBusiness",
-                                "fido2",
-                                "x509CertificateMultiFactor"
-                            ]
+                            "id": "00000000-0000-0000-0000-000000000004"
                         }
                     }
                 },
