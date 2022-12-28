@@ -242,13 +242,6 @@ function New-MLZGroup {
 
 function New-MLZCAPolicy {
     Param([Object]$policy,[String]$CurrentUserID,[String]$EAGroupID,[String]$MSGraphURI)
-    <#
-    if ($policy.grantControls.authenticationStrength) {
-        Write-Host -ForegroundColor Cyan "UPDATE - Manually add authentication strength using Azure Portal"
-        $policy.grantControls.authenticationStrength
-
-        $policy.grantControls.builtInControls = "mfa"
-    } #>
 
     $params = @{
         DisplayName = $policy.displayname
@@ -419,96 +412,6 @@ function Find-MLZMissionAUObj {
         $obj = Get-MgAdministrativeUnit -Filter "DisplayName eq `'$f`'"
     return $obj
 }
-<#
-function New-MLZCAPolicy {
-    Param([Object]$policy,[String]$CurrentUserID,[String]$EAGroupID)
-
-    if ($policy.grantControls.authenticationStrength) {
-        Write-Host -ForegroundColor Cyan "UPDATE - Manually add authentication strength using Azure Portal"
-        $policy.grantControls.authenticationStrength
-
-        $policy.grantControls.builtInControls = "mfa"
-    }
-
-    $params = @{
-        DisplayName = $policy.displayname
-        State = $policy.state
-        Conditions = @{
-            UserRiskLevels = @(
-                $policy.conditions.userRiskLevels
-            )
-            ClientAppTypes = @(
-                $policy.conditions.clientAppTypes
-            )
-            Applications = @{
-                IncludeApplications = @(
-                    $policy.conditions.applications.includeApplications
-                )
-                IncludeUserActions = @(
-                    $policy.conditions.applications.includeUserActions
-                )
-            }
-            Users = @{
-                IncludeUsers = @(
-                    $policy.conditions.users.includeUsers
-                )
-                ExcludeUsers = @(
-                    $CurrentUserID
-                )
-                ExcludeGroups = @(
-                    $EAGroupID
-                )
-                IncludeRoles = @(
-                    $policy.conditions.users.includeRoles
-                )
-                ExcludeRoles = @(
-                    $policy.conditions.users.excludeRoles
-                )
-            }
-        }
-        GrantControls = @{
-            Operator = $policy.grantControls.operator
-            BuiltInControls = @(
-                $policy.grantControls.builtInControls
-            )
-        }
-    }
-    ###LEFT OFF HERE
-    if ($policy.grantControls.authenticationStrength) {
-        $params.GrantControls.authenticationStrength = @{
-            ID = $policy.grantControls.authenticationStrength.id
-            DisplayName = $policy.grantControls.authenticationStrength.displayName
-            Description = $policy.grantControls.authenticationStrength.description
-            PolicyType = $policy.grantControls.authenticationStrength.policyType
-            RequirementsSatisfied = $policy.grantControls.authenticationStrength.requirementsSatisfied
-            AllowedCombinations = $policy.grantControls.authenticationStrength.allowedCombinations
-        }
-    }
-
-    if ($policy.conditions.locations) {
-        $params.locations = @{
-            IncludeLocations = @(
-                $policy.conditions.locations.includeLocations
-            )
-            ExcludeLocations = @(
-                $policy.conditions.locations.excludeLocations
-            )
-        }
-    }
-
-
-    Try {
-        $CAObj = Get-MgIdentityConditionalAccessPolicy -Filter "DisplayName eq `'$($policy.displayname)`'" -ErrorAction SilentlyContinue
-    } Catch {} #To do: Implement message
-
-    if ($CAObj) {
-        Write-Host "CA Rule $($policy.displayname) already exists."
-    } else {
-        Write-Host "Creating new Conditional Access Rule: $($policy.displayname)." -ForegroundColor Yellow
-        New-MgIdentityConditionalAccessPolicy -BodyParameter $params
-    }
-}
-#>
 
 #endregion
 
@@ -952,8 +855,8 @@ if ($TenantPolicies -or $All) {
 
     $authorizationPolicy = $Parameters.StepParameterSet.TenantPolicies.parameters.authorizationPolicy
     $externalIdentityPolicy = $Parameters.StepParameterSet.TenantPolicies.parameters.externalIdentityPolicy
-    $adminConsentRequestPolicy = $Parameters.StepParameterSet.TenantPolicies.parameters.adminConsentRequestPolicy
-
+    $consentPolicySettings = $Parameters.StepParameterSet.TenantPolicies.parameters.consentPolicySettings
+    $xtapDefaultPolicy = $Parameters.StepParameterSet.TenantPolicies.parameters.crossTenantAccessPolicy
     Write-host -ForegroundColor Cyan "Updating AuthorizationPolicy"
 
     $params = @{
@@ -991,9 +894,24 @@ if ($TenantPolicies -or $All) {
 
     Update-MgPolicyExternalIdentityPolicy -BodyParameter $params
 
-    Write-host -ForegroundColor Cyan "Updating Admin Consent Policy"
-    #To do: figure out error in this cmd in some tenants
-    Update-MgPolicyAdminConsentRequestPolicy -IsEnabled:$adminConsentRequestPolicy.isEnabled
+    Write-host -ForegroundColor Cyan "Updating Admin Consent Polices"
+    #find the setting --- TO DO
+    <#
+    #set params
+    $params = @{
+        
+    }
+    Update-MgDirectorySetting -BodyParameter $params #>
+
+    Write-Host -ForegroundColor Cyan "Updating Cross-Tenant Access Policy Default Inbound Settings"
+    $params = @{
+        "@odata.context" = "#microsoft.graph.crossTenantAccessPolicyInboundTrust"
+        IsMfaAccepted = $xtapDefaultPolicy.isMfaAccepted 
+        IsCompliantDeviceAccepted = $xtapDefaultPolicy.isCompliantDeviceAccepted
+        IsHybridAzureADJoinedDeviceAccepted = $xtapDefaultPolicy.isHybridAzureADJoinedDeviceAccepted
+    }
+
+    Update-MgPolicyCrossTenantAccessPolicyDefault -BodyParameter $params
 }
 #endregion
 

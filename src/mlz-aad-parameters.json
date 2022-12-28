@@ -631,13 +631,19 @@
                     "allowExternalIdentitiesToLeave": true,
                     "allowDeletedIdentitiesDataRemoval": false
                 },
-                "adminConsentRequestPolicy": {
-                    "isEnabled": false
+                "consentPolicySettings": {
+                    "enableGroupSpecificConsent": false,
+                    "BlockUserConsentForRiskyApps": true,
+                    "EnableAdminConsentRequests": false
+                },
+                "crossTenantAccessPolicy": {
+                    "isMfaAccepted": true,
+                    "isCompliantDeviceAccepted": true,
+                    "isHybridAzureADJoinedDeviceAccepted": true
                 }
             }
         },
         "EntitlementsManagement": {
-            "id": "11",
             "description": "Configures Entitlements Management Access packages for each Mission.",
             "runstep": false,
             "comments": "Placeholder."
