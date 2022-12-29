@@ -10,7 +10,6 @@ It is **not** recommended to run through the configuration end-to-end in existin
   - [Prerequisites](#prerequisites)
   - [Asset inventory](#asset-inventory)
   - [Documentation layout](#documentation-layout)
-  - [Style legend](#style-legend)
 - [Prepare to manage Azure AD](#prepare-to-manage-azure-ad)
 - [Scripted Configuration](#scripted-configuration)
   - [Administrative Units](#administrative-units)
@@ -120,14 +119,30 @@ To apply individual sections, include one or more switch parameter.
 ```
 ### Documentation layout
 Each section in [Scripted Configuration](#scripted-configuration) is broken down by the parameter switch for the configuration script. Generally, each section follows this format:
-- Brief overview of the configuration settings and recommendation
-- Script step (running Configure-AADTenantBaseline.ps1 with single parameter switch for the section)
+- Brief overview of the configuration section
+- Table of contents
+- Configuration Steps
 - Related recommendations and references
 
-### Configuration script
-any script info needed 
-### Style legend
-table legend for each symbol
+Steps using the baseline script will include the 🗒️ emoji for easy identification.
+
+To simplify navigation, detailed content for each section is hidden by default. Use the **Show Content** buttons to display this information.
+<details><summary><b>Show Content</b></summary>
+<p>
+Wow! That's a lot of content!
+</p>
+</details>
+
+> **Note** : Notes will look like this
+> 💡**Recommendations**: will include the light bulb emoji
+> **Warning**: Priority notes, including ones with security implication, will be displayed like this.
+> 📘 **References**: References will use the blue book emoji
+
+Checklist format is used to draw attention to required steps.
+- [ ] Do this first
+- [ ] Then this
+
+Continue to the next section to begin the configuration.
 
 # Prepare to manage Azure AD
 This section outlines the preliminary activities for configuring a new Azure AD tenant for MLZ.
@@ -161,10 +176,10 @@ Install the PowerShell modules by running:
 
 The script will:
 1. Install MS Graph PowerShell
-2. Install Azure AD Preview
+2. Install Azure AD Preview (deprecated - included temporarily since it is used to configure CBA in the [Microsoft documentation](https://learn.microsoft.com/en-us/azure/active-directory/authentication/how-to-certificate-based-authentication#configure-certification-authorities-using-powershell))
 
 #### Manual module installation
-Use the commands below to install the tools manually:
+Use the commands below to install the tools manually. MLZ deployment will use additional tools listed here for convenience:
 - [Azure Command-Line-Interface (CLI)](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli)
 - [Azure Az PowerShell](https://learn.microsoft.com/en-us/powershell/azure/install-az-ps?view=azps-9.0.1)
   - `Install-Module Az`
@@ -205,8 +220,9 @@ Bookmark the following portal pages in your web browser for easy access:
    - Government: **https://portal.azure.us**
 
  - Microsoft Graph:
-   - Getting Started with Microsoft Graph PowerShell SDK: **https://learn.microsoft.com/en-us/powershell/microsoftgraph/get-started?view=graph-powershell-beta**
-   - Microsoft Graph API Reference: **https://learn.microsoft.com/en-us/graph/api/overview?view=graph-rest-beta**
+   - [Getting Started with Microsoft Graph PowerShell SDK](https://learn.microsoft.com/en-us/powershell/microsoftgraph/get-started?view=graph-powershell-beta)
+   - [Microsoft Graph API Reference](https://learn.microsoft.com/en-us/graph/api/overview?view=graph-rest-beta)
+
 ### 6. Create the first Global Administrator
 The first user in an Azure AD tenant will have super user / root access to the Azure AD tenant. This superuser permissions are assigned via the [Global Administrator](https://docs.microsoft.com/en-us/azure/active-directory/roles/permissions-reference#global-administrator) built-in role.
 
@@ -238,17 +254,18 @@ While signed in to the Azure AD portal with the first administrator, perform the
 2. Select **Azure AD Roles**
 3. Follow the prompts to enable PIM on the tenant.
 
-If you already have subscriptions associated with the tenant, follow the steps in the reference below to prepare PIM for Azure roles:
+If you already have subscriptions associated with the tenant, follow the steps in the reference below to prepare PIM for Azure roles.
 
 > 📘 **Reference**: [Prepare PIM for Azure roles](https://learn.microsoft.com/en-us/azure/active-directory/privileged-identity-management/pim-getting-started#prepare-pim-for-azure-roles)
 
+We are now ready to apply the scripted configuration.
 </p>
 </details>
 
 # Scripted Configuration
 This section walks through the scripted configuration using `Configure-AADTenantBaseline.ps1`.
 
-The document layout matches each section in the script.
+The document layout matches each section in the PowerShell script.
 - [Administrative Units](#administrative-units)
 - [Emergency Access](#emergency-access)
 - [Named Accounts](#named-accounts)
@@ -303,13 +320,15 @@ Creating and safeguarding emergency access account credentials is an important s
 > **Note**: Consult your Information Systems Security Officer (ISSO) for proper handling procedures for Emergency Access accounts.
 
 > 💡 **Recommendations**:
-> - Record passwords for Emergency Access accounts legibly by hand (do not type or send to a printer)
-> - Store passwords for Emergency Access accounts in a safe that resides in a physically secure location.
-> - Do not save passwords to an Enterprise password vault or Privleged Access Management (PAM) system.
-> - Do not save passwords to a personal password vault (LastPass, Apple Keychain, Google, OnePassword, Microsoft Authenticator, etc.)
-> - Store backup copies for Emergency Access account credentials in a geographic distant location.
-> - Exclude at least 1 Emergency Access account from Azure MFA.
-> - Monitor and alert on Emergency Access account usage.
+> - [x] Record passwords for Emergency Access accounts legibly by hand (do not type or send to a printer)
+> - [x Store passwords for Emergency Access accounts in a safe that resides in a physically secure location.
+> - [x] Do not save passwords to an Enterprise password vault or Privleged Access Management (PAM) system.
+> - [x] Do not save passwords to a personal password vault (LastPass, Apple Keychain, Google, OnePassword, Microsoft Authenticator, etc.)
+> - [x] Store backup copies for Emergency Access account credentials in a geographic distant location.
+> - [x] Exclude at least one (1) Emergency Access account from Azure MFA.
+> - [x] Monitor and alert on Emergency Access account usage.
+> - [x] Register FIDO2 security keys as another authentication mechanism (2 per account), storing the keys and PIN in separate physical safes.
+> - [x] Be sure to check the latest Microsoft recommendation for managing emergency access from the reference below.
 
 > 📘 **Reference**: [Manage Emergency Access Accounts in Azure AD](https://docs.microsoft.com/en-us/azure/active-directory/roles/security-emergency-access)
 
@@ -324,7 +343,9 @@ Azure AD logs must be connected to the Microsoft SIEM, Sentinel, to set up autom
 ### 3. 🗒️ Run the script: EmergencyAccess
 Run the script to create Emergency Access accounts in Azure AD:
 
-`PS> .\Configure-AADTenantBaseline -ParametersJson $mlzparams -EmergencyAccess`
+```PowerShell
+Configure-AADTenantBaseline.ps1 -EmergencyAccess`
+```
 
 The script will:
 1. Create two Emergency Access accounts, `MLZEA01, MLZEA02`
@@ -334,15 +355,12 @@ The script will:
 
 ### 4. Complete setup for Emergency Access accounts
 Perform the following manual steps to complete the configuration:
-1. Reset set the password for each Emergency Access account.
-2. Sign in with each account and reset the password (see recommendations in the next section)
+1. Using the first admin account, reset the password on the newly created EA accounts using the Azure Portal.
+2. Sign in with each account and reset the password (see recommendations in the next section).
+3. Optional: register two (2) FIDO2 security keys for each account.
 3. Once passwords are set and stored in a secure location, sign out of the Azure Portal.
-4. Sign in with the first administrator account for the remaining configuration.
-5. Follow the steps [here](https://learn.microsoft.com/en-us/azure/active-directory/enterprise-users/licensing-groups-assign) to assign licenses to the *Emergency Access Accounts* group.
 
-> 📘 **Reference:** 
-> - [Manage emergency access accounts in Azure AD](https://docs.microsoft.com/en-us/azure/active-directory/roles/security-emergency-access)
-> - [Management capabilities for Privileged Access Groups](https://learn.microsoft.com/en-us/azure/active-directory/privileged-identity-management/groups-features)
+> 📘 **Reference:** [Manage emergency access accounts in Azure AD](https://docs.microsoft.com/en-us/azure/active-directory/roles/security-emergency-access)
 
 </p>
 </details>
@@ -371,10 +389,9 @@ Choose a naming convention for cloud-only administrative accounts. For example:
 Download and edit [MLZ-Admin-List.csv](/MLZ-Identity-AzureADSetup/src/MLZ-Admin-List.csv) for your administrators. The CSV file location relative to the **Configure-AADTenantBaseline.ps1** script is set by `StepParameterSet.NamedAccounts.parameters.Users.UserCSV` in the JSON parameters file.
 
 Description for the CSV file schema:
-
-|LastName|FirstName|DisplayName|UserPrincipalName|Email|BusinessPhone|Department|UserCertificateIds|UsageLocation|
-|--------|---------|-----------|-----------------|-----|-------------|----------|------------------|-------------|
-|User's last name|User's first name|Display Name|sign-in name for AAD. Must include valid domain suffix.|Contact email address|Phone number|Mission code for the user. This should match an AU set in GlobalParameters.|Certificate name value (see note)|Usage location for applying licenses. e.g. "US"|
+|LastName|FirstName|DisplayName|UserPrincipalName|Mail|PhoneNumber|MissionCode|CACPrincipalName|UsageLocation|
+|--------|---------|-----------|-----------------|----|-----------|-----------|----------------|-------------|
+|User's last name|User's first name|Display Name|sign-in name for AAD. If domain suffix is invalid, the initial domain will be used.|Contact email address|Phone number|Mission code for the user. This should match an AU set in GlobalParameters.|Certificate name value (see note)|Usage location for applying licenses. e.g. "US"|
 
 > **Note**: The **UserCertificateIds** field is needed for configuring Azure AD Certificate-based authentication. Setting this value upon user creation is optional.
 
@@ -412,7 +429,9 @@ foreach ($row in $CSV) {
 ### 🗒️ Run the script: NamedAccounts
 Run the script to create named administrator accounts in Azure AD:
 
-`PS> .\Configure-AADTenantBaseline -ParametersJson $mlzparams -NamedAccounts`
+```PowerShell
+Configure-AADTenantBaseline.ps1 -NamedAccounts`
+```
 
 The script will:
 1. Create named administrator accounts from **MLZ-Admin.List.csv**
@@ -473,19 +492,19 @@ Complete setup for the named administrator accounts:
 ## Authentication methods
 Azure AD authenticaton methods allow an administrator to configure how users can authenticate to Azure AD.
 
-- [ ] [🗒️ Enable strong authentication methods](#1-🗒️-enable-authentication-methods)
-- [ ] [Disable weaker authentication methods](#2-disable-weaker-authentication-methods)
+- [ ] [🗒️ Run the script: AuthNMethods](#🗒️-run-the-script-authnmethods)
 
 > 📘 **Reference**: [What authentication verification methods are available in Azure AD](https://docs.microsoft.com/en-us/azure/active-directory/authentication/concept-authentication-methods)
 
 <details><summary><b>Show Content</b></summary>
 <p>
 
-### 1. 🗒️ Enable strong authentication methods
+### 🗒️ Run the script: AuthNMethods
 Run the script to configure authentication methods:
 
-`PS> .\Configure-AADTenantBaseline.ps1 -ParametersJson $mlzparams -AuthNMethods`
-
+```PowerShell
+Configure-AADTenantBaseline.ps1 -AuthNMethods`
+```
 The sections below describe the methods enabled. Additionally, weak methods like Software OAuth, SMS, and Email will be disabled.
 
 #### Enable Microsoft authenticator app
@@ -514,7 +533,7 @@ The deployment script will attempt to disable the following Authentication Metho
 - SoftwareOath
 - Sms
 
-Sign in to the Azure Portal and verify these Authentication methods are not enabled.
+Sign in to the Azure Portal and verify these Authentication methods are not enabled by navigating to Azure Active Directory --> Security --> Authentication Methods.
 
 </p>
 </details>
@@ -583,14 +602,26 @@ The following role-assignable groups are used in the AAD Configuration Baseline:
 ### 3. 🗒️ Run the script: Groups
 Run the script below to create Azure AD security groups:
 
-`PS> .\Configure-AADTenantBaseline.ps1 -ParametersJson $mlzparams -Groups`
+```PowerShell
+Configure-AADTenantBaseline.ps1 -Groups`
+```
 
 The script will:
 1. Create Security Groups for MLZ-Core and each Mission
 2. Create Privileged Access Groups for User and Groups Administrator roles for each Administrative Unit
 
+> 📘 **Reference**:
+> - [Use Azure AD groups to manage role assignments](https://learn.microsoft.com/en-us/azure/active-directory/roles/groups-concept)
+> - [Best Practices for Azure AD roles](https://learn.microsoft.com/en-us/azure/active-directory/roles/best-practices)
+> - [Securing privileged access for hybrid and cloud deployments of Azure AD](https://learn.microsoft.com/en-us/azure/active-directory/roles/security-planning)
+> - [Azure role-based access control](https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/considerations/roles)
+
 ## Privileged Identity Management
-We enabled PIM when we signed in with the first AADP2-licensed Global Administrator in [step 1](#1-prepare-to-manage-azure-ad). This section assigns the groups created in the [previous section](#5-create-mlz-rbac-security-groups) to Azure and AAD roles using PIM:
+Priviliged Access Management (PIM) is an Azure AD feature for providing Just-In-Time administration and eliminating standing privileges within Azure AD and Azure.
+
+We enabled PIM when we signed in with the first AADP2-licensed Global Administrator in the [Prepare to manage Azure AD](#prepare-to-manage-azure-ad) steps.
+
+This section assigns the groups created in the [previous section](#3-🗒️-run-the-script-groups) to Azure and AAD roles using PIM:
 
 - [ ] [🗒️ Run the script: PIM](#1-🗒️-run-the-script-pim)
 - [ ] [Review Securing Privileged Access in Azure AD](#2-review-securing-privileged-access-in-azure-ad)
@@ -598,10 +629,11 @@ We enabled PIM when we signed in with the first AADP2-licensed Global Administra
 ### 1. 🗒️ Run the script: PIM
 Run the script below to configure PIM:
 
-`PS> .\Configure-AADTenantBaseline.ps1 -ParametersJson $mlzparams -PIM`
-
+```PowerShell
+Configure-AADTenantBaseline.ps1 -PIM`
+```
 The script will:
-1. Find Role Templates for all roles defined in `$mlzParams`
+1. Find Role Templates for all roles defined in `mlz-aad-parameters.json`
 2. Modify Rules for active PIM assignment Policies
   1. Set maximum role activation duration (change default from 8 hours to 4 hours)
   2. Set maximum role eligibility (change default to 180 Days)
@@ -624,6 +656,8 @@ Additional settings for recommended:
 >    - **Approval:** None
 >    - **Notification:** None
 
+Use the Azure Portal to edit the configuration for any roles to include notification and approvals as required by the organization.
+
 ### 2. Review securing privileged access in Azure AD
 
 > **Warning**: DO NOT SKIP this exercise. This document provides invaluable information for managing Azure and Azure AD.
@@ -636,6 +670,8 @@ Familiarize yourself with the Securing Privileged Access guidance for Azure AD a
 </details>
 
 ## Conditional Access
+Conditional Access is the main component that makes Azure AD an effective and well-informed Policy Enforcement Point (PEP) for Zero Trust access.
+
 This section enables key recommended access policies for all apps protected by Azure AD. This includes the Azure portal, Microsoft Graph, Azure Resource Manager, M365 applications, and any future applications integrated with Azure AD.
 
 - [🗒️ Run the script: ConditionalAccess](#🗒️-run-the-script-conditionalaccess)
@@ -649,9 +685,11 @@ This section enables key recommended access policies for all apps protected by A
 ### 🗒️ Run the script: ConditionalAccess
 Run the script below to configure Conditional Access Policies:
 
-`PS> .\Configure-AADTenantBaseline.ps1 -ParametersJson $mlzparams -ConditionalAccess`
+```PowerShell
+Configure-AADTenantBaseline.ps1 -ConditionalAccess`
+```
 
-The baseline script will configure CA policies in [Azure AD P2 - CA Policies for MLZ](#azure-ad-premium-p2---create-conditional-access-policies-for-mlz)
+The baseline script will configure CA policies in the section below: [Azure AD P2 - CA Policies for MLZ](#azure-ad-premium-p2---create-conditional-access-policies-for-mlz)
 
 #### Azure AD Free - Turn on Security Defaults**
 Azure AD Free offers a feature called Security Defaults. This feature performs basic security configuration for the Azure AD platform. Azure AD Conditional Access Policies should replace or enhance protections enabled by Security Defaults. 
@@ -688,9 +726,6 @@ Sign in to the Azure Portal as an administrator and review the created policies.
 </p>
 </details>
 
-
-
-
 ## Tenant Policies
 This section contains basic tenant-level settings applicable to all Azure AD versions. The MLZ baseline AAD script will set these configuration items according to the defaults outlined in each section. This configuration can be changed at any time. The baseline settings represent a starting point, and may not be functional for certain scenarios. For example, tenants that will be accessed by guests from another tenant must set the External Collaboration settings accordingly. The baseline offers a most restrictive experience, which turns off these collaboration features.
 
@@ -705,9 +740,12 @@ This section contains basic tenant-level settings applicable to all Azure AD ver
 ### 🗒️ Run the script: TenantPolicies
 Run the script below to configure user, group, collaboration settings:
 
-`PS> .\Configure-AADTenantBaseline.ps1 -ParametersJson $mlzparams -TenantPolicies`
-
+```PowerShell
+Configure-AADTenantBaseline.ps1 -TenantPolicies`
+```
 The settings applied by the baseline are outlined below.
+
+> **Note**: Some settings are set during tenant creation and cannot be changed. All settings may not be available in Azure AD Government.
 
 #### User settings
 The MLZ AAD baseline will set the following Azure AD user settings:
@@ -723,18 +761,7 @@ The MLZ AAD baseline will set the following Azure AD user settings:
 |Users can add gallery apps to My Apps|No|
 |Users can request admin consent for apps|No|
 
-> **Note**: Some settings are set during tenant creation and cannot be changed. All settings may not be available in Azure AD Government.
-
-#### Group settings
-The MLZ AAD baseline will set the following Azure AD group settings:
-|Setting|MLZ-Baseline|
-|-------|------------|
-|Owners can manage group membership requests in the Access Panel|Yes|
-|Restrict user ability to access group features in the access panel|No|
-|Users can create security groups|No|
-|Users can create M365 groups|No|
-|Group Naming Policy Prefix|Baseline script parameter|
-|Group Naming Policy Suffix|Baseline script parameter|
+> 📘 **Reference**: [Default user permissions in Azure AD](https://docs.microsoft.com/en-us/azure/active-directory/fundamentals/users-default-permissions)
 
 #### External collaboration settings
 MLZ AAD baseline will set the following Azure AD external collaboration settings:
@@ -746,16 +773,43 @@ MLZ AAD baseline will set the following Azure AD external collaboration settings
 |Allow external users to leave|Yes|
 |Invitation restrictions|Most Restrictive|
 
+> 📘 **Reference**: [B2B fundamentals](https://learn.microsoft.com/en-us/azure/active-directory/external-identities/b2b-fundamentals)
 
-> 📘 **Reference**: [Default user permissions in Azure AD](https://docs.microsoft.com/en-us/azure/active-directory/fundamentals/users-default-permissions)
+#### Cross-Tenant Access Policy
+MLZ AAD baseline will set the following inbound XTAP Settings:
+|Setting|MLZ-Baseline|
+|-------|------------|
+|Accept MFA|True|
+|Accept Compliant Device|True|
+|Accept Hybrid Azure AD Joined Device|True|
+
+> 📘 **Reference**: [Cross-tenant access overview](https://learn.microsoft.com/en-us/azure/active-directory/external-identities/cross-tenant-access-overview)
+
 
 </p>
 </details>
 
 ## Entitlements Management
-Placeholder
+Entitlements Management adds governance to access granted by Azure AD. Through Access Packages, a delegated administrator can assign eligibility and approve requests for activating entitlements.
 
-# Post Deployment
+- [ ] [🗒️ Run the script: EntitlementsManagement](#🗒️-run-the-script-entitlementsmanagement)
+<details><summary><b>Show Content</b></summary>
+<p>
+
+### 🗒️ Run the script: EntitlementsManagement
+Run the script below to configure user, group, collaboration settings:
+
+```PowerShell
+Configure-AADTenantBaseline.ps1 -EntitlementsManagement`
+```
+Every organization is different, so the deployment script simply defines Access Package Catalogs for each Mission. 
+
+> 📘 **Reference**: [What is entitlement management](https://learn.microsoft.com/en-us/azure/active-directory/governance/entitlement-management-overview)
+
+</p>
+</details>
+
+# Post-Deployment
 This section contains manual configuration and next steps for getting started with Azure AD for Mission Landing Zone deployments.
 
 ## Configure Certificate-Based Authentication
@@ -771,7 +825,8 @@ Steps for setting up Azure AD CBA with the DoD PKI can be found in [AAD-Certific
 > 📘 **Reference**: [Azure AD Native Certificate-Based Authentication](https://docs.microsoft.com/en-us/azure/active-directory/authentication/how-to-certificate-based-authentication)
 
 ## Verify and enable the Conditional Access Policies
-Placeholder
+Review the Conditional Access Policies and enable them using the Azure Portal.
+
 ## Optional Configuration
 This section is not applicable for Azure Platform tenants ([Type 2](/MLZ-Identity-AzureADSetup/doc/MLZ-Common-Patterns.md#type-2-mlz-deployed-to-standalone-azure-platform-tenant)).
 
