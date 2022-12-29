@@ -1,7 +1,7 @@
 #Configure-AADTenantBaseline.ps1
 #
-# Version: 0.1 Testing
-# LastModified: 12/09/2022
+# Version: 0.2 Testing
+# LastModified: 12/29/2022
 #
 # Warning: Sample scripts in this repository are not supported under any Microsoft support program or service. 
 # Scripts are provided AS IS without warranty of any kind. All warranties including, without limitation, any 
