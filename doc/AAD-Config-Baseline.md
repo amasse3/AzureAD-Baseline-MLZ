@@ -1,14 +1,16 @@
 # Azure Active Directory Baseline Configuration for MLZ
-This document provides key steps for deploying and securing Azure Active Directory for Mission Landing Zone.
+This document provides key steps for deploying and securing a new Azure Active Directory environments for Mission Landing Zone deployments using a settings file and Microsoft Graph PowerShell to apply the settings.
 
-> **Note**:
-Some steps require Azure AD P2 licensing for privileged users within the environment. Alternative steps are included in case licenses are not available during initial configuration.
+While the configuration was created for MLZ, sections of the script can be used for existing tenants or to test automated configuration in a non-production tenant. At minimum, the general approach to configuring the latest Azure AD features can be applied through a fully customized automated deployment using this configuration as a sample.
+
+It is **not** recommended to run through the configuration end-to-end in existing production tenants as the setting changes could disrupt access to the Azure environment.
 
 ## Table of Contents
-- [Introduction](#introduction)
-  - [About the baseline configuration](#about-the-baseline-configuration)
-  - [Document layout](#document-layout)
-  - [Legend](#legend)
+- [About the baseline configuration](#about-the-baseline-configuration)
+  - [Prerequisites](#prerequisites)
+  - [Asset inventory](#asset-inventory)
+  - [Documentation layout](#documentation-layout)
+  - [Style legend](#style-legend)
 - [Prepare to manage Azure AD](#prepare-to-manage-azure-ad)
 - [Scripted Configuration](#scripted-configuration)
   - [Administrative Units](#administrative-units)
@@ -37,13 +39,46 @@ Some steps require Azure AD P2 licensing for privileged users within the environ
   - [MLZ Identity Add-On](#mlz-identity-add-on)
   - [Azure AD Deployment Guides](#azure-ad-deployment-guides)
 
-# Introduction
-
 ## About the baseline configuration
-The Azure AD tenant baseline for MLZ is applied using a parameters file fed into [Configure-AADTenantBaseline.ps1](/src/Configure-AADTenantBaseline.ps1) script. PowerShell is required to run the baseline. Download the script and parameters file from [/src](/MLZ-Identity-AzureADSetup/src/).
+The Azure AD tenant baseline for MLZ is applied using a parameters file supplied as a parameter to [Configure-AADTenantBaseline.ps1](/src/Configure-AADTenantBaseline.ps1) script.
+
+The script itself includes some features to simplify the deployment including:
+- Parameter switches for running individual sections
+- Loading modules and connecting to MS Graph with required scope within each section
+- Checking for existing resources before creating duplicates
+- Parameters file where individual settings can be adjusted
+- Load the default parameters file from the relative path if no ParametersJSON argument is passed
+
+### Prerequisites
+1. New or existing (non-production) Azure Active Directory tenant
+2. Azure AD account with Global Administrator role
+3. Azure AD Premium P2 licenses*
+4. A trusted configuration workstation with
+    - rights to install PowerShell module for MS Graph
+    - DNS resolution and traffic routing for the Azure AD logon URLs
+    - CDN and logon URLs in trusted sites
+5. Microsoft Graph PowerShell
+
+> **Note**: \* If Azure AD Premium licenses are not available, only the following settings can be applied:
+> - EmergencyAccess (assigning Global Admin via PIM will fail, add the role assignment manually)
+> - AuthNMethods
+> - NamedAccounts (licensing step will fail)
+> - TenantPolicies
+>
+> If Azure AD Premium is not available, Conditional Access Policies cannot be used. [Turn on Security Defaults](https://learn.microsoft.com/en-us/microsoft-365/business-premium/m365bp-conditional-access?view=o365-worldwide#security-defaults) and follow guidance to [Protect your admin accounts](https://learn.microsoft.com/en-us/microsoft-365/business-premium/m365bp-protect-admin-accounts?view=o365-worldwide.)
+
+> 📘 **Reference**: [Office 365 IP Address and URL web service](https://learn.microsoft.com/en-us/microsoft-365/enterprise/microsoft-365-ip-web-service?view=o365-worldwide)
+
+### Asset Inventory
+|Asset|Description|Format|Location|
+|-----|-----------|------|--------|
+|This Document|Deployment aid for scripted configuration, manual configuration, and next steps.|Text (Markdown)|N/A|
+|mlz-aad-parameters.json|Script parameters|JSON|[mlz-aad-parameters.json](/src/mlz-aad-parameters.json|
+|MLZ-Admin-List.csv|File for automating account creation for named administrators.|CSV|[MLZ-Admin-List.csv](/src/MLZ-Admin-List.csv)|
+|Configure-AADTenantBaseline.ps1|Main deployment script|PowerShell (\*.ps1)|[Configure-AADTenantBaseline.ps1](/src/Configure-AADTenantBaseline.ps1)|
 
 #### MLZ-AAD-Parameters.json
-Settings for deploying the configuration baseline are set in a parameters file. This file represents the configuration that will be applied when running the baseline. The JSON-formatting parameters file can be found [here](/src/mlz-aad-parameters.json).
+This file represents the configuration that will be applied when running the baseline. The JSON-formatting parameters file can be found [here](/src/mlz-aad-parameters.json).
 
 At minimum, modify the **GlobalParameterSet** to match the environment before running the script.
 
@@ -55,8 +90,13 @@ The **mlz-aad-parameters.json** file must be read into a variable and passed to 
 |EAGroupName|Name of the group containing Emergency Access accounts. Used to exclude these accounts from Conditional Access policies.|Emergency Access Accounts|
 |PWDLength|Length of random passwords set by the deployment script.|16|
 |MissionAUs|Array of names for Administrative Units. Applicable if using delegated administration model.|[Alpha,Bravo,Charlie]|
-|LicenseSKUPartNumber|License SKU for AAD P2 / E5 <br>Find using get-mgsubscribedsku|E5 Developer GUID<br><b>must be changed</b>|
+|LicenseSKUPartNumber|License SKU for AAD P2 / E5 <br>Find using get-mgsubscribedsku|E5 Developer GUID<br><b>must be changed\*</b>|
 
+\*To find the LicenseSKUPartNumber, use MS Graph to check the first licensed user:
+
+```PowerShell
+Get-MgUserLicenseDetail -UserId $(Get-MgContext).Account | Format-List
+```
 #### Using the script
 The script will look for `mlz-aad-parameters.json` in the current path. If you renamed the file or want to load it from a different path, import it into the PowerShell session and supply using the command below:
 
@@ -73,19 +113,20 @@ To apply all configuration sections in the baseline, use the `-All` switch along
 > **Note** : Before applying a setting, the script will check if the settings / objects already exist.
 
 **Apply individual configurations**
-To apply individual sections, include switches for each.
+To apply individual sections, include one or more switch parameter.
 
 ```PowerShell
-.\Configure-AADTenantBaseline.ps1 -ParametersJson $mlzparams -EmergencyAccess -AuthNMethods -ConditionalAccess -TenantSettings
+.\Configure-AADTenantBaseline.ps1 -ParametersJson $mlzparams -EmergencyAccess -AuthNMethods -ConditionalAccess -TenantPolicies
 ```
+### Documentation layout
+Each section in [Scripted Configuration](#scripted-configuration) is broken down by the parameter switch for the configuration script. Generally, each section follows this format:
+- Brief overview of the configuration settings and recommendation
+- Script step (running Configure-AADTenantBaseline.ps1 with single parameter switch for the section)
+- Related recommendations and references
 
-The parameters file for the MLZ tenant baseline configuration scripts includes all the settings for running the MLZ AAD Baseline scripts.
-
-### Document layout
-placeholder describe each section
 ### Configuration script
 any script info needed 
-### Legend
+### Style legend
 table legend for each symbol
 
 # Prepare to manage Azure AD
