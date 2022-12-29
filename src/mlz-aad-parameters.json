@@ -604,7 +604,6 @@
         },
         "TenantPolicies": {
             "description": "Apply user, group, application, external collaboration settings.",
-            "runstep": true,
             "comments": "",
             "parameters": {
                 "authorizationPolicy": {
@@ -634,7 +633,8 @@
                 "consentPolicySettings": {
                     "enableGroupSpecificConsent": false,
                     "BlockUserConsentForRiskyApps": true,
-                    "EnableAdminConsentRequests": false
+                    "EnableAdminConsentRequests": false,
+                    "ConstrainGroupSpecificConsentToMembersOfGroupId": null
                 },
                 "crossTenantAccessPolicy": {
                     "isMfaAccepted": true,
@@ -644,9 +644,36 @@
             }
         },
         "EntitlementsManagement": {
-            "description": "Configures Entitlements Management Access packages for each Mission.",
-            "runstep": false,
-            "comments": "Placeholder."
+            "description": "Configures Entitlements Management Access package Catalog for each Mission.",
+            "comments": "Placeholder.",
+            "parameters": {
+                "AccessPackageCatalogs": [
+                    {
+                        "displayName": "MLZ",
+                        "description": "Access packages for the entire MLZ.",
+                        "state": "published",
+                        "isExternallyVisible": false
+                    },
+                    {
+                        "displayName": "Alpha",
+                        "description": "Access packages for mission Alpha",
+                        "state": "published",
+                        "isExternallyVisible": false
+                    },
+                    {
+                        "displayName": "Bravo",
+                        "description": "Access packages for mission Bravo",
+                        "state": "published",
+                        "isExternallyVisible": false
+                    },
+                    {
+                        "displayName": "Charlie",
+                        "description": "Access packages for mission Charlie",
+                        "state": "published",
+                        "isExternallyVisible": false
+                    }
+                ]
+            }
         }
     }
 }

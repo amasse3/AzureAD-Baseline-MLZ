@@ -65,6 +65,8 @@ Param(
     [Parameter(Mandatory=$false)]
     [Switch]$TenantPolicies,
     [Parameter(Mandatory=$false)]
+    [Switch]$EntitlementsManagement,
+    [Parameter(Mandatory=$false)]
     [Switch]$IncludeTools
 )
 
@@ -895,13 +897,30 @@ if ($TenantPolicies -or $All) {
     Update-MgPolicyExternalIdentityPolicy -BodyParameter $params
 
     Write-host -ForegroundColor Cyan "Updating Admin Consent Polices"
-    #find the setting --- TO DO
-    <#
+    
+    $ConsentSettings = Get-MgDirectorySetting | Where-Object{$_.DisplayName -eq "Consent Policy Settings"}
     #set params
     $params = @{
-        
+        Values = @(
+            @{
+                Name = "EnableGroupSpecificConsent"
+                Value = $consentPolicySettings.enableGroupSpecificConsent
+            }
+            @{
+                Name = "BlockUserConsentForRiskyApps"
+                Value = $consentPolicySettings.BlockUserConsentForRiskyApps
+            }
+            @{
+                Name = "EnableAdminConsentRequests"
+                Value = $consentPolicySettings.EnableAdminConsentRequests
+            }
+            @{
+                Name = "ConstrainGroupSpecificConsentToMembersOfGroupID"
+                Value = $consentPolicySettings.ConstrainGroupSpecificConsentToMembersOfGroupId
+            }
+        )
     }
-    Update-MgDirectorySetting -BodyParameter $params #>
+    Update-MgDirectorySetting -DirectorySettingId $ConsentSettings.Id  -BodyParameter $params #>
 
     Write-Host -ForegroundColor Cyan "Updating Cross-Tenant Access Policy Default Inbound Settings"
     $params = @{
@@ -912,6 +931,41 @@ if ($TenantPolicies -or $All) {
     }
 
     Update-MgPolicyCrossTenantAccessPolicyDefault -BodyParameter $params
+}
+#endregion
+
+#region EntitlementsManagement
+if ($EntitlementsManagement -or $All) {
+    
+    #Import module and connect to MS Graph
+    Import-Module Microsoft.Graph.Identity.Governance
+    Connect-MgGraph -Environment $Environment -Scopes EntitlementManagement.ReadWrite.All
+    
+    #Get the catalog settings from JSON parameters
+    $AccessPackageCatalogs = $Parameters.StepParameterSet.EntitlementsManagement.parameters.AccessPackageCatalogs
+    
+    Write-Host -ForegroundColor Cyan "Creating Access Package Catalogs"
+
+    #Loop and create the Access Package catalogs
+    foreach ($catalog in $AccessPackageCatalogs) {
+        $params = @{
+	        DisplayName = $catalog.displayName
+	        Description = $catalog.description
+	        IsExternallyVisible = $catalog.isExternallyVisible
+        }
+
+        #Check for existing catalog and create if not exists
+        Try {
+            $exists = Get-MgEntitlementManagementAccessPackageCatalog -Filter "displayName eq `'$($catalog.displayname)`'"
+        } Catch {} #to be implemented
+
+        if ($exists) {
+            Write-Host "Access Package Catalog $($catalog.displayName) already exists."
+        } else {
+            Write-Host -ForegroundColor Yellow "Creating Access Package Catalog $($catalog.displayName)."
+            New-MgEntitlementManagementAccessPackageCatalog -BodyParameter $params
+        }
+    }
 }
 #endregion
 
