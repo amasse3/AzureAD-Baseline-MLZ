@@ -34,6 +34,7 @@ It is **not** recommended to run through the configuration end-to-end in existin
   - [Enable Defender for Cloud](#enable-defender-for-cloud)
   - [Use Microsoft Sentinel](#use-microsoft-sentinel)
   - [Least privilege with Azure AD](#least-privilege-with-azure-ad)
+- [Plan for Zero Trust](#plan-for-zero-trust)
 - [See Also](#see-also)
   - [MLZ Identity Add-On](#mlz-identity-add-on)
   - [Azure AD Deployment Guides](#azure-ad-deployment-guides)
@@ -1011,7 +1012,9 @@ Additional strengths, like NIST Authenticator Assurance Levels, can be configure
 > 💡 **Recommendation**: Configure desired MFA strength for baseline access and update the 'All Users, All Apps, MFA' Conditional Access Policy to require Authentication Strength.
 
 ## Collaborate with Azure AD
-Azure AD makes it easy to collaborate with other organizations the also own Azure AD.
+Azure AD makes it easy to collaborate with other organizations the also own Azure AD. This collaboration is facilitated by two complementary features:
+- [External Identities (B2B)](#external-identities)
+- [Cross-Tenant Access Policies](#cross-tenant-access-policies)
 
 ### External Identities
 Azure AD B2B collaboration is a feature within External Identities that lets you invite guest users with an email invitation. Guest users use their existing account to sign-in to their home tenant, while you manage their access to your resources.
@@ -1019,14 +1022,14 @@ Azure AD B2B collaboration is a feature within External Identities that lets you
 - you don't need to manage external accounts or passwords
 - you don't need to sync or manage account lifecycle
 
-> - 📘 **Reference**: [Azure AD B2B Collaboration](https://learn.microsoft.com/en-us/azure/active-directory/external-identities/what-is-b2b)
+> 📘 **Reference**: [Azure AD B2B Collaboration](https://learn.microsoft.com/en-us/azure/active-directory/external-identities/what-is-b2b)
 
 ### Cross-Tenant Access Policies
 Cross-tenant access policies (XTAP) let an administrator configure "trust" relationships with other Azure AD tenants. This allows trusting device compliance and MFA claims for external users for a more secure and productive collaboration experience. Similar settings can be configured between Azure AD Commercial tenant and an Azure AD Government tenant. Cross-cloud collaboration requires setting Inbound and Outbound XTAP settings on the respective tenants.
 
 Integrate authentication strength with Cross-Tenant Access policies.
 
-> - 📘 **Reference**: [Cross-tenant access with Azure AD external identities](https://learn.microsoft.com/en-us/azure/active-directory/external-identities/cross-tenant-access-overview)
+> 📘 **Reference**: [Cross-tenant access with Azure AD external identities](https://learn.microsoft.com/en-us/azure/active-directory/external-identities/cross-tenant-access-overview)
 
 ## Bring Device signals to Azure AD
 Connecting devices to Azure AD both improves end-user experience and enhances security. 
@@ -1037,16 +1040,39 @@ Intune management enables the use of device compliance rules within Conditional 
 
 > 📘 **Reference**: [Secure Endpoints with Zero Trust](https://learn.microsoft.com/en-us/security/zero-trust/deploy/endpoints)
 
-## Secure Management Interfaces
-Placeholder (bastion, Defender for Cloud)
+## Secure VM Management Interfaces
+Gone are the days where admins need to use RDP and SSH to connect directly to virtual machines. Azure includes tools like [Azure Bastion](https://learn.microsoft.com/en-us/azure/bastion/bastion-overview), Azure Virtual Desktop, [Windows Admin Center](https://learn.microsoft.com/en-us/windows-server/manage/windows-admin-center/azure/manage-vm), [Windows](https://learn.microsoft.com/en-us/azure/active-directory/devices/howto-vm-sign-in-azure-ad-windows) and [Linux Login (SSH)](https://learn.microsoft.com/en-us/azure/active-directory/devices/howto-vm-sign-in-azure-ad-linux) with Azure AD identity and more.
+
+Use [Defender for Cloud just-in-time VM access](https://learn.microsoft.com/en-us/azure/defender-for-cloud/just-in-time-access-usage) for scenarios where direct VM access is required.
+
+> 📘 **Reference**: [Azure Security Compass - Intermediaries](https://learn.microsoft.com/en-us/security/compass/privileged-access-intermediaries)
 
 ## Enable Defender for Cloud
+Defender for Cloud enables advanced security features for Virtual Machines, App Services, Databases, Storrage, Containers, Key Vault, ARM, DNS, and more. Enabling these plans with autoprovisioning configure diagnostics settings and monitoring agents via Azure Policy.
+
+> 📘 **Reference**: [Quickstart: Enable enhanced security features in Defender for Cloud](https://learn.microsoft.com/en-us/azure/defender-for-cloud/enable-enhanced-security)
 
 ### Protect on-premises servers
+Defender for Cloud is not just for Azure resources.
 
-SSH linux login, Azure Arc, etc
+Servers on-premises or running in other clouds can be onboarded to Defender for Cloud through deployment of Azure Arc. This feature lets Defender for Cloud provide security recommendations, collect security events, and alert on misconfigurations and suspicious activity, just like it does for Azure VMs.
+
+Arc can enable zero trust access to on-premises Linux servers using ephemeral SSH keys generated by Azure AD. No need to distribute keys, administrators assigned Virtual Machine Login roles can sign in with their Azure AD account. To learn more, see [SSH access to Azure Arc-enabled servers](https://learn.microsoft.com/en-us/azure/azure-arc/servers/ssh-arc-overview?tabs=azure-cli).
+
+> 📘 **Reference**: [Azure Arc Overview](https://learn.microsoft.com/en-us/azure/azure-arc/overview)
 
 ## Use Microsoft Sentinel
+Configure data connectors to ingest all security-related event data into Azure Sentinel. Start with the first party connectors used for MLZ:
+- Azure AD Sign in and Audit Logs
+- Azure AD Identity Protection
+- Azure Resource Management
+- Resource-specific logs from Key Vault, Storage Accounts, Firewalls, etc.
+- Security Events via AMA (Windows)
+- CEF logs via AMA (Linux)
+
+Be sure to review relevant alerts and workbooks for each connector.
+
+> 📘 **Reference**: [Quickstart: Onboard Microsoft Sentinel](https://learn.microsoft.com/en-us/azure/sentinel/quickstart-onboard)
 
 ## Least Privilege with Azure AD
 Administrative Units provide a mechanism for scoping Azure AD roles to a particular set of resources. AUs can be scoped to users, groups, and devices. Resources can be assigned to an AU manually, or the AU can be configured with dynamic rules. Refer to the documentation below to learn about AUs and their use cases for scoping / delegating administration in Azure AD.
@@ -1056,9 +1082,11 @@ Administrative Units provide a mechanism for scoping Azure AD roles to a particu
 > 📘 **Reference**: [Administrative Units (AUs)](https://learn.microsoft.com/en-us/azure/active-directory/roles/administrative-units)
 
 ### Identity governance
-Identity Governance defines a set of capabilities provided by Azure AD Premium P2 licensing.
+Identity Governance defines a set of capabilities provided by Azure AD Premium P2 licensing. The main components are:
+- [Entitlements Management](#entitlements-management)
+- [Access Reviews](#access-reviews)
 
-### Entitlements Managmement
+#### Entitlements Managmement
 Learn about Entitlements Management in Azure AD and understand how identity governance can help with permissions and application access.
 
 > 📘 **Reference**: [Entitlements Management](https://learn.microsoft.com/en-us/azure/active-directory/governance/entitlement-management-overview)
@@ -1076,12 +1104,14 @@ Guest user lifecycle can be managed automatically using Entitlements Management 
 > 📘 **Reference**: [Connected Organizations in Entitlements Management](https://learn.microsoft.com/en-us/azure/active-directory/governance/entitlement-management-organization)
 
 ### Entra Permissions Management
-placeholder
+Entra permissions management helps discover, remediate, and monitor permission assignment and usage across Azure, Amazon Web Services (AWS), and Google Cloud Platform (GCP). Using a Permission Creep Index (PCI), Permissions Managemnet can track privileges over time and create custom RBAC roles to reduce privileges for what admins actually need. Check out the reference below to learn more.
+
+> 📘 **Reference**: [What's Permissions Management](https://learn.microsoft.com/en-us/azure/active-directory/cloud-infrastructure-entitlement-management/overview)
 
 </p>
 </details>
 
-### Plan for Zero Trust
+## Plan for Zero Trust
 The Microsoft cloud includes a vast array of tools and security capabilities that enable advanced zero trust outcomes. These capabilities are enhanced by cross-product integration and additional datapoints. The more Azure AD knows about the context of a user's access, the better it's access control capabilities become. The AI models powering risk-based conditional access with Azure AD Identity Protection, Sentinel User Entity Behavior Analytics, and Insider Risk, are just a few capabilties that get even better with more data.
 
 Make Azure AD Conditional Access a well-informed Policy Enforcement Point (PEP) by integrating signals across identities, endpoints, applications, data, infrastructure, networks, and risk.
@@ -1089,7 +1119,6 @@ Make Azure AD Conditional Access a well-informed Policy Enforcement Point (PEP) 
 > 📘 **Reference**: 
 > - [Zero Trust Rapid Modernization Plan](https://learn.microsoft.com/en-us/security/zero-trust/zero-trust-ramp-overview)
 > - [Zero Trust Resource Center](https://learn.microsoft.com/en-us/security/zero-trust/)
-
 
 # See Also
 ## MLZ Identity Add-On
