@@ -135,8 +135,11 @@ Wow! That's a lot of content!
 </details>
 
 > **Note** : Notes will look like this
+
 > 💡**Recommendations**: will include the light bulb emoji
+
 > **Warning**: Priority notes, including ones with security implication, will be displayed like this.
+
 > 📘 **References**: References will use the blue book emoji
 
 Checklist format is used to draw attention to required steps.
