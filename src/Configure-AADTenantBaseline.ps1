@@ -187,6 +187,18 @@ function Convert-MLZAUFromTemplate {
     Return $mt
 }
 
+function Convert-MLZCatalogFromTemplate {
+    Param([object]$template,[string]$missionAU)
+    #Deep copy object
+    $mt = $template | ConvertTo-Csv -NoTypeInformation | ConvertFrom-Csv
+
+    #update fields
+    $mt.displayName = $mt.displayName -replace "ZZZ",$missionAU
+    $mt.description = $mt.description -replace "ZZZ",$missionAU
+
+    Return $mt
+}
+
 function Build-MemberberArrayParams {
     Param([Array]$members,[String]$MSGraphURI,[String]$objectType)
     $out = @()
@@ -415,6 +427,20 @@ function Find-MLZMissionAUObj {
     return $obj
 }
 
+function New-MLZAccessPackageCatalog {
+    Param([object]$BodyParameter)
+
+    Try {
+        $exists = Get-MgEntitlementManagementAccessPackageCatalog -Filter "displayName eq `'$($BodyParameter.displayname)`'"
+    } Catch {} #to be implemented
+
+    if ($exists) {
+        Write-Host "Access Package Catalog $($BodyParameter.displayName) already exists."
+    } else {
+        Write-Host -ForegroundColor Yellow "Creating Access Package Catalog $($BodyParameter.displayName)."
+        New-MgEntitlementManagementAccessPackageCatalog -BodyParameter $BodyParameter
+    }
+}
 #endregion
 
 #region parameters
@@ -472,7 +498,7 @@ if ($AdminUnits -or $All) {
         New-MLZAdminUnit -BodyParameter $UsersAU | Out-Null
     }
 
-    Write-Host -ForegroundColor Green "Completed creating Administrative Units"
+    Write-Host -ForegroundColor Green "Completed creating Administrative Units."
 }
 #endregion
 
@@ -551,7 +577,7 @@ if ($EmergencyAccess -or $All) {
         New-MgRoleManagementDirectoryRoleEligibilityScheduleRequest -BodyParameter $params
     }
 
-    Write-Host -ForegroundColor Green "Completed creating EA accounts"
+    Write-Host -ForegroundColor Green "Completed creating EA accounts."
 }
 
 #endregion
@@ -604,6 +630,8 @@ if ($NamedAccounts -or $All) {
     $CoreUserRefArray = @($CoreUserObj.Id)
     $params = Build-MemberberArrayParams -members $CoreUserRefArray -MSGraphURI $MSGraphURI -objectType "users"
     Update-MgAdministrativeUnit -AdministrativeUnitId $CoreAUObj.Id -BodyParameter $params
+
+    Write-Host -ForegroundColor Green "Completed creating Named Accounts."
 }
 
 #endregion
@@ -724,6 +752,7 @@ if ($AuthNMethods -or $All) {
 
     Update-MgPolicyAuthenticationMethodPolicy -BodyParameter $params
 
+    Write-Host -ForegroundColor Green "Completed Authentication Methods configuration."
 }
 
 #endregion
@@ -821,7 +850,7 @@ if ($PIM -or $All) {
 
     #To Do - Add a 6 month access review.
 
-    Write-Host -ForegroundColor Green "Completed PIM configuration"
+    Write-Host -ForegroundColor Green "Completed PIM configuration."
 }
 
 #endregion
@@ -839,15 +868,15 @@ if ($ConditionalAccess -or $All) {
     #get EA Groupname
     $EAGroupName = $($Parameters.StepParameterSet.EmergencyAccess.parameters.EAGroup).displayName
     $EAGroupID = $(Get-MGGroup -Filter "DisplayName eq `'$EAGroupName`'").Id
-    ### All Users MFA
 
-    $AllRules = $Parameters.StepParameterSet.ConditionalAccess.parameters
-    New-MLZCAPolicy -policy $AllRules.MLZ01 -CurrentUserID $CurrentUserID -EAGroupID $EAGroupID
-    New-MLZCAPolicy -policy $AllRules.MLZ02 -CurrentUserID $CurrentUserID -EAGroupID $EAGroupID
-    New-MLZCAPolicy -policy $AllRules.MLZ03 -CurrentUserID $CurrentUserID -EAGroupID $EAGroupID
-    New-MLZCAPolicy -policy $AllRules.MLZ04 -CurrentUserID $CurrentUserID -EAGroupID $EAGroupID
-    New-MLZCAPolicy -policy $AllRules.MLZ05 -CurrentUserID $CurrentUserID -EAGroupID $EAGroupID
-    New-MLZCAPolicy -policy $AllRules.MLZ06 -CurrentUserID $CurrentUserID -EAGroupID $EAGroupID
+    #Get the policies from template
+    $CAPolicies = $Parameters.StepParameterSet.ConditionalAccess.parameters.Policies
+
+    #Iterate through and create
+    foreach ($policy in $CAPolicies) {
+        New-MLZCAPolicy -policy $policy -CurrentUserID $CurrentUserID -EAGroupID $EAGroupID
+    }
+    Write-Host -ForegroundColor Green "Completed Conditional Access Policy creation."
 }
 #endregion
 
@@ -931,6 +960,8 @@ if ($TenantPolicies -or $All) {
     }
 
     Update-MgPolicyCrossTenantAccessPolicyDefault -BodyParameter $params
+
+    Write-Host -ForegroundColor Green "Completed configuration of Cross-Tenant Access Policy"
 }
 #endregion
 
@@ -942,30 +973,29 @@ if ($EntitlementsManagement -or $All) {
     Connect-MgGraph -Environment $Environment -Scopes EntitlementManagement.ReadWrite.All
     
     #Get the catalog settings from JSON parameters
-    $AccessPackageCatalogs = $Parameters.StepParameterSet.EntitlementsManagement.parameters.AccessPackageCatalogs
+    $CoreCatalog = $Parameters.StepParameterSet.EntitlementsManagement.parameters.CoreCatalog
+    $MissionCatalogTemplate = $Parameters.StepParameterSet.EntitlementsManagement.parameters.MissionCatalogTemplate
     
     Write-Host -ForegroundColor Cyan "Creating Access Package Catalogs"
 
-    #Loop and create the Access Package catalogs
-    foreach ($catalog in $AccessPackageCatalogs) {
-        $params = @{
-	        DisplayName = $catalog.displayName
-	        Description = $catalog.description
-	        IsExternallyVisible = $catalog.isExternallyVisible
-        }
-
-        #Check for existing catalog and create if not exists
-        Try {
-            $exists = Get-MgEntitlementManagementAccessPackageCatalog -Filter "displayName eq `'$($catalog.displayname)`'"
-        } Catch {} #to be implemented
-
-        if ($exists) {
-            Write-Host "Access Package Catalog $($catalog.displayName) already exists."
-        } else {
-            Write-Host -ForegroundColor Yellow "Creating Access Package Catalog $($catalog.displayName)."
-            New-MgEntitlementManagementAccessPackageCatalog -BodyParameter $params
-        }
+    #Create the Core Catalog
+    
+    $params = @{
+	    DisplayName = $catalog.displayName
+	    Description = $catalog.description
+	    IsExternallyVisible = $catalog.isExternallyVisible
     }
+
+    New-MgEntitlementManagementAccessPackage -BodyParameter $params
+    
+    #Create the Mission Catalogs
+    foreach ($MissionAU in $MissionAUs) {
+        $params = Convert-MLZCatalogFromTemplate -template $MissionCatalogTemplate -missionAU $MissionAU | ConvertTo-Json
+        New-MLZAccessPackageCatalog -BodyParameter $params
+    }
+    
+    Write-Host -ForegroundColor Green "Completed creation of Access Package catalogs."
+
 }
 #endregion
 

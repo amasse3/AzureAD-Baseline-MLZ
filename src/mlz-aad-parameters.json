@@ -356,250 +356,326 @@
             "runstep": true,
             "comments": "Excludes current user and Break Glass accounts from each role. Report Only for now",
             "parameters": {
-                "MLZ01": {
-                    "displayname": "MLZ001: MFA - Require multifactor authentication for all users",
-                    "state": "enabledForReportingButNotEnforced",
-                    "conditions": {
-                        "userRiskLevels": [],
-                        "clientAppTypes": [
-                            "all"
-                        ],
-                        "applications": {
-                            "includeApplications": [
-                                "All"
+                "Policies": [
+                    {
+                        "displayname": "MLZ001: MFA - Require multifactor authentication for all users",
+                        "state": "enabledForReportingButNotEnforced",
+                        "conditions": {
+                            "userRiskLevels": [],
+                            "clientAppTypes": [
+                                "all"
                             ],
-                            "includeUserActions": []
+                            "applications": {
+                                "includeApplications": [
+                                    "All"
+                                ],
+                                "includeUserActions": []
+                            },
+                            "users": {
+                                "includeUsers": [
+                                    "All"
+                                ],                    
+                                "excludeUsers": [],
+                                "includeGroups": [],
+                                "excludeGroups": [],
+                                "includeRoles": [],
+                                "excludeRoles": []
+                            },
+                            "locations": {
+                                "includeLocations": [],
+                                "excludeLocations": []
+                            }
                         },
-                        "users": {
-                            "includeUsers": [
-                                "All"
-                            ],                    
-                            "excludeUsers": [],
-                            "includeGroups": [],
-                            "excludeGroups": [],
-                            "includeRoles": [],
-                            "excludeRoles": []
-                        },
-                        "locations": {
-                            "includeLocations": [],
-                            "excludeLocations": []
-                        }
-                    },
-                    "grantControls": {
-                        "operator": "OR",
-                        "builtInControls": [
-                            "mfa"
-                        ]
-                    }
-                },
-                "MLZ02": {
-                    "displayname": "MLZ002: MFA - Block Legacy Authentication",
-                    "state": "enabledForReportingButNotEnforced",
-                    "conditions": {
-                        "userRiskLevels": [],
-                        "clientAppTypes": [
-                            "exchangeActiveSync",
-                            "other"
-                        ],
-                        "applications": {
-                            "includeApplications": [
-                                "All"
-                            ],
-                            "includeUserActions": []
-                        },
-                        "users": {
-                            "includeUsers": [
-                                "All"
-                            ],                    
-                            "excludeUsers": [],
-                            "includeGroups": [],
-                            "excludeGroups": [],
-                            "includeRoles": [],
-                            "excludeRoles": []
-                        },
-                        "locations": {
-                            "includeLocations": [],
-                            "excludeLocations": []
-                        }
-                    },
-                    "grantControls": {
-                        "operator": "OR",
-                        "builtInControls": [
-                            "block"
-                        ]
-                    }
-                },
-                "MLZ03": {
-                    "displayname": "MLZ003: MFA - Securing security info registration",
-                    "state": "enabledForReportingButNotEnforced",
-                    "conditions": {
-                        "userRiskLevels": [],
-                        "clientAppTypes": [
-                            "all"
-                        ],
-                        "applications": {
-                            "includeApplications": [],
-                            "includeUserActions": [
-                                "urn:user:registersecurityinfo"
-                            ]
-                        },
-                        "users": {
-                            "includeUsers": [
-                                "All"
-                            ],
-                            "excludeUsers": [
-                                "GuestsOrExternalUsers"
-                            ],
-                            "includeRoles": [],
-                            "excludeRoles": [
-                                "62e90394-69f5-4237-9190-012177145e10"
-                            ],
-                            "includeGroups": [],
-                            "excludeGroups": []
-                        },
-                        "locations": {
-                            "includeLocations": [
-                                "All"
-                            ],
-                            "excludeLocations": [
-                                "AllTrusted"
+                        "grantControls": {
+                            "operator": "OR",
+                            "builtInControls": [
+                                "mfa"
                             ]
                         }
                     },
-                    "grantControls": {
-                        "operator": "OR",
-                        "builtInControls": [
-                            "mfa"
-                        ]
-                    }
-                },
-                "MLZ04": {
-                    "displayname": "MLZ004: Admins - Require phishing-resistant MFA for Azure AD admins",
-                    "state": "enabledForReportingButNotEnforced",
-                    "sessionControls": null,
-                    "conditions": {
-                        "userRiskLevels": [],
-                        "clientAppTypes": [
-                            "all"
-                        ],
-                        "applications": {
-                            "includeApplications": [
-                                "All"
+                    {
+                        "displayname": "MLZ002: MFA - Block Legacy Authentication",
+                        "state": "enabled",
+                        "conditions": {
+                            "userRiskLevels": [],
+                            "clientAppTypes": [
+                                "exchangeActiveSync",
+                                "other"
                             ],
-                            "includeUserActions": []
+                            "applications": {
+                                "includeApplications": [
+                                    "All"
+                                ],
+                                "includeUserActions": []
+                            },
+                            "users": {
+                                "includeUsers": [
+                                    "All"
+                                ],                    
+                                "excludeUsers": [],
+                                "includeGroups": [],
+                                "excludeGroups": [],
+                                "includeRoles": [],
+                                "excludeRoles": []
+                            },
+                            "locations": {
+                                "includeLocations": [],
+                                "excludeLocations": []
+                            }
                         },
-                        "users": {
-                            "includeUsers": [],
-                            "excludeUsers": [],
-                            "includeGroups": [],
-                            "excludeGroups": [],
-                            "includeRoles": [
-                                "62e90394-69f5-4237-9190-012177145e10",
-                                "194ae4cb-b126-40b2-bd5b-6091b380977d",
-                                "f28a1f50-f6e7-4571-818b-6a12f2af6b6c",
-                                "29232cdf-9323-42fd-ade2-1d097af3e4de",
-                                "b1be1c3e-b65d-4f19-8427-f6fa0d97feb9",
-                                "729827e3-9c14-49f7-bb1b-9608f156bbb8",
-                                "b0f54661-2d74-4c50-afa3-1ec803f12efe",
-                                "fe930be7-5e62-47db-91af-98c3a49a38b1",
-                                "c4e39bd9-1100-46d3-8c65-fb160da0071f",
-                                "9b895d92-2cd3-44c7-9d02-a6ac2d5ea5c3",
-                                "158c047a-c907-4556-b7ef-446551a6b5f7",
-                                "966707d0-3269-4727-9be2-8c3a10f19b9d",
-                                "7be44c8a-adaf-4e2a-84d6-ab2649e08a13",
-                                "e8611ab8-c189-46e8-94e1-60213ab1f814"
-                            ],
-                            "excludeRoles": []
-                        },
-                        "locations": {
-                            "includeLocations": [],
-                            "excludeLocations": []
+                        "grantControls": {
+                            "operator": "OR",
+                            "builtInControls": [
+                                "block"
+                            ]
                         }
                     },
-                    "grantControls": {
-                        "operator": "AND",
-                        "builtInControls": [],
-                        "authenticationStrength": {
-                            "id": "00000000-0000-0000-0000-000000000004"
-                        }
-                    }
-                },
-                "MLZ05": {
-                    "displayname": "MLZ005: Admins - Require phishing-resistant MFA for Azure Management",
-                    "state": "enabledForReportingButNotEnforced",
-                    "conditions": {
-                        "userRiskLevels": [],
-                        "clientAppTypes": [
-                            "all"
-                        ],
-                        "applications": {
-                            "includeApplications": [
-                                "797f4846-ba00-4fd7-ba43-dac1f8f63013"
+                    {
+                        "displayname": "MLZ003: MFA - Securing security info registration",
+                        "state": "enabledForReportingButNotEnforced",
+                        "conditions": {
+                            "userRiskLevels": [],
+                            "clientAppTypes": [
+                                "all"
                             ],
-                            "includeUserActions": []
+                            "applications": {
+                                "includeApplications": [],
+                                "includeUserActions": [
+                                    "urn:user:registersecurityinfo"
+                                ]
+                            },
+                            "users": {
+                                "includeUsers": [
+                                    "All"
+                                ],
+                                "excludeUsers": [
+                                    "GuestsOrExternalUsers"
+                                ],
+                                "includeRoles": [],
+                                "excludeRoles": [
+                                    "62e90394-69f5-4237-9190-012177145e10"
+                                ],
+                                "includeGroups": [],
+                                "excludeGroups": []
+                            },
+                            "locations": {
+                                "includeLocations": [
+                                    "All"
+                                ],
+                                "excludeLocations": [
+                                    "AllTrusted"
+                                ]
+                            }
                         },
-                        "users": {
-                            "includeUsers": [
-                                "All"
-                            ],
-                            "excludeUsers": [],
-                            "includeGroups": [],
-                            "excludeGroups": [],
-                            "includeRoles": [],
-                            "excludeRoles": []
-                        },
-                        "locations": {
-                            "includeLocations": [],
-                            "excludeLocations": []
-                        }
-                    },
-                    "grantControls": {
-                        "operator": "AND",
-                        "builtInControls": [],
-                        "authenticationStrength": {
-                            "id": "00000000-0000-0000-0000-000000000004"
-                        }
-                    }
-                },
-                "MLZ06": {
-                    "displayname": "MLZ006: Risk - Require password change for high risk users",
-                    "state": "enabledForReportingButNotEnforced",
-                    "conditions": {
-                        "userRiskLevels": [
-                            "high"
-                        ],
-                        "clientAppTypes": [
-                            "all"
-                        ],
-                        "applications": {
-                            "includeApplications": [
-                                "All"
-                            ],
-                            "includeUserActions": []
-                        },
-                        "users": {
-                            "includeUsers": [
-                                "All"
-                            ],
-                            "excludeUsers": [],
-                            "includeGroups": [],
-                            "excludeGroups": [],
-                            "includeRoles": [],
-                            "excludeRoles": []
-                        },
-                        "locations": {
-                            "includeLocations": [],
-                            "excludeLocations": []
+                        "grantControls": {
+                            "operator": "OR",
+                            "builtInControls": [
+                                "mfa"
+                            ]
                         }
                     },
-                    "grantControls": {
-                        "operator": "AND",
-                        "builtInControls": [
-                            "mfa",
-                            "passwordChange"
-                        ]
+                    {
+                        "displayname": "MLZ004: Admins - Require phishing-resistant MFA for Azure AD admins",
+                        "state": "enabledForReportingButNotEnforced",
+                        "sessionControls": null,
+                        "conditions": {
+                            "userRiskLevels": [],
+                            "clientAppTypes": [
+                                "all"
+                            ],
+                            "applications": {
+                                "includeApplications": [
+                                    "All"
+                                ],
+                                "includeUserActions": []
+                            },
+                            "users": {
+                                "includeUsers": [],
+                                "excludeUsers": [],
+                                "includeGroups": [],
+                                "excludeGroups": [],
+                                "includeRoles": [
+                                    "62e90394-69f5-4237-9190-012177145e10",
+                                    "194ae4cb-b126-40b2-bd5b-6091b380977d",
+                                    "f28a1f50-f6e7-4571-818b-6a12f2af6b6c",
+                                    "29232cdf-9323-42fd-ade2-1d097af3e4de",
+                                    "b1be1c3e-b65d-4f19-8427-f6fa0d97feb9",
+                                    "729827e3-9c14-49f7-bb1b-9608f156bbb8",
+                                    "b0f54661-2d74-4c50-afa3-1ec803f12efe",
+                                    "fe930be7-5e62-47db-91af-98c3a49a38b1",
+                                    "c4e39bd9-1100-46d3-8c65-fb160da0071f",
+                                    "9b895d92-2cd3-44c7-9d02-a6ac2d5ea5c3",
+                                    "158c047a-c907-4556-b7ef-446551a6b5f7",
+                                    "966707d0-3269-4727-9be2-8c3a10f19b9d",
+                                    "7be44c8a-adaf-4e2a-84d6-ab2649e08a13",
+                                    "e8611ab8-c189-46e8-94e1-60213ab1f814"
+                                ],
+                                "excludeRoles": []
+                            },
+                            "locations": {
+                                "includeLocations": [],
+                                "excludeLocations": []
+                            }
+                        },
+                        "grantControls": {
+                            "operator": "AND",
+                            "builtInControls": [],
+                            "authenticationStrength": {
+                                "id": "00000000-0000-0000-0000-000000000004"
+                            }
+                        }
+                    },
+                    {
+                        "displayname": "MLZ005: Admins - Require phishing-resistant MFA for Azure Management",
+                        "state": "enabledForReportingButNotEnforced",
+                        "conditions": {
+                            "userRiskLevels": [],
+                            "clientAppTypes": [
+                                "all"
+                            ],
+                            "applications": {
+                                "includeApplications": [
+                                    "797f4846-ba00-4fd7-ba43-dac1f8f63013"
+                                ],
+                                "includeUserActions": []
+                            },
+                            "users": {
+                                "includeUsers": [
+                                    "All"
+                                ],
+                                "excludeUsers": [],
+                                "includeGroups": [],
+                                "excludeGroups": [],
+                                "includeRoles": [],
+                                "excludeRoles": []
+                            },
+                            "locations": {
+                                "includeLocations": [],
+                                "excludeLocations": []
+                            }
+                        },
+                        "grantControls": {
+                            "operator": "AND",
+                            "builtInControls": [],
+                            "authenticationStrength": {
+                                "id": "00000000-0000-0000-0000-000000000004"
+                            }
+                        }
+                    },
+                    {
+                        "displayname": "MLZ006: Risk - Require password change for high risk users",
+                        "state": "enabledForReportingButNotEnforced",
+                        "conditions": {
+                            "userRiskLevels": [
+                                "high"
+                            ],
+                            "clientAppTypes": [
+                                "all"
+                            ],
+                            "applications": {
+                                "includeApplications": [
+                                    "All"
+                                ],
+                                "includeUserActions": []
+                            },
+                            "users": {
+                                "includeUsers": [
+                                    "All"
+                                ],
+                                "excludeUsers": [],
+                                "includeGroups": [],
+                                "excludeGroups": [],
+                                "includeRoles": [],
+                                "excludeRoles": []
+                            },
+                            "locations": {
+                                "includeLocations": [],
+                                "excludeLocations": []
+                            }
+                        },
+                        "grantControls": {
+                            "operator": "AND",
+                            "builtInControls": [
+                                "mfa",
+                                "passwordChange"
+                            ]
+                        }
+                    },
+                    {
+                        "displayname": "MLZ007: Device - Require Compliant Device for all users",
+                        "state": "disabled",
+                        "conditions": {
+                            "userRiskLevels": [],
+                            "clientAppTypes": [
+                                "all"
+                            ],
+                            "applications": {
+                                "includeApplications": [
+                                    "All"
+                                ],
+                                "includeUserActions": []
+                            },
+                            "users": {
+                                "includeUsers": [
+                                    "All"
+                                ],                    
+                                "excludeUsers": [],
+                                "includeGroups": [],
+                                "excludeGroups": [],
+                                "includeRoles": [],
+                                "excludeRoles": []
+                            },
+                            "locations": {
+                                "includeLocations": [],
+                                "excludeLocations": []
+                            }
+                        },
+                        "grantControls": {
+                            "operator": "OR",
+                            "builtInControls": [
+                                "compliantDevice",
+                                "domainJoinedDevice"
+                            ]
+                        }
+                    },
+                    {
+                        "displayname": "MLZ008: MFA - Require passwordless MFA for all users",
+                        "state": "disabled",
+                        "conditions": {
+                            "userRiskLevels": [],
+                            "clientAppTypes": [
+                                "all"
+                            ],
+                            "applications": {
+                                "includeApplications": [
+                                    "All"
+                                ],
+                                "includeUserActions": []
+                            },
+                            "users": {
+                                "includeUsers": [
+                                    "All"
+                                ],                    
+                                "excludeUsers": [],
+                                "includeGroups": [],
+                                "excludeGroups": [],
+                                "includeRoles": [],
+                                "excludeRoles": []
+                            },
+                            "locations": {
+                                "includeLocations": [],
+                                "excludeLocations": []
+                            }
+                        },
+                        "grantControls": {
+                            "operator": "AND",
+                            "builtInControls": [],
+                            "authenticationStrength": {
+                                "id": "00000000-0000-0000-0000-000000000003"
+                            }
+                        }
                     }
-                }
+                ]
             }
         },
         "TenantPolicies": {
@@ -647,32 +723,20 @@
             "description": "Configures Entitlements Management Access package Catalog for each Mission.",
             "comments": "Placeholder.",
             "parameters": {
-                "AccessPackageCatalogs": [
+                "CoreCatalog": [
                     {
                         "displayName": "MLZ",
                         "description": "Access packages for the entire MLZ.",
                         "state": "published",
                         "isExternallyVisible": false
-                    },
-                    {
-                        "displayName": "Alpha",
-                        "description": "Access packages for mission Alpha",
-                        "state": "published",
-                        "isExternallyVisible": false
-                    },
-                    {
-                        "displayName": "Bravo",
-                        "description": "Access packages for mission Bravo",
-                        "state": "published",
-                        "isExternallyVisible": false
-                    },
-                    {
-                        "displayName": "Charlie",
-                        "description": "Access packages for mission Charlie",
-                        "state": "published",
-                        "isExternallyVisible": false
                     }
-                ]
+                ],
+                "MissionCatalogTemplate": {
+                    "displayName": "ZZZ",
+                    "description": "Access packages for mission ZZZ",
+                    "state": "published",
+                    "isExternallyVisible": false
+                }
             }
         }
     }

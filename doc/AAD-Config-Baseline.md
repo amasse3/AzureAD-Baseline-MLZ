@@ -493,7 +493,7 @@ Complete setup for the named administrator accounts:
 </p>
 </details>
 
-## Authentication methods
+## Authentication Methods
 Azure AD authenticaton methods allow an administrator to configure how users can authenticate to Azure AD.
 
 - [ ] [🗒️ Run the script: AuthNMethods](#🗒️-run-the-script-authnmethods)
@@ -715,6 +715,7 @@ The user runnning the script, and Emergency Access Accounts group are excluded f
 |MLZ004|Admins|Require phishing-resistant MFA for Azure AD admins|Directory Roles (from policy template)|All apps|Phishing-resistant MFA<br><ul><li>Fido2</li><li>WindowsHellowForBusiness</li><li>x509Certificate</li></ul>|
 |MLZ005|Admins|Require phishing-resistant MFA for Azure Management|<ul><li>Include</li><ul><li>All Users</li></ul><li>Exclude</li><ul><li>Emergency Access Accounts</li></ul></ul>|Azure Management|Phishing-resistant MFA<br><ul><li>Fido2</li><li>WindowsHellowForBusiness</li><li>x509Certificate</li></ul>|
 |MLZ006|Risk|Require password change for high risk users|<ul><li>Include</li><ul><li>High Risk Users</li></ul><li>Exclude</li><ul><li>Emergency Access Accounts</li></ul></ul>|All Apps|Require Password Change|
+|MLZ007|Device|Require compliant device|<ul><li>Include</li><ul><li>All Users</li></ul><li>Exclude</li><ul><li>Emergency Access Accounts</li></ul></ul>|All Apps|Require multifactor authentication, Require device to be marked as compliant, Require Hybrid Azure AD joined device|
 
 > **Note**: If Microsoft Endpoint Manager (Intune) will be deployed for the Azure AD tenant used by MLZ, enroll privileged access devices and use [Conditional Access](https://docs.microsoft.com/en-us/mem/intune/protect/create-conditional-access-intune) to require a compliant device for Azure Management.
 
@@ -831,6 +832,29 @@ Steps for setting up Azure AD CBA with the DoD PKI can be found in [AAD-Certific
 ## Verify and enable the Conditional Access Policies
 Review the Conditional Access Policies and enable them using the Azure Portal.
 
+TO DO: Recommend which ones should be turned on. 
+
+## Assign delegate administrators for each mission
+Delegate administrators are Mission admins with Azure AD permissions. They will not have any privileges by default, so any access should be manually assigned.
+
+### Add delegates to security groups
+So each Mission can manage their own admin users and groups, an administrator for each Mission should be added to the privileged access groups created by the configuration script for each mission.
+- RBAC-GroupAdmins-MISSION
+- UserAdmin-MISSION
+
+### Add Access Package Catalog Owners
+If Entitlements Management will be used, assign the delegate as owner of the Access Package Catalog created for the new mission:
+1. Sign in to the Azure Portal as a Global Administrator.
+2. Select **Identity Governance** from the left navigation pane.
+3. Select **Catalogs** under **Entitlements Management** from the left navigation pane.
+4. Select the catalog for each mission.
+5. Select **Roles and administrators** and then **Add catalog owner**.
+6. Assign the delegate admin for the mission.
+7. Repeat steps 4-6 for each mission.
+
+### Application Developers
+The Application Developers role is not scoped to an Administrative Unit. This role lets an application developer create app registrations and service principals. Assign users to the privileged access group `Application Developers MLZ-Core` so they are eligible to request this permission.
+
 ## Optional Configuration
 This section is not applicable for Azure Platform tenants ([Type 2](/MLZ-Identity-AzureADSetup/doc/MLZ-Common-Patterns.md#type-2-mlz-deployed-to-standalone-azure-platform-tenant)).
 
@@ -924,7 +948,44 @@ Pass-Through Authentication (PTA) and federation with ADFS are not recommended. 
 </details>
 
 ## Adding a new "mission spoke"
-Placeholder
+When subscriptions are added for new Missions after initial deployment, the configuration script can be re-run using the parameter switches to skip some of the configuration steps.
+
+- [ ] [1. Choose a Mission name](#1-choose-a-mission-name)
+- [ ] [2. Prepare the `mlz-aad-parameters.json` file](#2-prepare-the-mlz-aad-parametersjson-file)
+- [ ] [3. Prepare the `MLZ-Admin-List.csv` for the new Mission AU users](#3-prepare-the-mlz-admin-listcsv)
+- [ ] [5. Re-Run the script](#4-re-run-the-script)
+
+### 1. Choose a Mission name
+Choose a single word to describe the mission. This value needs to be unique in Mission AUs list.
+
+### 2. Prepare the mlz-aad-parameters.json file
+Add the new mission to `GlobalParameterSet.MissionAUs` array. If the current value is `"MissionAUs": ["Alpha","Bravo","Charlie"]`, append a new mission, Delta, to the array: `"MissionAUs": ["Alpha","Bravo","Charlie","Delta"]`
+
+The script will skip creating Administrative Units that already exist in the environment.
+
+### 3. Prepare the MLZ-Admin-List.csv
+Repeat the steps for [Creating a named admin list CSV file](#🗒️-create-named-admin-list-csv-file) to include the new users. 
+
+### 4. Re-run the script
+The only parameters needed are:
+- AdminUnits
+- NamedAccounts
+- Groups
+- PIM
+- EntitlementsManagement
+
+Run the script the following sections of the configuration scipt:
+
+```PowerShell
+Configure-AADTenantBaseline.ps1 -AdminUnits -NamedAccounts -Groups -PIM -EntitlementsManagement
+```
+
+### 5. Assign a delegate admin for the Mission
+Add the new delegate admin to the groups created by the script:
+- RBAC-GroupAdmins-Delta
+- UserAdmin-Delta
+
+If Entitlements Management will be used, assign the delegate as owner of the Access Package Catalog created for the new mission.
 
 # Zero Trust with Azure AD
 One of the first steps an organization can take in adopting zero trust principals is consolidating around a single cloud-based Identity as a Service (IdaaS) platform like Azure Active Directory. This section describes some next steps after establishing the tenant.
@@ -982,7 +1043,7 @@ Develop new applications and APIs to use Azure AD for authentication and authori
 >   - [Microsoft Identity Platform code samples](https://learn.microsoft.com/en-us/azure/active-directory/develop/sample-v2-code)
 
 ### Add on-premises applications to Azure AD
-Azure AD Application Proxy is an on-premises agent and cloud service that [securely publishes](https://learn.microsoft.com/en-us/azure/active-directory/app-proxy/application-proxy-security) on-premises applications that use [Kerberos-based](https://learn.microsoft.com/en-us/azure/active-directory/app-proxy/application-proxy-configure-single-sign-on-with-kcd), [password-based]https://learn.microsoft.com/en-us/azure/active-directory/app-proxy/application-proxy-configure-single-sign-on-password-vaulting), [SAML](https://learn.microsoft.com/en-us/azure/active-directory/app-proxy/application-proxy-configure-single-sign-on-on-premises-apps), and [header-based](https://learn.microsoft.com/en-us/azure/active-directory/app-proxy/application-proxy-configure-single-sign-on-with-headers) authentication protocols. This feature allows organizations to gain [single sign-on](https://learn.microsoft.com/en-us/azure/active-directory/app-proxy/application-proxy-config-sso-how-to) and zero trust security controls for existing applications, without expensive network appliances or VPNs. Remote access to on-premises applications is achieved without code change to applications or opening inbound ports for the external firewall.
+Azure AD Application Proxy is an on-premises agent and cloud service that [securely publishes](https://learn.microsoft.com/en-us/azure/active-directory/app-proxy/application-proxy-security) on-premises applications that use [Kerberos-based](https://learn.microsoft.com/en-us/azure/active-directory/app-proxy/application-proxy-configure-single-sign-on-with-kcd), [password-based](https://learn.microsoft.com/en-us/azure/active-directory/app-proxy/application-proxy-configure-single-sign-on-password-vaulting), [SAML](https://learn.microsoft.com/en-us/azure/active-directory/app-proxy/application-proxy-configure-single-sign-on-on-premises-apps), and [header-based](https://learn.microsoft.com/en-us/azure/active-directory/app-proxy/application-proxy-configure-single-sign-on-with-headers) authentication protocols. This feature allows organizations to gain [single sign-on](https://learn.microsoft.com/en-us/azure/active-directory/app-proxy/application-proxy-config-sso-how-to) and zero trust security controls for existing applications, without expensive network appliances or VPNs. Remote access to on-premises applications is achieved without code change to applications or opening inbound ports for the external firewall.
 
 > 💡 **Recommendation**:
 > - [Deploy Azure AD Application Proxy connectors](https://learn.microsoft.com/en-us/azure/active-directory/app-proxy/application-proxy-deployment-plan) to every Active Directory domain containing users or applications that must be published externally. 
