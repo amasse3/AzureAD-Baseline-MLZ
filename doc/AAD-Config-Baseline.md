@@ -73,7 +73,7 @@ The script itself includes some features to simplify the deployment including:
 |Asset|Description|Format|Location|
 |-----|-----------|------|--------|
 |This Document|Deployment aid for scripted configuration, manual configuration, and next steps.|Text (Markdown)|N/A|
-|mlz-aad-parameters.json|Script parameters|JSON|[mlz-aad-parameters.json](/src/mlz-aad-parameters.json|
+|mlz-aad-parameters.json|Script parameters|JSON|[mlz-aad-parameters.json](/src/mlz-aad-parameters.json)|
 |MLZ-Admin-List.csv|File for automating account creation for named administrators.|CSV|[MLZ-Admin-List.csv](/src/MLZ-Admin-List.csv)|
 |Configure-AADTenantBaseline.ps1|Main deployment script|PowerShell (\*.ps1)|[Configure-AADTenantBaseline.ps1](/src/Configure-AADTenantBaseline.ps1)|
 
@@ -82,7 +82,7 @@ This file represents the configuration that will be applied when running the bas
 
 At minimum, modify the **GlobalParameterSet** to match the environment before running the script.
 
-The **mlz-aad-parameters.json** file must be read into a variable and passed to the `ParametersJson` parameter of the **Configure-AADTenantBaseline.ps1** script. The script needs to navigate the parameters file and expects it to be in JSON format. 
+The **mlz-aad-parameters.json** file must be read into a variable and passed to the `ParametersJson` parameter of the **Configure-AADTenantBaseline.ps1** script. 
 
 |Parameter|Description|DefaultValue|
 |---------|-----------|------------|
@@ -830,19 +830,36 @@ Steps for setting up Azure AD CBA with the DoD PKI can be found in [AAD-Certific
 > 📘 **Reference**: [Azure AD Native Certificate-Based Authentication](https://docs.microsoft.com/en-us/azure/active-directory/authentication/how-to-certificate-based-authentication)
 
 ## Verify and enable the Conditional Access Policies
-Review the Conditional Access Policies and enable them using the Azure Portal.
+The baseline script enables the **Block Legacy Authentication** Conditional Access policy only. All other policies are Report-Only mode or disabled.
 
-TO DO: Recommend which ones should be turned on. 
+> **Note**: Emergency Access accounts and the first admin user that ran the configuration script are excluded from all policies. This is to ensure you do not get locked out of the tenant.
+
+Once admins have enrolled in a phishing-resistant authentication method, enable the recommended policies below.
+
+> 💡 **Recommendations**: Enable the following policies as soon as possible:
+> - MLZ001: MFA - Require multifactor authentication for all users (report-only by default)
+> - MLZ002: MFA - Block Legacy Authentication (enabled by default)
+> - MLZ003: MFA - Securing security info registration (report-only by default)
+> - MLZ004: Admins - Require phishing-resistant MFA for Azure AD admins (report-only by default)
+> - MLZ005: Admins - Require phishing-resistant MFA for Azure Management (report-only by default)
+> - MLZ006: Risk - Require password change for high risk users (report-only by default)
 
 ## Assign delegate administrators for each mission
 Delegate administrators are Mission admins with Azure AD permissions. They will not have any privileges by default, so any access should be manually assigned.
+
+ - [Add delegates to security groups](#add-delegates-to-security-groups)
+ - [Add access package catalog owners](#add-access-package-catalog-owner)
+ - [Add users to application developer privileged access group](#add-users-to-application-developer-privileged-access-group)
+
+<details><summary><b>Show Content</b></summary>
+<p>
 
 ### Add delegates to security groups
 So each Mission can manage their own admin users and groups, an administrator for each Mission should be added to the privileged access groups created by the configuration script for each mission.
 - RBAC-GroupAdmins-MISSION
 - UserAdmin-MISSION
 
-### Add Access Package Catalog Owners
+### add Access package catalog owner
 If Entitlements Management will be used, assign the delegate as owner of the Access Package Catalog created for the new mission:
 1. Sign in to the Azure Portal as a Global Administrator.
 2. Select **Identity Governance** from the left navigation pane.
@@ -852,8 +869,11 @@ If Entitlements Management will be used, assign the delegate as owner of the Acc
 6. Assign the delegate admin for the mission.
 7. Repeat steps 4-6 for each mission.
 
-### Application Developers
+### Add users to application developer privileged access group
 The Application Developers role is not scoped to an Administrative Unit. This role lets an application developer create app registrations and service principals. Assign users to the privileged access group `Application Developers MLZ-Core` so they are eligible to request this permission.
+
+</p>
+</details>
 
 ## Optional Configuration
 This section is not applicable for Azure Platform tenants ([Type 2](/MLZ-Identity-AzureADSetup/doc/MLZ-Common-Patterns.md#type-2-mlz-deployed-to-standalone-azure-platform-tenant)).
@@ -955,6 +975,9 @@ When subscriptions are added for new Missions after initial deployment, the conf
 - [ ] [3. Prepare the `MLZ-Admin-List.csv` for the new Mission AU users](#3-prepare-the-mlz-admin-listcsv)
 - [ ] [5. Re-Run the script](#4-re-run-the-script)
 
+<details><summary><b>Show Content</b></summary>
+<p>
+
 ### 1. Choose a Mission name
 Choose a single word to describe the mission. This value needs to be unique in Mission AUs list.
 
@@ -986,6 +1009,9 @@ Add the new delegate admin to the groups created by the script:
 - UserAdmin-Delta
 
 If Entitlements Management will be used, assign the delegate as owner of the Access Package Catalog created for the new mission.
+
+</p>
+</details>
 
 # Zero Trust with Azure AD
 One of the first steps an organization can take in adopting zero trust principals is consolidating around a single cloud-based Identity as a Service (IdaaS) platform like Azure Active Directory. This section describes some next steps after establishing the tenant.
