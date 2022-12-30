@@ -50,14 +50,14 @@ The script itself includes some features to simplify the deployment including:
 - Load the default parameters file from the relative path if no ParametersJSON argument is passed
 
 ### Prerequisites
-1. New or existing (non-production) Azure Active Directory tenant
-2. Azure AD account with Global Administrator role
-3. Azure AD Premium P2 licenses*
-4. A trusted configuration workstation with
+- [ ] New or existing (non-production) Azure Active Directory tenant
+- [ ] Azure AD account with Global Administrator role
+- [ ] Azure AD Premium P2 licenses*
+- [ ] A trusted configuration workstation with
     - rights to install PowerShell module for MS Graph
     - DNS resolution and traffic routing for the Azure AD logon URLs
     - CDN and logon URLs in trusted sites
-5. Microsoft Graph PowerShell
+- [ ] Microsoft Graph PowerShell
 
 > **Note**: \* If Azure AD Premium licenses are not available, only the following settings can be applied:
 > - EmergencyAccess (assigning Global Admin via PIM will fail, add the role assignment manually)
@@ -65,7 +65,7 @@ The script itself includes some features to simplify the deployment including:
 > - NamedAccounts (licensing step will fail)
 > - TenantPolicies
 >
-> If Azure AD Premium is not available, Conditional Access Policies cannot be used. [Turn on Security Defaults](https://learn.microsoft.com/en-us/microsoft-365/business-premium/m365bp-conditional-access?view=o365-worldwide#security-defaults) and follow guidance to [Protect your admin accounts](https://learn.microsoft.com/en-us/microsoft-365/business-premium/m365bp-protect-admin-accounts?view=o365-worldwide.)
+> If Azure AD Premium is not available, Conditional Access Policies cannot be used. [Turn on Security Defaults](https://learn.microsoft.com/en-us/microsoft-365/business-premium/m365bp-conditional-access?view=o365-worldwide#security-defaults) and follow guidance to [Protect your admin accounts](https://learn.microsoft.com/en-us/microsoft-365/business-premium/m365bp-protect-admin-accounts?view=o365-worldwide).
 
 > 📘 **Reference**: [Office 365 IP Address and URL web service](https://learn.microsoft.com/en-us/microsoft-365/enterprise/microsoft-365-ip-web-service?view=o365-worldwide)
 
