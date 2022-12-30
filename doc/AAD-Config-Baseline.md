@@ -24,7 +24,7 @@ It is **not** recommended to run through the configuration end-to-end in existin
 - [Post Deployment](#post-deployment)
   - [Configure Certificate-Based Authentication](#configure-certificate-based-authentication)
   - [Verify and enable Conditional Access](#verify-and-enable-the-conditional-access-policies)
-  - [Optional Configuration](#optional-configuration)
+  - [Domain verification and hybrid identity configuration](#domain-verification-and-hybrid-identity-configuration)
   - [Adding a Mission Spoke](#adding-a-new-mission-spoke)
 - [Zero Trust with Azure AD](#zero-trust-with-azure-ad)
   - [Connect applications to Azure AD](#connect-applications-to-azure-ad)
@@ -875,7 +875,7 @@ The Application Developers role is not scoped to an Administrative Unit. This ro
 </p>
 </details>
 
-## Optional Configuration
+## Domain verification and hybrid identity configuration
 This section is not applicable for Azure Platform tenants ([Type 2](/MLZ-Identity-AzureADSetup/doc/MLZ-Common-Patterns.md#type-2-mlz-deployed-to-standalone-azure-platform-tenant)).
 
  - [ ] [Add a custom domain](#add-a-custom-domain-to-azure-ad)
