@@ -847,9 +847,9 @@ Once admins have enrolled in a phishing-resistant authentication method, enable 
 ## Assign delegate administrators for each mission
 Delegate administrators are Mission admins with Azure AD permissions. They will not have any privileges by default, so any access should be manually assigned.
 
- - [Add delegates to security groups](#add-delegates-to-security-groups)
- - [Add access package catalog owners](#add-access-package-catalog-owner)
- - [Add users to application developer privileged access group](#add-users-to-application-developer-privileged-access-group)
+ - [ ] [Add delegates to security groups](#add-delegates-to-security-groups)
+ - [ ] [Add access package catalog owners](#add-access-package-catalog-owner)
+ - [ ] [Add users to application developer privileged access group](#add-users-to-application-developer-privileged-access-group)
 
 <details><summary><b>Show Content</b></summary>
 <p>
@@ -970,26 +970,26 @@ Pass-Through Authentication (PTA) and federation with ADFS are not recommended. 
 ## Adding a new "mission spoke"
 When subscriptions are added for new Missions after initial deployment, the configuration script can be re-run using the parameter switches to skip some of the configuration steps.
 
-- [ ] [1. Choose a Mission name](#1-choose-a-mission-name)
-- [ ] [2. Prepare the `mlz-aad-parameters.json` file](#2-prepare-the-mlz-aad-parametersjson-file)
-- [ ] [3. Prepare the `MLZ-Admin-List.csv` for the new Mission AU users](#3-prepare-the-mlz-admin-listcsv)
-- [ ] [5. Re-Run the script](#4-re-run-the-script)
+- [ ] [Choose a Mission name](#choose-a-mission-name)
+- [ ] [Prepare the `mlz-aad-parameters.json` file](#prepare-the-mlz-aad-parametersjson-file)
+- [ ] [Prepare the `MLZ-Admin-List.csv` for the new Mission AU users](#prepare-the-mlz-admin-listcsv)
+- [ ] [Re-Run the script](#re-run-the-script)
 
 <details><summary><b>Show Content</b></summary>
 <p>
 
-### 1. Choose a Mission name
+### Choose a Mission name
 Choose a single word to describe the mission. This value needs to be unique in Mission AUs list.
 
-### 2. Prepare the mlz-aad-parameters.json file
+### Prepare the mlz-aad-parameters.json file
 Add the new mission to `GlobalParameterSet.MissionAUs` array. If the current value is `"MissionAUs": ["Alpha","Bravo","Charlie"]`, append a new mission, Delta, to the array: `"MissionAUs": ["Alpha","Bravo","Charlie","Delta"]`
 
 The script will skip creating Administrative Units that already exist in the environment.
 
-### 3. Prepare the MLZ-Admin-List.csv
+### Prepare the MLZ-Admin-List.csv
 Repeat the steps for [Creating a named admin list CSV file](#🗒️-create-named-admin-list-csv-file) to include the new users. 
 
-### 4. Re-run the script
+### Re-run the script
 The only parameters needed are:
 - AdminUnits
 - NamedAccounts
@@ -1003,7 +1003,7 @@ Run the script the following sections of the configuration scipt:
 Configure-AADTenantBaseline.ps1 -AdminUnits -NamedAccounts -Groups -PIM -EntitlementsManagement
 ```
 
-### 5. Assign a delegate admin for the Mission
+### Assign a delegate admin for the Mission
 Add the new delegate admin to the groups created by the script:
 - RBAC-GroupAdmins-Delta
 - UserAdmin-Delta
