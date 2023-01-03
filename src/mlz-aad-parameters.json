@@ -674,6 +674,43 @@
                                 "id": "00000000-0000-0000-0000-000000000003"
                             }
                         }
+                    },
+                    {
+                        "displayname": "MLZ009: MFA - Require phishing-resistant MFA for all users",
+                        "state": "disabled",
+                        "conditions": {
+                            "userRiskLevels": [],
+                            "clientAppTypes": [
+                                "all"
+                            ],
+                            "applications": {
+                                "includeApplications": [
+                                    "All"
+                                ],
+                                "includeUserActions": []
+                            },
+                            "users": {
+                                "includeUsers": [
+                                    "All"
+                                ],                    
+                                "excludeUsers": [],
+                                "includeGroups": [],
+                                "excludeGroups": [],
+                                "includeRoles": [],
+                                "excludeRoles": []
+                            },
+                            "locations": {
+                                "includeLocations": [],
+                                "excludeLocations": []
+                            }
+                        },
+                        "grantControls": {
+                            "operator": "AND",
+                            "builtInControls": [],
+                            "authenticationStrength": {
+                                "id": "00000000-0000-0000-0000-000000000004"
+                            }
+                        }
                     }
                 ]
             }

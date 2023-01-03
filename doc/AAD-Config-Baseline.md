@@ -7,9 +7,9 @@ It is **not** recommended to run through the configuration end-to-end in existin
 
 ## Table of Contents
 - [About the baseline configuration](#about-the-baseline-configuration)
-  - [Prerequisites](#prerequisites)
-  - [Asset inventory](#asset-inventory)
-  - [Documentation layout](#documentation-layout)
+    - [Documentation layout](#documentation-layout)
+    - [Asset inventory](#asset-inventory)
+    - [Requirements](#requirements)
 - [Prepare to manage Azure AD](#prepare-to-manage-azure-ad)
 - [Scripted Configuration](#scripted-configuration)
   - [Administrative Units](#administrative-units)
@@ -49,25 +49,35 @@ The script itself includes some features to simplify the deployment including:
 - Parameters file where individual settings can be adjusted
 - Load the default parameters file from the relative path if no ParametersJSON argument is passed
 
-### Prerequisites
-- [ ] New or existing (non-production) Azure Active Directory tenant
-- [ ] Azure AD account with Global Administrator role
-- [ ] Azure AD Premium P2 licenses*
-- [ ] A trusted configuration workstation with
-    - rights to install PowerShell module for MS Graph
-    - DNS resolution and traffic routing for the Azure AD logon URLs
-    - CDN and logon URLs in trusted sites
-- [ ] Microsoft Graph PowerShell
+### Documentation layout
+Each section in [Scripted Configuration](#scripted-configuration) is broken down by the parameter switch for the configuration script. Generally, each section follows this format:
+- Brief overview of the configuration section
+- Table of contents
+- Configuration Steps
+- Related recommendations and references
 
-> **Note**: \* If Azure AD Premium licenses are not available, only the following settings can be applied:
-> - EmergencyAccess (assigning Global Admin via PIM will fail, add the role assignment manually)
-> - AuthNMethods
-> - NamedAccounts (licensing step will fail)
-> - TenantPolicies
->
-> If Azure AD Premium is not available, Conditional Access Policies cannot be used. [Turn on Security Defaults](https://learn.microsoft.com/en-us/microsoft-365/business-premium/m365bp-conditional-access?view=o365-worldwide#security-defaults) and follow guidance to [Protect your admin accounts](https://learn.microsoft.com/en-us/microsoft-365/business-premium/m365bp-protect-admin-accounts?view=o365-worldwide).
+Steps using the baseline script will include the 🗒️ emoji for easy identification.
 
-> 📘 **Reference**: [Office 365 IP Address and URL web service](https://learn.microsoft.com/en-us/microsoft-365/enterprise/microsoft-365-ip-web-service?view=o365-worldwide)
+To simplify navigation, detailed content for each section is hidden by default. Use the **Show Content** buttons to display this information.
+<details><summary><b>Show Content</b></summary>
+<p>
+Wow! That's a lot of content!
+</p>
+</details>
+
+> **Note** : Notes will look like this
+
+> 💡**Recommendations**: will include the light bulb emoji
+
+> **Warning**: Priority notes, including ones with security implication, will be displayed like this.
+
+> 📘 **References**: References will use the blue book emoji
+
+Checklist format is used to draw attention to required steps.
+- [ ] Do this first
+- [ ] Then this
+
+To get started, continue to the [requirements](#requirements) section.
 
 ### Asset Inventory
 |Asset|Description|Format|Location|
@@ -118,35 +128,26 @@ To apply individual sections, include one or more switch parameter.
 ```PowerShell
 .\Configure-AADTenantBaseline.ps1 -ParametersJson $mlzparams -EmergencyAccess -AuthNMethods -ConditionalAccess -TenantPolicies
 ```
-### Documentation layout
-Each section in [Scripted Configuration](#scripted-configuration) is broken down by the parameter switch for the configuration script. Generally, each section follows this format:
-- Brief overview of the configuration section
-- Table of contents
-- Configuration Steps
-- Related recommendations and references
 
-Steps using the baseline script will include the 🗒️ emoji for easy identification.
+### Requirements
+- [ ] New or existing (non-production) Azure Active Directory tenant
+- [ ] Azure AD account with Global Administrator role
+- [ ] Azure AD Premium P2 licenses*
+- [ ] A trusted configuration workstation with
+    - rights to install PowerShell module for MS Graph
+    - DNS resolution and traffic routing for the Azure AD logon URLs
+    - CDN and logon URLs in trusted sites
+- [ ] Microsoft Graph PowerShell
 
-To simplify navigation, detailed content for each section is hidden by default. Use the **Show Content** buttons to display this information.
-<details><summary><b>Show Content</b></summary>
-<p>
-Wow! That's a lot of content!
-</p>
-</details>
+> **Note**: \* If Azure AD Premium licenses are not available, only the following settings can be applied:
+> - EmergencyAccess (assigning Global Admin via PIM will fail, add the role assignment manually)
+> - AuthNMethods
+> - NamedAccounts (licensing step will fail)
+> - TenantPolicies
+>
+> If Azure AD Premium is not available, Conditional Access Policies cannot be used. [Turn on Security Defaults](https://learn.microsoft.com/en-us/microsoft-365/business-premium/m365bp-conditional-access?view=o365-worldwide#security-defaults) and follow guidance to [Protect your admin accounts](https://learn.microsoft.com/en-us/microsoft-365/business-premium/m365bp-protect-admin-accounts?view=o365-worldwide).
 
-> **Note** : Notes will look like this
-
-> 💡**Recommendations**: will include the light bulb emoji
-
-> **Warning**: Priority notes, including ones with security implication, will be displayed like this.
-
-> 📘 **References**: References will use the blue book emoji
-
-Checklist format is used to draw attention to required steps.
-- [ ] Do this first
-- [ ] Then this
-
-Continue to the next section to begin the configuration.
+> 📘 **Reference**: [Office 365 IP Address and URL web service](https://learn.microsoft.com/en-us/microsoft-365/enterprise/microsoft-365-ip-web-service?view=o365-worldwide)
 
 # Prepare to manage Azure AD
 This section outlines the preliminary activities for configuring a new Azure AD tenant for MLZ.
@@ -176,8 +177,9 @@ There are several client tools for managing Azure AD configuration. Make sure yo
 
 ### 3. 🗒️ Run the script: PSTools
 Install the PowerShell modules by running:
-`PS> .\Configure-AADTenantBaseline.ps1 -ParametersJson $mlzparams -PSTools`
-
+```PowerShell
+Configure-AADTenantBaseline.ps1 -PSTools`
+```
 The script will:
 1. Install MS Graph PowerShell
 2. Install Azure AD Preview (deprecated - included temporarily since it is used to configure CBA in the [Microsoft documentation](https://learn.microsoft.com/en-us/azure/active-directory/authentication/how-to-certificate-based-authentication#configure-certification-authorities-using-powershell))
@@ -252,6 +254,7 @@ If the signed in account is not a **member** type, follow the steps below to cre
 5. Assign the first administrator an Azure AD Premium license.
 
 > 📘 **Reference**: [Assign or remove licenses in the Azure AD Portal](https://docs.microsoft.com/en-us/azure/active-directory/fundamentals/license-users-groups?)
+
 ### 8. Activate Privileged Identity Management
 While signed in to the Azure AD portal with the first administrator, perform the following:
 1. Search for **Azure AD Privileged Identity Management**
@@ -283,14 +286,20 @@ The document layout matches each section in the PowerShell script.
 ## Administrative Units
 Administrative Units allow for scoping Azure AD privileges to certain resources. This section sets a baseline framework for delegated management in Azure AD. Once applied, the baseline will allow each Mission to manage their own users and RBAC groups for assigning access to resources in their own Azure subscription.
 
+ - [ ] [🗒️ Modify AdminUnits parameters](#🗒️-modify-adminunits-parameters)
  - [ ] [🗒️ Run the script: AdminUnits](#🗒️-run-the-script-adminunits))
 
 <details><summary><b>Show Content</b></summary>
 <p>
 
+### 🗒️ Modify AdminUnits parameters
+In `mlz-aad-parameters.json`, modify the array in `GlobalParameterSet.MissionAUs` to create Administrative Units for separate mission subscriptions. If you do not plan on using administrative units for delegated administration, leave the parameter as an empty set, e.g. `"MissionAUs": []`.
+
+Some Administrative Units are created for other sections of the configuration script. These are `MLZ Core Users and Groups` which gets created in addition to the set specifified in `MissionAUs` parameter, and `MLZ EA`, which is a restricted Administrative Unit containing the accounts created in the [emergency access](#emergency-access) section.
+
 ### 🗒️ Run the script: AdminUnits
 Run the script to create Administrative Units.
-`PS> .\Configure-AADTenantBaseline.ps1 -ParametersJson $mlzparams -AdminUnits`
+`Configure-AADTenantBaseline.ps1 -AdminUnits`
 
 The script will:
 1. Create AU for MLZ Core Administration

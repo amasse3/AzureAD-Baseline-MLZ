@@ -32,6 +32,7 @@ None
 .EXAMPLE
 
 PS> .\Configure-AADTenantBaseline.ps1 -ParametersJson $mlzparams -All
+PS> .\Configure-AADTenantBaseline.ps1 -All
 PS> .\Configure-AADTenantBaseline.ps1 -ParametersJson $mlzparams -Accounts -AuthNMethods -Groups -TenantPolicies
 PS> .\Configure-AADTenantBaseline.ps1 -ParametersJson $mlzparms -All -IncludeTools
 
@@ -159,11 +160,11 @@ function New-MLZAdminUnit {
     Param([object]$BodyParameter)
 
     Try{
-        $AU = Get-MgAdministrativeUnit | Where-Objecthere-Object{$_.DisplayName -eq $($BodyParameter.displayName)} -ErrorAction SilentlyContinue
+        $AU = Get-MgAdministrativeUnit | Where-Object{$_.DisplayName -eq $($BodyParameter.displayName)} -ErrorAction SilentlyContinue
     } Catch {}
 
     if ($AU) {
-        $msg = "Administrative unit " + $AU.DisplayName + " already exists."
+        $msg = "Administrative unit " + $($AU.DisplayName) + " already exists."
         Write-Host $msg
     } else {
         Write-host -ForegroundColor yellow "Adding Administrative Unit $($BodyParameter.displayName)."
@@ -450,6 +451,8 @@ $PWDLength = $Parameters.GlobalParameterSet.PWDLength
 $MissionAUs = $Parameters.GlobalParameterSet.MissionAUs
 $License = $Parameters.GlobalParameterSet.License | ConvertTo-Json
 
+Write-Host "Sign in to Azure AD"
+
 Connect-MgGraph -Environment $Environment -Scopes Directory.Read.All
 $upnsuffix = $(Get-MgDomain | Where-Object{$_.IsInitial -eq $true}).Id
 Switch ($Environment) {
@@ -477,7 +480,7 @@ if ($PSTools -or ($All -and $IncludeTools)) {
 if ($AdminUnits -or $All) {
     Import-Module Microsoft.Graph.Identity.DirectoryManagement
     Connect-MgGraph -Scopes AdministrativeUnit.ReadWrite.All -Environment $Environment
-    Select-MgProfile beta
+    #Select-MgProfile beta
 
     #create core AU
     $CoreAU = $Parameters.StepParameterSet.AdminUnits.parameters.CoreAU
@@ -510,8 +513,8 @@ if ($EmergencyAccess -or $All) {
     Connect-MgGraph -Scopes AdministrativeUnit.ReadWrite.All,User.ReadWrite.All,Group.ReadWrite.All,RoleManagement.ReadWrite.Directory -Environment $Environment
 
     $EAUsers = $Parameters.StepParameterSet.EmergencyAccess.parameters.Users
-    $EAGroup = $Parameters.StepParameterSet.EmergencyAccess.parameters.EAGroup | ConvertTo-Json
-    $EAAU = $Parameters.StepParameterSet.EmergencyAccess.parameters.AdministrativeUnit | ConvertTo-Json
+    $EAGroup = $Parameters.StepParameterSet.EmergencyAccess.parameters.EAGroup
+    $EAAU = $Parameters.StepParameterSet.EmergencyAccess.parameters.AdministrativeUnit
 
     #Create Emergency Access Accounts
     $EAAccountObjects = @()
@@ -522,12 +525,20 @@ if ($EmergencyAccess -or $All) {
     }
 
     #Create the Admin Unit
-    Write-Host -ForegroundColor Yellow "Creating Emergency Access Account AU"
-    $EAAUObj = New-MgAdministrativeUnit -BodyParameter $EAAU
+    $EAAUObj = New-MLZAdminUnit -BodyParameter $EAAU
 
     #Create Emergency Access Accounts group
-    Write-Host -ForegroundColor Yellow "Creating Emergency Access Security Group"
-    $EAGroupObj = New-MgGroup -BodyParameter $EAGroup
+    Try {
+        $EAGroupObj = Get-MgGroup -Filter "displayName eq `'$($EAGroup.displayName)`'"
+    } Catch {}
+
+    if ($EAGroupObj) {
+        Write-Host "Group `"$($EAGroup.displayName)`" already exists."
+    } else {
+        write-host -ForegroundColor Yellow "Creating new group $($EAGroup.displayName)."
+        $EAGroupObj = New-MgGroup -BodyParameter $($EAGroup | ConvertTo-Json)
+    }
+    
 
     #Add users to the group and AU
     $params = Build-MemberberArrayParams -members $EAAccountObjects.Id -MSGraphURI $MSGraphURI -objectType "users"
@@ -640,6 +651,7 @@ if ($NamedAccounts -or $All) {
 if ($AuthNMethods -or $All) {
     Import-Module Microsoft.Graph.Identity.SignIns
     Connect-MgGraph -Scopes Policy.ReadWrite.AuthenticationMethod
+    #Select-MgProfile beta
     $AuthNMethodsConfiguration = $Parameters.StepParameterSet.AuthNMethods.parameters.AuthenticationMethodsConfigurations
 
     #Turn on FIDO2
