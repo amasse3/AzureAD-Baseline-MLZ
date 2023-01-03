@@ -1,7 +1,7 @@
 #Configure-AADTenantBaseline.ps1
 #
-# Version: 0.2 Testing
-# LastModified: 12/29/2022
+# Version: 0.3 Testing
+# LastModified: 01/03/2023
 #
 # Warning: Sample scripts in this repository are not supported under any Microsoft support program or service. 
 # Scripts are provided AS IS without warranty of any kind. All warranties including, without limitation, any 
@@ -100,6 +100,8 @@ if (!$(Test-Path $ParametersJson)) {
     Write-Host "Loading parameters from $ParametersJson..."
     $Parameters = $(Get-Content $ParametersJson) | ConvertFrom-Json
 }
+
+#endregion
 
 #region functions
 function New-TempPassword {
@@ -537,55 +539,87 @@ if ($EmergencyAccess -or $All) {
     } else {
         write-host -ForegroundColor Yellow "Creating new group $($EAGroup.displayName)."
         $EAGroupObj = New-MgGroup -BodyParameter $($EAGroup | ConvertTo-Json)
+        Write-Host "waiting for group creation before continuing."
+        Start-Sleep -Seconds 10
     }
     
 
     #Add users to the group and AU
     $params = Build-MemberberArrayParams -members $EAAccountObjects.Id -MSGraphURI $MSGraphURI -objectType "users"
 
-    Update-MgAdministrativeUnit -AdministrativeUnitId $EAAUObj.Id -BodyParameter $params
-    Update-MgGroup -GroupId $EAGroupObj.Id -BodyParameter $params
+    Try {
+        Update-MgAdministrativeUnit -AdministrativeUnitId $EAAUObj.Id -BodyParameter $params -ErrorAction Stop
+    } Catch [Exception] {
+        Write-Host "Member already added. Skipping."
+    }
+
+    Try {
+        Update-MgGroup -GroupId $EAGroupObj.Id -BodyParameter $params -ErrorAction Stop
+    } Catch [Exception] {
+        Write-Host "Member already added. Skipping."
+    }
 
     #Assign licenses to the group
-    Set-MgGroupLicense -GroupId $EAGroupObj.Id -BodyParameter $License
+    Try {
+        Write-Host -ForegroundColor Yellow "Assigning licenses to $($EAGroupObj.Id)."
+        Set-MgGroupLicense -GroupId $EAGroupObj.Id -BodyParameter $License -ErrorAction Stop
+    } Catch [Exception] {
+        Write-Host "Licenses already applied for group. Skipping."
+    }
 
     #Assign Global Admin role
     $GARoleObj = Get-MgRoleManagementDirectoryRoleDefinition -UnifiedRoleDefinitionId "62e90394-69f5-4237-9190-012177145e10"
 
     if ($Parameters.StepParameterSet.EmergencyAccess.parameters.PIM.permanentActiveAssignment) {
-        Write-Host -ForegroundColor Yellow "Adding permanent active assignment for Global Administrator role"
-        $params = @{
-	        Action = "adminAssign"
-	        Justification = "Add permanent assignment for Emergency Access accounts."
-	        RoleDefinitionId = $GARoleObj.Id
-	        DirectoryScopeId = "/"
-	        PrincipalId = $EAGroupObj.Id
-	        ScheduleInfo = @{
-		        StartDateTime = Get-Date
-		        Expiration = @{
-			        Type = "NoExpiration"
-		        }
-	        }
+        Try {
+            $obj = Get-MgRoleManagementDirectoryRoleAssignmentScheduleRequest -Filter "PrincipalId eq `'$($EAGroupObj.Id)`'"
+        } Catch {}
+        
+        if ($obj) {
+            Write-Host "Global Admin assignment already exists for $($EAGroupObj.displayname)."
+        } else {
+            Write-Host -ForegroundColor Yellow "Adding permanent active assignment for Global Administrator role."
+            $params = @{
+	            Action = "adminAssign"
+	            Justification = "Add permanent assignment for Emergency Access accounts."
+	            RoleDefinitionId = $GARoleObj.Id
+	            DirectoryScopeId = "/"
+	            PrincipalId = $EAGroupObj.Id
+	            ScheduleInfo = @{
+		            StartDateTime = Get-Date
+		            Expiration = @{
+			            Type = "NoExpiration"
+		            }
+	            }
+            }
+            New-MgRoleManagementDirectoryRoleAssignmentScheduleRequest -BodyParameter $params
         }
-
-        New-MgRoleManagementDirectoryRoleAssignmentScheduleRequest -BodyParameter $params
+        
     } else {
-        Write-Host -ForegroundColor Yellow "Adding permanent eligibility for Global Administrator role"
-        $params = @{
-            "PrincipalId" = $EAGroupObj.Id
-            "RoleDefinitionId" = $GARoleObj.Id
-            "Justification" = "Add permanent assignment for Emergency Access accounts."
-            "DirectoryScopeId" = "/"
-            "Action" = "AdminAssign"
-            "ScheduleInfo" = @{
-                "StartDateTime" = Get-Date
-                "Expiration" = @{
-                    "Type" = "NoExpiration"
+        Try {
+            $req = Get-MgRoleManagementDirectoryRoleEligibilityScheduleRequest -Filter "PrincipalId eq `'$($EAGroupObj.Id)`'"
+        } Catch {}
+
+        if ($req) {
+            Write-Host "Global Admin eligibility already exists for $($EAGroupObj.displayname)."
+        } else {
+            $params = @{
+            PrincipalId = $EAGroupObj.Id
+            RoleDefinitionId = $GARoleObj.Id
+            Justification = "Add permanent assignment for Emergency Access accounts."
+            DirectoryScopeId = "/"
+            Action = "AdminAssign"
+            ScheduleInfo = @{
+                StartDateTime = Get-Date
+                Expiration = @{
+                    Type = "NoExpiration"
                 }
             }
         }
+            Write-Host -ForegroundColor Yellow "Adding permanent eligibility for Global Administrator role"
+            New-MgRoleManagementDirectoryRoleEligibilityScheduleRequest -BodyParameter $params
 
-        New-MgRoleManagementDirectoryRoleEligibilityScheduleRequest -BodyParameter $params
+        }
     }
 
     Write-Host -ForegroundColor Green "Completed creating EA accounts."
@@ -871,8 +905,8 @@ if ($PIM -or $All) {
 if ($ConditionalAccess -or $All) {
     Write-Host -ForegroundColor Cyan "Configuring Conditional Access Policies for MLZ Baseline."
 
-    Connect-MgGraph -Scopes 'Application.Read.All', 'Policy.Read.All', 'Policy.ReadWrite.ConditionalAccess'
-    #$CAPolicies = $Parameters.StepParameterSet.ConditionalAccess.parameters
+    Connect-MgGraph -Scopes 'Application.Read.All','Policy.Read.All','Policy.ReadWrite.ConditionalAccess'
+    Select-MgProfile beta
 
     #get current user
     $CurrentUserID = $(Get-MgUser -Filter "UserPrincipalName eq `'$($(Get-MgContext).Account)`'").Id
@@ -940,6 +974,7 @@ if ($TenantPolicies -or $All) {
     Write-host -ForegroundColor Cyan "Updating Admin Consent Polices"
     
     $ConsentSettings = Get-MgDirectorySetting | Where-Object{$_.DisplayName -eq "Consent Policy Settings"}
+    
     #set params
     $params = @{
         Values = @(
@@ -961,7 +996,13 @@ if ($TenantPolicies -or $All) {
             }
         )
     }
-    Update-MgDirectorySetting -DirectorySettingId $ConsentSettings.Id  -BodyParameter $params #>
+
+    if (!$ConsentSettings) {
+        $TemplateId = $(Get-MgDirectorySettingTemplate | Where-Object {$_.DisplayName -eq "Consent Policy Settings"}).Id
+        New-MgDirectorySetting -TemplateId $TemplateId -Values $params.Values -DisplayName "Consent Policy Settings"
+    } else {
+        Update-MgDirectorySetting -DirectorySettingId $ConsentSettings.Id  -BodyParameter $params #>
+    }
 
     Write-Host -ForegroundColor Cyan "Updating Cross-Tenant Access Policy Default Inbound Settings"
     $params = @{
@@ -1011,4 +1052,6 @@ if ($EntitlementsManagement -or $All) {
 }
 #endregion
 
-Write-Host -ForegroundColor Green "Completed AAD Tenant Baseline Script"
+if ($all) {
+    Write-Host -ForegroundColor Green "Completed AAD Tenant Baseline Script"
+}
