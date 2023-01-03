@@ -998,6 +998,7 @@ if ($TenantPolicies -or $All) {
     }
 
     if (!$ConsentSettings) {
+        #create the new setting if there is not one existing
         $TemplateId = $(Get-MgDirectorySettingTemplate | Where-Object {$_.DisplayName -eq "Consent Policy Settings"}).Id
         New-MgDirectorySetting -TemplateId $TemplateId -Values $params.Values -DisplayName "Consent Policy Settings"
     } else {
