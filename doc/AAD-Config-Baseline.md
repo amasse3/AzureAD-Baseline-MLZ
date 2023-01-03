@@ -56,7 +56,9 @@ Each section in [Scripted Configuration](#scripted-configuration) is broken down
 - Configuration Steps
 - Related recommendations and references
 
-Steps using the baseline script will include the 🗒️ emoji for easy identification.
+🗒️Modify Configuration: Steps for manually editing parameter or configuration files use 🗒️.
+
+⚙️ Run the script: Steps for running the configuration step use Steps use ⚙️.
 
 To simplify navigation, detailed content for each section is hidden by default. Use the **Show Content** buttons to display this information.
 <details><summary><b>Show Content</b></summary>
@@ -155,7 +157,7 @@ This section outlines the preliminary activities for configuring a new Azure AD 
 ## Preparation Checklist
 - [ ] [1. Review the MLZ Deployment Patterns](#1-review-the-mlz-deployment-patterns)
 - [ ] [2. Prepare a secure workstation for managing Azure AD](#2-prepare-a-secure-workstation-for-managing-azure-ad)
-- [ ] [3. 🗒️ Run the script: PSTools](#3-🗒️-run-the-script-pstools)
+- [ ] [3. ⚙️ Run the script: PSTools](#3-⚙️-run-the-script-pstools)
 - [ ] [4. Connect to Azure AD with MS Graph PowerShell](#4-connect-to-azure-ad-with-microsoft-graph-powershell)
 - [ ] [5. Bookmark useful URLs](#5-bookmark-useful-urls)
 - [ ] [6. Create and the first Global Administrator](#6-create-the-first-global-administrator)
@@ -175,7 +177,7 @@ There are several client tools for managing Azure AD configuration. Make sure yo
 
 > 📘 **Reference**: [Privileged Access Devices](https://docs.microsoft.com/en-us/security/compass/privileged-access-devices)
 
-### 3. 🗒️ Run the script: PSTools
+### 3. ⚙️ Run the script: PSTools
 Install the PowerShell modules by running:
 ```PowerShell
 Configure-AADTenantBaseline.ps1 -PSTools`
@@ -287,7 +289,7 @@ The document layout matches each section in the PowerShell script.
 Administrative Units allow for scoping Azure AD privileges to certain resources. This section sets a baseline framework for delegated management in Azure AD. Once applied, the baseline will allow each Mission to manage their own users and RBAC groups for assigning access to resources in their own Azure subscription.
 
  - [ ] [🗒️ Modify AdminUnits parameters](#🗒️-modify-adminunits-parameters)
- - [ ] [🗒️ Run the script: AdminUnits](#🗒️-run-the-script-adminunits))
+ - [ ] [⚙️ Run the script: AdminUnits](#⚙️-run-the-script-adminunits))
 
 <details><summary><b>Show Content</b></summary>
 <p>
@@ -297,7 +299,7 @@ In `mlz-aad-parameters.json`, modify the array in `GlobalParameterSet.MissionAUs
 
 Some Administrative Units are created for other sections of the configuration script. These are `MLZ Core Users and Groups` which gets created in addition to the set specifified in `MissionAUs` parameter, and `MLZ EA`, which is a restricted Administrative Unit containing the accounts created in the [emergency access](#emergency-access) section.
 
-### 🗒️ Run the script: AdminUnits
+### ⚙️ Run the script: AdminUnits
 Run the script to create Administrative Units.
 `Configure-AADTenantBaseline.ps1 -AdminUnits`
 
@@ -319,15 +321,16 @@ One of the first things we need to do is create Emergency Access Accounts. These
 
 This section covers account creation for Emergency Access and day-to-day Azure AD administration.
 
-- [ ] [Develop emergency access procedures](#1-develop-emergency-access-procedures)
-- [ ] [Plan for monitoring and alerting emergency access account usage](#2-plan-for-monitoring-and-alerting-on-emergency-access-account-usage)
-- [ ] [🗒️ Run the script: EmergencyAccess](#3-🗒️-run-the-script-emergencyaccess)
+- [ ] [Develop emergency access procedures](#develop-emergency-access-procedures)
+- [ ] [Plan for monitoring and alerting emergency access account usage](#plan-for-monitoring-and-alerting-on-emergency-access-account-usage)
+- [ ] [🗒️ Modify EmergencyAccess parameters](#🗒️-modify-emergencyaccess-parameters)
+- [ ] [⚙️ Run the script: EmergencyAccess](#3-⚙️-run-the-script-emergencyaccess)
 - [ ] [Complete setup for emergency access accounts](#4-complete-setup-for-emergency-access-accounts)
 
 <details><summary><b>Show Content</b></summary>
 <p>
 
-### 1. Develop Emergency Access procedures
+### Develop Emergency Access procedures
 Creating and safeguarding emergency access account credentials is an important step in Azure AD tenant setup. Establishing, disseminating, and testing emergency procedures is equally important.
 
 > **Note**: Consult your Information Systems Security Officer (ISSO) for proper handling procedures for Emergency Access accounts.
@@ -345,7 +348,7 @@ Creating and safeguarding emergency access account credentials is an important s
 
 > 📘 **Reference**: [Manage Emergency Access Accounts in Azure AD](https://docs.microsoft.com/en-us/azure/active-directory/roles/security-emergency-access)
 
-### 2. Plan for monitoring and alerting on emergency access account usage
+### Plan for monitoring and alerting on emergency access account usage
 Azure AD logs must be connected to the Microsoft SIEM, Sentinel, to set up automated alerting based on Emergency Access Account usage.
 
 > **Warning**: Remember to revisit these steps once Mission Landing Zone is deployed and Microsoft Sentinel is enabled.
@@ -353,7 +356,10 @@ Azure AD logs must be connected to the Microsoft SIEM, Sentinel, to set up autom
 1. [Connect Azure AD Sign-In Logs to Microsoft Sentinel](https://docs.microsoft.com/en-us/azure/sentinel/connect-azure-active-directory)
 2. [Configure an Analytics Rule to alert when Emergency Access account is used](https://docs.microsoft.com/en-us/azure/active-directory/roles/security-emergency-access#monitor-sign-in-and-audit-logs)
 
-### 3. 🗒️ Run the script: EmergencyAccess
+### 🗒️ Modify EmergencyAccess parameters
+In `mlz-aad-parameters.json`, modify the configuration for `StepParameterSet.EmergencyAccess.Users` as needed. For example, you may want to modify the PhoneNumber attribute.
+
+### ⚙️ Run the script: EmergencyAccess
 Run the script to create Emergency Access accounts in Azure AD:
 
 ```PowerShell
@@ -366,7 +372,7 @@ The script will:
 3. Permanently assign `Global Administrator` role using Privileged Identity Management.
 4. Apply licenses for AAD Premium P2 / E5.
 
-### 4. Complete setup for Emergency Access accounts
+### Complete setup for Emergency Access accounts
 Perform the following manual steps to complete the configuration:
 1. Using the first admin account, reset the password on the newly created EA accounts using the Azure Portal.
 2. Sign in with each account and reset the password (see recommendations in the next section).
@@ -382,7 +388,7 @@ Perform the following manual steps to complete the configuration:
 This step will create "named" administrator accounts. These are cloud-only Azure AD users mapped to individual administrators in the organization. Attributes should align to real people to assist in assigning least-privilege permissions and correlating admin activities.
 
 - [ ] [🗒️ Create a named admin list CSV](#🗒️-create-named-admin-list-csv-file)
-- [ ] [🗒️ Run the script: NamedAccounts](#🗒️-run-the-script-namedaccounts)
+- [ ] [⚙️ Run the script: NamedAccounts](#⚙️-run-the-script-namedaccounts)
 - [ ] [Complete setup for named administrator acccounts](#complete-setup-for-named-administrator-accounts)
 
 <details><summary><b>Show Content</b></summary>
@@ -439,7 +445,7 @@ foreach ($row in $CSV) {
 #Optional: use Export-Csv to write the new values back to CSV.
 ```
 
-### 🗒️ Run the script: NamedAccounts
+### ⚙️ Run the script: NamedAccounts
 Run the script to create named administrator accounts in Azure AD:
 
 ```PowerShell
@@ -505,14 +511,14 @@ Complete setup for the named administrator accounts:
 ## Authentication Methods
 Azure AD authenticaton methods allow an administrator to configure how users can authenticate to Azure AD.
 
-- [ ] [🗒️ Run the script: AuthNMethods](#🗒️-run-the-script-authnmethods)
+- [ ] [⚙️ Run the script: AuthNMethods](#⚙️-run-the-script-authnmethods)
 
 > 📘 **Reference**: [What authentication verification methods are available in Azure AD](https://docs.microsoft.com/en-us/azure/active-directory/authentication/concept-authentication-methods)
 
 <details><summary><b>Show Content</b></summary>
 <p>
 
-### 🗒️ Run the script: AuthNMethods
+### ⚙️ Run the script: AuthNMethods
 Run the script to configure authentication methods:
 
 ```PowerShell
@@ -555,7 +561,7 @@ Sign in to the Azure Portal and verify these Authentication methods are not enab
 Use this set of Azure AD Security Groups and RBAC role assignments as a baseline.
 - [ ] [Azure Resource RBAC](#1-azure-resource-rbac)
 - [ ] [Azure AD Directory Roles](#2-azure-ad-directory-roles)
-- [ ] [🗒️ Run the script: Groups](#3-🗒️-run-the-script-groups)
+- [ ] [⚙️ Run the script: Groups](#3-⚙️-run-the-script-groups)
 
 <details><summary><b>Show Content</b></summary>
 <p>
@@ -612,7 +618,7 @@ The following role-assignable groups are used in the AAD Configuration Baseline:
 
 > **Note**: These security group and role assignments represent baseline configuration. Modify with additional roles as needed, starting with built-in roles when possible.
 
-### 3. 🗒️ Run the script: Groups
+### 3. ⚙️ Run the script: Groups
 Run the script below to create Azure AD security groups:
 
 ```PowerShell
@@ -636,10 +642,10 @@ We enabled PIM when we signed in with the first AADP2-licensed Global Administra
 
 This section assigns the groups created in the [previous section](#3-🗒️-run-the-script-groups) to Azure and AAD roles using PIM:
 
-- [ ] [🗒️ Run the script: PIM](#1-🗒️-run-the-script-pim)
+- [ ] [⚙️ Run the script: PIM](#1-⚙️-run-the-script-pim)
 - [ ] [Review Securing Privileged Access in Azure AD](#2-review-securing-privileged-access-in-azure-ad)
 
-### 1. 🗒️ Run the script: PIM
+### 1. ⚙️ Run the script: PIM
 Run the script below to configure PIM:
 
 ```PowerShell
@@ -687,7 +693,7 @@ Conditional Access is the main component that makes Azure AD an effective and we
 
 This section enables key recommended access policies for all apps protected by Azure AD. This includes the Azure portal, Microsoft Graph, Azure Resource Manager, M365 applications, and any future applications integrated with Azure AD.
 
-- [🗒️ Run the script: ConditionalAccess](#🗒️-run-the-script-conditionalaccess)
+- [⚙️ Run the script: ConditionalAccess](#⚙️-run-the-script-conditionalaccess)
   - [Azure AD Free only - turn on security defaults](#azure-ad-free---turn-on-security-defaults)
   - [Azure AD P2 - CA Policies for MLZ](#azure-ad-premium-p2---create-conditional-access-policies-for-mlz)
 - [Review and enable the policies](#review-and-enable-the-policies)
@@ -695,7 +701,7 @@ This section enables key recommended access policies for all apps protected by A
 <details><summary><b>Show Content</b></summary>
 <p>
 
-### 🗒️ Run the script: ConditionalAccess
+### ⚙️ Run the script: ConditionalAccess
 Run the script below to configure Conditional Access Policies:
 
 ```PowerShell
@@ -743,7 +749,7 @@ Sign in to the Azure Portal as an administrator and review the created policies.
 ## Tenant Policies
 This section contains basic tenant-level settings applicable to all Azure AD versions. The MLZ baseline AAD script will set these configuration items according to the defaults outlined in each section. This configuration can be changed at any time. The baseline settings represent a starting point, and may not be functional for certain scenarios. For example, tenants that will be accessed by guests from another tenant must set the External Collaboration settings accordingly. The baseline offers a most restrictive experience, which turns off these collaboration features.
 
-- [ ] [🗒️ Run the script: TenantPolicies](#🗒️-run-the-script-tenantpolicies)
+- [ ] [⚙️ Run the script: TenantPolicies](#⚙️-run-the-script-tenantpolicies)
 - [ ] [User Settings](#user-settings)
 - [ ] [Group Settings](#group-settings)
 - [ ] [External Collaboration Settings](#external-collaboration-settings)
@@ -751,7 +757,7 @@ This section contains basic tenant-level settings applicable to all Azure AD ver
 <details><summary><b>Show Content</b></summary>
 <p>
 
-### 🗒️ Run the script: TenantPolicies
+### ⚙️ Run the script: TenantPolicies
 Run the script below to configure user, group, collaboration settings:
 
 ```PowerShell
@@ -806,11 +812,11 @@ MLZ AAD baseline will set the following inbound XTAP Settings:
 ## Entitlements Management
 Entitlements Management adds governance to access granted by Azure AD. Through Access Packages, a delegated administrator can assign eligibility and approve requests for activating entitlements.
 
-- [ ] [🗒️ Run the script: EntitlementsManagement](#🗒️-run-the-script-entitlementsmanagement)
+- [ ] [⚙️ Run the script: EntitlementsManagement](#🗒️-run-the-script-entitlementsmanagement)
 <details><summary><b>Show Content</b></summary>
 <p>
 
-### 🗒️ Run the script: EntitlementsManagement
+### ⚙️ Run the script: EntitlementsManagement
 Run the script below to configure user, group, collaboration settings:
 
 ```PowerShell
