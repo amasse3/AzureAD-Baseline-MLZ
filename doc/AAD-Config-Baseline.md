@@ -180,7 +180,7 @@ There are several client tools for managing Azure AD configuration. Make sure yo
 ### 3. ⚙️ Run the script: PSTools
 Install the PowerShell modules by running:
 ```PowerShell
-Configure-AADTenantBaseline.ps1 -PSTools`
+Configure-AADTenantBaseline.ps1 -PSTools
 ```
 The script will:
 1. Install MS Graph PowerShell
@@ -363,7 +363,7 @@ In `mlz-aad-parameters.json`, modify the configuration for `StepParameterSet.Eme
 Run the script to create Emergency Access accounts in Azure AD:
 
 ```PowerShell
-Configure-AADTenantBaseline.ps1 -EmergencyAccess`
+Configure-AADTenantBaseline.ps1 -EmergencyAccess
 ```
 
 The script will:
@@ -449,7 +449,7 @@ foreach ($row in $CSV) {
 Run the script to create named administrator accounts in Azure AD:
 
 ```PowerShell
-Configure-AADTenantBaseline.ps1 -NamedAccounts`
+Configure-AADTenantBaseline.ps1 -NamedAccounts
 ```
 
 The script will:
@@ -522,7 +522,7 @@ Azure AD authenticaton methods allow an administrator to configure how users can
 Run the script to configure authentication methods:
 
 ```PowerShell
-Configure-AADTenantBaseline.ps1 -AuthNMethods`
+Configure-AADTenantBaseline.ps1 -AuthNMethods
 ```
 The sections below describe the methods enabled. Additionally, weak methods like Software OAuth, SMS, and Email will be disabled.
 
@@ -553,6 +553,70 @@ The deployment script will attempt to disable the following Authentication Metho
 - Sms
 
 Sign in to the Azure Portal and verify these Authentication methods are not enabled by navigating to Azure Active Directory --> Security --> Authentication Methods.
+
+</p>
+</details>
+
+## Certificates
+This section uploads certificates for Azure AD certificate-based authentication.
+
+ - [ ] [🗒️Create certificate JSON file]
+ - [ ] [🗒️Modify the parameters JSON file]
+ - [ ] [⚙️ Run the script: Certificates]
+
+<details><summary><b>Show Content</b></summary>
+<p>
+
+### 🗒️Create certificate JSON file
+The sample file, [DODPKI.json](/src/DODPKI.json), contains the ID CA certificates and roots for the DOD PKI. This PKI is used by DOD Common Access Cards. For step-by-step guidance to manually configure DOD CAC, see [AAD-CertificateBasedAuthentication-DODPKI](/doc/AAD-CertificateBasedAuthentication-DODPKI.md).
+
+To make your own JSON file, get the string-formatted Raw Data for each certificate using `GetRawCertDataString()` method in PowerShell and create a JSON object with the following format:
+
+```JSON
+[
+  {
+    "Subject": "Subject of Certificate",
+    "RawData": "<contents from GetRawCertDataString()>",
+    "Authority": 1,
+    "CRL": "http://location/crl/file.crl"
+  }
+]
+```
+
+where "Authority" is **0** for root CA and **1** for issuing CA. If the root CA is the issuing CA, use **0**. To add multiple certificate elements to the array, include a comma between each. 
+
+```JSON
+[
+  {
+    "Subject": "Issuing CA 01",
+    "RawData": "<contents from GetRawCertDataString()>",
+    "Authority": 1,
+    "CRL": "http://location/crl/issuing1.crl"
+  },
+  {
+    "Subject": "Root CA 01",
+    "RawData": "<contents from GetRawCertDataString()>",
+    "Authority": 0,
+    "CRL": "http://location/crl/root1.crl"
+  }
+]
+```
+
+### 🗒️Modify the parameters JSON file
+Modify `mlz-aad-parameters.json`, updating `StepParameterSet.Certificates.CertJsonRelativePath`. By default, this will point to "DODPKI.json".
+
+### ⚙️ Run the script: Certificates
+Run the script below to create certficate authorities configuration in Azure AD:
+
+```PowerShell
+Configure-AADTenantBaseline.ps1 -Certificates
+```
+The script will:
+1. Connect to Azure AD using the AzureAD PowerShell module
+2. Load certificate details from the JSON file
+3. Create new Certificate Authority objects in Azure AD 
+
+> 📘 **Reference**: [Configure certification authorities using PowerShell](https://learn.microsoft.com/en-us/azure/active-directory/authentication/how-to-certificate-based-authentication#configure-certification-authorities-using-powershell)
 
 </p>
 </details>
@@ -622,7 +686,7 @@ The following role-assignable groups are used in the AAD Configuration Baseline:
 Run the script below to create Azure AD security groups:
 
 ```PowerShell
-Configure-AADTenantBaseline.ps1 -Groups`
+Configure-AADTenantBaseline.ps1 -Groups
 ```
 
 The script will:
@@ -649,7 +713,7 @@ This section assigns the groups created in the [previous section](#3-🗒️-run
 Run the script below to configure PIM:
 
 ```PowerShell
-Configure-AADTenantBaseline.ps1 -PIM`
+Configure-AADTenantBaseline.ps1 -PIM
 ```
 The script will:
 1. Find Role Templates for all roles defined in `mlz-aad-parameters.json`
@@ -705,7 +769,7 @@ This section enables key recommended access policies for all apps protected by A
 Run the script below to configure Conditional Access Policies:
 
 ```PowerShell
-Configure-AADTenantBaseline.ps1 -ConditionalAccess`
+Configure-AADTenantBaseline.ps1 -ConditionalAccess
 ```
 
 The baseline script will configure CA policies in the section below: [Azure AD P2 - CA Policies for MLZ](#azure-ad-premium-p2---create-conditional-access-policies-for-mlz)
@@ -761,7 +825,7 @@ This section contains basic tenant-level settings applicable to all Azure AD ver
 Run the script below to configure user, group, collaboration settings:
 
 ```PowerShell
-Configure-AADTenantBaseline.ps1 -TenantPolicies`
+Configure-AADTenantBaseline.ps1 -TenantPolicies
 ```
 The settings applied by the baseline are outlined below.
 
@@ -820,7 +884,7 @@ Entitlements Management adds governance to access granted by Azure AD. Through A
 Run the script below to configure user, group, collaboration settings:
 
 ```PowerShell
-Configure-AADTenantBaseline.ps1 -EntitlementsManagement`
+Configure-AADTenantBaseline.ps1 -EntitlementsManagement
 ```
 Every organization is different, so the deployment script simply defines Access Package Catalogs for each Mission. 
 

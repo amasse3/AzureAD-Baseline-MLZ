@@ -1,7 +1,7 @@
 #Configure-AADTenantBaseline.ps1
 #
-# Version: 0.3 Testing
-# LastModified: 01/03/2023
+# Version: 0.4 Testing
+# LastModified: 01/09/2023
 #
 # Warning: Sample scripts in this repository are not supported under any Microsoft support program or service. 
 # Scripts are provided AS IS without warranty of any kind. All warranties including, without limitation, any 
@@ -57,6 +57,8 @@ Param(
     [Switch]$NamedAccounts,
     [Parameter(Mandatory=$false)]
     [Switch]$AuthNMethods,
+    [Parameter(Mandatory=$false)]
+    [Switch]$Certificates,
     [Parameter(Mandatory=$false)]
     [Switch]$Groups,
     [Parameter(Mandatory=$false)]
@@ -444,6 +446,32 @@ function New-MLZAccessPackageCatalog {
         New-MgEntitlementManagementAccessPackageCatalog -BodyParameter $BodyParameter
     }
 }
+
+function Convert-HexStringToByteArray {
+    [CmdletBinding()]Param(
+    [Parameter(Mandatory = $True, ValueFromPipeline = $True)]
+    [String]$String)
+ 
+    #Clean string
+    #$String = $String.ToLower() -replace "[^a-f0-9\\,x\-\:]",""
+    #$String = $String -replace "0x|\x|\-|,",":"
+    #$String = $String -replace "^:+|:+$|x|\",""
+ 
+    #Convert the rest
+    if ($String.Length -eq 0) {,@() ; return}
+ 
+    #Split string with or without colon delimiters.
+    if ($String.Length -eq 1) {
+        ,@([System.Convert]::ToByte($String,16))
+    } elseif (($String.Length % 2 -eq 0) -and ($String.IndexOf(":") -eq -1)) {
+        ,@($String -split '([a-f0-9]{2})' | foreach-object {
+            if ($_) {[System.Convert]::ToByte($_,16)}
+        })
+    } elseif ($String.IndexOf(":") -ne -1) {
+        ,@($String -split ':+' | foreach-object {[System.Convert]::ToByte($_,16)})
+    }
+    else {,@()}
+}
 #endregion
 
 #region parameters
@@ -801,6 +829,37 @@ if ($AuthNMethods -or $All) {
     Write-Host -ForegroundColor Green "Completed Authentication Methods configuration."
 }
 
+#endregion
+
+#region Certificates
+if ($Certificates -or $All) {
+    if ($Environment -eq "USGov" -or $Environment -eq "USGovDOD") {
+        $AADEnvironment = "AzureUSGovernment"
+    } elseif ($Environment -eq "Global") {
+        $AADEnvironment = "AzureCloud"
+    }
+    Connect-AzureAD -AzureEnvironmentName $AADEnvironment
+
+    $CertConfigPath = $Parameters.StepParameterSet.Certificates.parameters.CertJsonRelativePath
+    $DisableCrlCheck = $Parameters.StepParameterSet.Certificates.parameters.DisableCrlCheck
+    $CertConfig = Get-Content $CertConfigPath | ConvertFrom-Json
+
+    Write-host "Uploading certificates to the tenant." -ForegroundColor Cyan
+    foreach ($cert in $Certconfig) {
+        $new_ca=New-Object -TypeName Microsoft.Open.AzureAD.Model.CertificateAuthorityInformation
+        $new_ca.AuthorityType=$($cert.authority)
+        $new_ca.TrustedCertificate=$(Convert-HexStringToByteArray -String $cert.RawData)
+        if ($DisableCrlCheck) {
+            $new_ca.crlDistributionPoint=''
+        } else {
+            $new_ca.crlDistributionPoint=$($cert.crl)
+        }
+        
+        New-AzureADTrustedCertificateAuthority -CertificateAuthorityInformation $new_ca
+    }
+
+    Write-Host -ForegroundColor Green "Completed Certificate configuration."
+}
 #endregion
 
 #region Groups

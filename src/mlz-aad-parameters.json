@@ -194,9 +194,13 @@
                 }
             }
         },
-        "CBA": {
-            "description": "Configures CBA for DOD CAC",
-            "comments": "This could include the exact CBA configuration and certificates for DOD PKI. Need ability to upload certificates via MS Graph PowerShell."
+        "Certificates": {
+            "description": "Configures PKICertificates",
+            "comments": "uses AAD Preview module",
+            "parameters": {
+                "CertJsonRelativePath": "DODPKI.json",
+                "DisableCrlCheck": false
+            }
         },
         "Groups": {
             "description": "Creates RBAC groups for MLZ",
