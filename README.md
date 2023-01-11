@@ -21,7 +21,7 @@ Furthermore, this content is not intended to replace or contradict guidance prov
 
 Now that we have the warnings out of the way, we can get started with the MLZ identity add-on.  Use the links below to navigate the MLZ Identity Add-On components.
 
-## Main Content [Azure AD Configuration Baseline](doc/AAD-Config-Baseline.md)
+## Main Content: [Azure AD Configuration Baseline](doc/AAD-Config-Baseline.md)
 
 This page walks through steps to set up a new Azure AD tenant using a configuration baseline applied with Microsoft Graph PowerShell.
 
