@@ -1,9 +1,11 @@
 # Azure Active Directory Baseline Configuration for MLZ
-This document provides key steps for deploying and securing a new Azure Active Directory environments for Mission Landing Zone deployments using a settings file and Microsoft Graph PowerShell to apply the settings.
+This document provides key steps for deploying and securing a new Azure Active Directory environments using a JSON configuration parameters file and Microsoft Graph PowerShell.
 
-While the configuration was created for MLZ, sections of the script can be used for existing tenants or to test automated configuration in a non-production tenant. At minimum, the general approach to configuring the latest Azure AD features can be applied through a fully customized automated deployment using this configuration as a sample.
+Azure AD is constantly evolving, exposing new settings and enabling new security features. The settings baselined here are by no means an exhaustive list. At minimum, the recommendations and feature settings described here should be evaluated for implementation in existing tenants.
 
-It is **not** recommended to run through the configuration end-to-end in existing production tenants as the setting changes could disrupt access to the Azure environment.
+While much of this content and sample configuration was developed as an unofficial "add-on" for Mission Landing Zone deployments, the general approach using MS Graph and a declarative AAD configuration can be used to baseline any Azure AD tenant. Individual settings for each design area in the scripted configuration can be modified by adjusting the parameters file.
+
+> **Warning**: It is **not** recommended to run through the configuration end-to-end in existing production tenants as the setting changes could disrupt access to the Azure environment. For more information, see the disclaimer [here](/../MLZ-Identity-AzureADSetup/README.md).
 
 ## Table of Contents
 - [About the baseline configuration](#about-the-baseline-configuration)
@@ -16,6 +18,7 @@ It is **not** recommended to run through the configuration end-to-end in existin
   - [Emergency Access](#emergency-access)
   - [Named Accounts](#named-accounts)
   - [Authentication Methods](#authentication-methods)
+  - [Certificates](#certificates)
   - [Security Groups](#security-groups)
   - [Privileged Identity Management](#privileged-identity-management)
   - [Conditional Access](#conditional-access)
@@ -575,32 +578,53 @@ To make your own JSON file, get the string-formatted Raw Data for each certifica
 ```JSON
 [
   {
-    "Subject": "Subject of Certificate",
-    "RawData": "<contents from GetRawCertDataString()>",
-    "Authority": 1,
-    "CRL": "http://location/crl/file.crl"
+    "Subject":  "CN=Root CA 01, OU=PKI, O=Contoso, C=US",
+    "RawData":  "308203733082025B...00820122300D080AB720ECBE24851F2D43",
+    "Authority":  0,
+    "CRL":  "http://crl.contoso.com/crl/ROOTCA01.crl"
+  },
+  {
+    "Subject":  "CN=Issuing CA 01, OU=PKI, O=Contoso, C=US",
+    "RawData":  "308201EB30820281...806B64074C4565DF53AE1EDF143D2F5B7",
+    "Authority":  0,
+    "CRL":  "http://crl.contoso.com/crl/IDCA01.crl"
   }
 ]
 ```
 
 where "Authority" is **0** for root CA and **1** for issuing CA. If the root CA is the issuing CA, use **0**. To add multiple certificate elements to the array, include a comma between each. 
 
-```JSON
-[
-  {
-    "Subject": "Issuing CA 01",
-    "RawData": "<contents from GetRawCertDataString()>",
-    "Authority": 1,
-    "CRL": "http://location/crl/issuing1.crl"
-  },
-  {
-    "Subject": "Root CA 01",
-    "RawData": "<contents from GetRawCertDataString()>",
-    "Authority": 0,
-    "CRL": "http://location/crl/root1.crl"
-  }
-]
+<details><summary><b>Show Example Script</b></summary>
+<p>
+
+```PowerShell
+#set variables
+[string]$certificatePath = "Cert:\LocalMachine\My"
+[string]$thumbprint = "D26EE73D697340BA9C72851761DAE52D4A3C977C"
+[string]$outfile = $env:USERPROFILE + "\pkiconfig.json"
+[array]$certarray = @()
+
+#function
+function Create-CBAConfigJson {
+    Param([object]$cert,[bool]$root,[string]$crl)
+
+    if ($root) {$authority=0}else{$authority=1}
+    New-Object -TypeName PSObject -Property @{"Subject"=$cert.Subject;"RawData"=$cert.GetRawCertDataString();"Authority"=$authority;"CRL"=$crl}
+}
+
+#find the certificate objects
+$cert = Get-ChildItem -Path $certificatePath | ?{$_.Thumbprint -eq $thumbprint}
+$certjson = Create-CBAConfigJson -cert $cert -root $true -crl "http://test.contoso.com/crl" | ConvertTo-Json
+
+#add additional certs to an array, or convert a single json representation to array (expected by Configure-AADTenantBaseline.ps1)
+$certarray += $certjson
+
+#finally, export the file
+$certarray | Out-File -FilePath $outfile
 ```
+
+</p>
+</details>
 
 ### 🗒️Modify the parameters JSON file
 Modify `mlz-aad-parameters.json`, updating `StepParameterSet.Certificates.CertJsonRelativePath`. By default, this will point to "DODPKI.json".
@@ -877,6 +901,7 @@ MLZ AAD baseline will set the following inbound XTAP Settings:
 Entitlements Management adds governance to access granted by Azure AD. Through Access Packages, a delegated administrator can assign eligibility and approve requests for activating entitlements.
 
 - [ ] [⚙️ Run the script: EntitlementsManagement](#🗒️-run-the-script-entitlementsmanagement)
+
 <details><summary><b>Show Content</b></summary>
 <p>
 
@@ -896,8 +921,16 @@ Every organization is different, so the deployment script simply defines Access 
 # Post-Deployment
 This section contains manual configuration and next steps for getting started with Azure AD for Mission Landing Zone deployments.
 
-## Configure Certificate-Based Authentication
-The Azure AD Certificate-Based Authentication feature requires additional configuration:
+## Validate Certificate-Based Authentication
+Your Azure AD CBA configuration may differ from the baseline setup and should be validated. Make sure you set up the following:
+ - upload certificates and setting CRL location for issuing and root CAs
+   - upload root CA certifcates first
+ - ensure root CA certificates are set with authority 0 (or root via AAD Portal UI)
+ - verify the username binding
+   - for cloud-only accounts, use "[certificateUserIds](https://learn.microsoft.com/en-us/azure/active-directory/authentication/concept-certificate-based-authentication-certificateuserids)" attribute
+   - for DOD customers, use "X509:<PN>" pattern to map a CAC Principal Name to an Azure AD user
+ - verify the global setting for CBA is "multi-factor authentication"
+   - AAD CBA is a primary authentication method and cannot be used to "step up" other authentication methods, like password.
 
  - uploading certificates and CRL locations for issuing and root Certification Authorities for the user smartcard certificates.
  - setting the username binding
@@ -1093,7 +1126,9 @@ If Entitlements Management will be used, assign the delegate as owner of the Acc
 </details>
 
 # Zero Trust with Azure AD
-One of the first steps an organization can take in adopting zero trust principals is consolidating around a single cloud-based Identity as a Service (IdaaS) platform like Azure Active Directory. This section describes some next steps after establishing the tenant.
+One of the first steps an organization can take in adopting zero trust principals is consolidating around a single cloud-based Identity as a Service (IdaaS) platform like Azure Active Directory. 
+
+This section describes some next steps after establishing the tenant.
 
 - [ ] [Connect applications to Azure AD](#connect-applications-to-azure-ad)
 - [ ] [Use strong cloud-native authentication methods](#use-strong-authentication-methods)
