@@ -27,9 +27,9 @@ This page walks through steps to set up a new Azure AD tenant using a configurat
 
 Azure AD and cloud identity is critical to enabling zero trust outcomes. While configuring Azure AD is the first step, using and adopting it is far more important. For this reason, the second part of the baseline is dedicated to [Zero Trust with Azure AD](doc/AAD-Config-Baseline.md/#zero-trust-with-azure-ad).
 
-### Supporting Content
+### Supporting Content:
 
-#### [Common Deployment Patterns](/doc/MLZ-Common-Patterns.md)
+#### [Common Azure AD Deployment Patterns](/doc/MLZ-Common-Patterns.md)
 This page includes 3 common deployment types for MLZ customers, especially valuable for organizations with multiple Azure AD tenants.
 
 #### [Identity for MLZ Applications](doc/MLZ-Application-Identity.md)
