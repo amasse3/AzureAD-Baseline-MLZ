@@ -1197,11 +1197,19 @@ Azure AD Application Proxy is an on-premises agent and cloud service that [secur
 
 ### Protect APIs with Azure AD
 
-Placeholder APIM
+Develop web APIs that use Azure AD, leveraging the [Web API code samples](https://learn.microsoft.com/en-us/azure/active-directory/develop/sample-v2-code#web-api).
+
+API Management can protect existing APIs, even ones that don't use Azure AD, by adding OAuth 2.0 Authorization policy for API access.
+
+> 📘 **Reference**: [Protect an API in Azure API Management](https://learn.microsoft.com/en-us/azure/api-management/api-management-howto-protect-backend-with-aad)
 
 ### Use Defender for Cloud Apps
 
-Placeholder
+Defender for Cloud Apps is Microsoft's Cloud Access Security Broker service, part of M365 E5. This service can monitor and limit sessions to web applications, and flag risky OAuth apps.
+
+Defender for Cloud Apps integrates with Conditional Access to broker sessions to protected applications. Session restrictions can limit downloads for content matching defined policies. It can even stack with Azure AD Application Proxy (the session between client and AAD App Proxy Service is brokered with Defender for Cloud Apps) to protect web sessions with legacy on-premises applications.
+
+> 📘 **Reference**: [Defender for Cloud Apps](https://learn.microsoft.com/en-us/defender-cloud-apps/what-is-defender-for-cloud-apps)
 
 ## Use strong authentication methods
 Authentication Strengths is a feature that allows a tenant administrator to label authenticators (and combinations) according to the strength of the credential. Out-of-Box settings include:
@@ -1209,11 +1217,13 @@ Authentication Strengths is a feature that allows a tenant administrator to labe
 - Passwordless Multifactor Authentication
 - Phishing-Resistant MFA
 
-Additional strengths, like NIST Authenticator Assurance Levels, can be configured by an administrator.
+Additional strengths, like [NIST Authenticator Assurance Levels](https://learn.microsoft.com/en-us/azure/active-directory/standards/nist-overview), can be configured by an administrator. 
 
-> 📘 **Reference**: Configure Authentication Strength](https://learn.microsoft.com/en-us/azure/active-directory/authentication/concept-authentication-strengths)
+Organizations should strongly consider Authentication Strength (and its integration with [Cross-Tenant Access Policies](https://learn.microsoft.com/en-us/azure/active-directory/external-identities/cross-tenant-access-overview)) as they look to meet [requirements outlined in Memorandum 22-09](https://learn.microsoft.com/en-us/azure/active-directory/standards/memo-22-09-multi-factor-authentication).
 
 > 💡 **Recommendation**: Configure desired MFA strength for baseline access and update the 'All Users, All Apps, MFA' Conditional Access Policy to require Authentication Strength.
+
+> 📘 **Reference**: [Configure Authentication Strength](https://learn.microsoft.com/en-us/azure/active-directory/authentication/concept-authentication-strengths)
 
 ## Collaborate with Azure AD
 Azure AD makes it easy to collaborate with other organizations the also own Azure AD. This collaboration is facilitated by two complementary features:
