@@ -69,7 +69,7 @@ The script will:
 
 These Admin Units will be used to scope the directory role assignments in [Confiure Privileged Identity Management](#9-configure-privileged-identity-management-pim)
 
-> 📘 **Reference:** [Administrative units in Azure Active Directory](https://learn.microsoft.com/en-us/azure/active-directory/roles/administrative-units)
+> 📘 [Administrative units in Azure Active Directory](https://learn.microsoft.com/en-us/azure/active-directory/roles/administrative-units)
 
 </p>
 </details>
@@ -104,7 +104,7 @@ Creating and safeguarding emergency access account credentials is an important s
 > - [x] Register FIDO2 security keys as another authentication mechanism (2 per account), storing the keys and PIN in separate physical safes.
 > - [x] Be sure to check the latest Microsoft recommendation for managing emergency access from the reference below.
 
-> 📘 **Reference**: [Manage Emergency Access Accounts in Azure AD](https://docs.microsoft.com/en-us/azure/active-directory/roles/security-emergency-access)
+> 📘 [Manage Emergency Access Accounts in Azure AD](https://docs.microsoft.com/en-us/azure/active-directory/roles/security-emergency-access)
 
 ### Plan for monitoring and alerting on emergency access account usage
 Azure AD logs must be connected to the Microsoft SIEM, Sentinel, to set up automated alerting based on Emergency Access Account usage.
@@ -137,7 +137,7 @@ Perform the following manual steps to complete the configuration:
 3. Optional: register two (2) FIDO2 security keys for each account.
 3. Once passwords are set and stored in a secure location, sign out of the Azure Portal.
 
-> 📘 **Reference:** [Manage emergency access accounts in Azure AD](https://docs.microsoft.com/en-us/azure/active-directory/roles/security-emergency-access)
+> 📘 [Manage emergency access accounts in Azure AD](https://docs.microsoft.com/en-us/azure/active-directory/roles/security-emergency-access)
 
 </p>
 </details>
@@ -249,9 +249,8 @@ Passwordless, but not phishing-resistant. This required registration of an iOS o
 
 > **Note**: Microsoft Authenticator App is considered phishing-resistant when deployed to a managed mobile device. Since this guide is for setting up a new tenant, it assumes Microsoft Endpoint Manager is not configured to manage mobile devices.
 
-> 📘 **Reference**: 
-> - [Authentication methods in Azure AD](https://learn.microsoft.com/en-us/azure/active-directory/authentication/concept-authentication-methods)
-> - [Phishing-resistant methods](https://docs.microsoft.com/en-us/azure/active-directory/standards/memo-22-09-multi-factor-authentication#phishing-resistant-methods)
+> - 📘 [Authentication methods in Azure AD](https://learn.microsoft.com/en-us/azure/active-directory/authentication/concept-authentication-methods)
+> - 📘 [Phishing-resistant methods](https://docs.microsoft.com/en-us/azure/active-directory/standards/memo-22-09-multi-factor-authentication#phishing-resistant-methods)
 
 #### Distribute accounts for administrators
 Complete setup for the named administrator accounts:
@@ -259,9 +258,8 @@ Complete setup for the named administrator accounts:
 2. Provide the password to the admin.
 3. Instruct the admin to change password and [register security info](https://support.microsoft.com/en-us/account-billing/set-up-the-microsoft-authenticator-app-as-your-verification-method-33452159-6af9-438f-8f82-63ce94cf3d29) by setting Microsoft Authenticator App as a verification method.
 
-> 📘 **Reference**: 
-> - [Reset a user's password using Azure Active Directory](https://learn.microsoft.com/en-us/azure/active-directory/fundamentals/active-directory-users-reset-password-azure-portal)
-> - [Assign licenses to users by group membership in Azure Active Directory](https://learn.microsoft.com/en-us/azure/active-directory/enterprise-users/licensing-groups-assign)
+> -  [Reset a user's password using Azure Active Directory](https://learn.microsoft.com/en-us/azure/active-directory/fundamentals/active-directory-users-reset-password-azure-portal)
+> - 📘 [Assign licenses to users by group membership in Azure Active Directory](https://learn.microsoft.com/en-us/azure/active-directory/enterprise-users/licensing-groups-assign)
 
 </p>
 </details>

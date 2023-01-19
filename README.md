@@ -23,13 +23,14 @@ Now that we have the warnings out of the way, we can get started with the MLZ id
 
 ## [Azure AD Configuration Baseline](doc/AAD-Config-Baseline.md)
 
-This page walks through steps to set up a new Azure AD tenant using a configuration baseline applied with Microsoft Graph PowerShell.
-
-Azure AD and cloud identity is critical to enabling zero trust outcomes. While configuring Azure AD is the first step, using and adopting it is far more important. For this reason, the second part of the baseline is dedicated to [Zero Trust with Azure AD](doc/AAD-Config-Baseline.md/#zero-trust-with-azure-ad).
+This document steps through setup and configuration of a new Azure AD tenant based configuration defined by JSON file applied using Microsoft Graph PowerShell.
 
 ![AzureAD](/img/AAD_overview.png)
 
 ### Supporting Content:
+
+#### [Get started with Zero Trust and Azure AD](/doc/zt/AAD-ZT-Quickstart.md)
+Leveraging Azure AD as an enterprise cloud identity platform is one of the most important steps you can take towards adopting zero trust.
 
 #### [Common Azure AD Deployment Patterns](/doc/MLZ-Common-Patterns.md)
 This page includes 3 common deployment types for MLZ customers, especially valuable for organizations with multiple Azure AD tenants.
