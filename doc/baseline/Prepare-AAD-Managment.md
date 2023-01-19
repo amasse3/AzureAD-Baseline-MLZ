@@ -92,6 +92,7 @@ If the signed in account is not a **member** type, follow the steps below to cre
 7. Register security information when prompted. This will secure the administrator account and provide a means for resetting the password.
 
 > 📘 [Azure AD Setup Guide](https://go.microsoft.com/fwlink/p/?linkid=2183427)
+
 ### 7. License the first Global Administrator
 1. Log in to the Azure Portal (https://portal.azure.com | https://portal.azure.us) as the first Global Administrator
 2. Search for **Azure Active Directory** and click the Azure AD icon to open the AAD Administration "blade" in the Azure Portal.
