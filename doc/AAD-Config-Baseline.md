@@ -269,7 +269,7 @@ Azure AD authenticaton methods allow an administrator to configure how users can
 
 - [ ] [⚙️ Run the script: AuthNMethods](#⚙️-run-the-script-authnmethods)
 
-> 📘 **Reference**: [What authentication verification methods are available in Azure AD](https://docs.microsoft.com/en-us/azure/active-directory/authentication/concept-authentication-methods)
+> 📘 [What authentication verification methods are available in Azure AD](https://docs.microsoft.com/en-us/azure/active-directory/authentication/concept-authentication-methods)
 
 <details><summary><b>Show Content</b></summary>
 <p>
@@ -288,18 +288,18 @@ The Microsoft Authenticator app for iOS and Android lets users authenticate / co
 - Notification
 - Time-based One Time Password (TOTP) code
 
-> 📘 **Reference**: [Microsoft Authenticator app](https://docs.microsoft.com/en-us/azure/active-directory/authentication/concept-authentication-authenticator-app)
+> 📘 [Microsoft Authenticator app](https://docs.microsoft.com/en-us/azure/active-directory/authentication/concept-authentication-authenticator-app)
 
 #### Enable FIDO2 security keys
 FIDO2 security keys are an unphishable standards-based passwordless authentication method that come in different form factors. Most security keys resemble a USB thumb drive and communicate with device over USB.
 
-> 📘 **Reference**: [Enable FIDO2 security keys](https://learn.microsoft.com/en-us/azure/active-directory/authentication/howto-authentication-passwordless-security-key)
+> 📘 [Enable FIDO2 security keys](https://learn.microsoft.com/en-us/azure/active-directory/authentication/howto-authentication-passwordless-security-key)
 
 #### Enable Certificate-Based authentication
 Certificate-Based Authentication allows users to authenticate against Azure AD with a smartcard certificate. When enabled by the baseline scripts, x509Certificate authentication method is set to default as multifactor authentication. 
 
 Bindings are set for certificateUserIds and onPremisesUserPrincipalName. The next section provides additional guidance for setting up CBA Authentication Method.
-> 📘 **Reference**: [Azure AD Native Certificate-Based Authentication](https://docs.microsoft.com/en-us/azure/active-directory/authentication/how-to-certificate-based-authentication)
+> 📘 [Azure AD Native Certificate-Based Authentication](https://docs.microsoft.com/en-us/azure/active-directory/authentication/how-to-certificate-based-authentication)
 
 ### 2. Disable weaker authentication methods
 The deployment script will attempt to disable the following Authentication Methods:
@@ -816,7 +816,7 @@ Use Azure AD Connect Sync if:
 - You have over 150,000 objects to synchronize
 - You wish to leverage Azure AD Domain Serices (only applicable when used with password hash synchronization)
 
-> 📘 **Reference**: (Choose the right authentication method for your Azure AD hybrid identity solution)[https://docs.microsoft.com/en-us/azure/active-directory/hybrid/choose-ad-authn]
+> 📘 [Choose the right authentication method for your Azure AD hybrid identity solution](https://docs.microsoft.com/en-us/azure/active-directory/hybrid/choose-ad-authn)
 
 #### Azure AD Connect Cloud Sync
 [Azure AD Connect Cloud Sync](https://docs.microsoft.com/en-us/azure/active-directory/cloud-sync/what-is-cloud-sync) is an agent-based synchronization tool managed in Azure AD. This tool is expected to replace Azure AD Connect sync for most scenarios.
