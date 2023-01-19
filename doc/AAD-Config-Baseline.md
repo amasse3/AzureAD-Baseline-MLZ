@@ -316,9 +316,9 @@ Sign in to the Azure Portal and verify these Authentication methods are not enab
 ## Certificates
 This section uploads certificates for Azure AD certificate-based authentication.
 
- - [ ] [🗒️Create certificate JSON file]
- - [ ] [🗒️Modify the parameters JSON file]
- - [ ] [⚙️ Run the script: Certificates]
+ - [ ] [🗒️Create certificate JSON file](#🗒️create-certificate-json-file)
+ - [ ] [🗒️Modify the parameters JSON file](#🗒️modify-the-parameters-json-file)
+ - [ ] [⚙️ Run the script: Certificates](#⚙️-run-the-script-certificates)
 
 <details><summary><b>Show Content</b></summary>
 <p>
