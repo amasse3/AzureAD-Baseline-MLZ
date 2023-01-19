@@ -249,8 +249,8 @@ Passwordless, but not phishing-resistant. This required registration of an iOS o
 
 > **Note**: Microsoft Authenticator App is considered phishing-resistant when deployed to a managed mobile device. Since this guide is for setting up a new tenant, it assumes Microsoft Endpoint Manager is not configured to manage mobile devices.
 
-> - 📘 [Authentication methods in Azure AD](https://learn.microsoft.com/en-us/azure/active-directory/authentication/concept-authentication-methods)
-> - 📘 [Phishing-resistant methods](https://docs.microsoft.com/en-us/azure/active-directory/standards/memo-22-09-multi-factor-authentication#phishing-resistant-methods)
+> 📘 [Authentication methods in Azure AD](https://learn.microsoft.com/en-us/azure/active-directory/authentication/concept-authentication-methods)\
+> 📘 [Phishing-resistant methods](https://docs.microsoft.com/en-us/azure/active-directory/standards/memo-22-09-multi-factor-authentication#phishing-resistant-methods)
 
 #### Distribute accounts for administrators
 Complete setup for the named administrator accounts:
@@ -258,8 +258,8 @@ Complete setup for the named administrator accounts:
 2. Provide the password to the admin.
 3. Instruct the admin to change password and [register security info](https://support.microsoft.com/en-us/account-billing/set-up-the-microsoft-authenticator-app-as-your-verification-method-33452159-6af9-438f-8f82-63ce94cf3d29) by setting Microsoft Authenticator App as a verification method.
 
-> -  [Reset a user's password using Azure Active Directory](https://learn.microsoft.com/en-us/azure/active-directory/fundamentals/active-directory-users-reset-password-azure-portal)
-> - 📘 [Assign licenses to users by group membership in Azure Active Directory](https://learn.microsoft.com/en-us/azure/active-directory/enterprise-users/licensing-groups-assign)
+> 📘 [Reset a user's password using Azure Active Directory](https://learn.microsoft.com/en-us/azure/active-directory/fundamentals/active-directory-users-reset-password-azure-portal)\
+> 📘 [Assign licenses to users by group membership in Azure Active Directory](https://learn.microsoft.com/en-us/azure/active-directory/enterprise-users/licensing-groups-assign)
 
 </p>
 </details>
@@ -470,10 +470,10 @@ The script will:
 1. Create Security Groups for MLZ-Core and each Mission
 2. Create Privileged Access Groups for User and Groups Administrator roles for each Administrative Unit
 
-> - 📘 [Use Azure AD groups to manage role assignments](https://learn.microsoft.com/en-us/azure/active-directory/roles/groups-concept)
-> - 📘 [Best Practices for Azure AD roles](https://learn.microsoft.com/en-us/azure/active-directory/roles/best-practices)
-> - 📘 [Securing privileged access for hybrid and cloud deployments of Azure AD](https://learn.microsoft.com/en-us/azure/active-directory/roles/security-planning)
-> - 📘 [Azure role-based access control](https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/considerations/roles)
+> 📘 [Use Azure AD groups to manage role assignments](https://learn.microsoft.com/en-us/azure/active-directory/roles/groups-concept)\
+> 📘 [Best Practices for Azure AD roles](https://learn.microsoft.com/en-us/azure/active-directory/roles/best-practices)\
+> 📘 [Securing privileged access for hybrid and cloud deployments of Azure AD](https://learn.microsoft.com/en-us/azure/active-directory/roles/security-planning)\
+> 📘 [Azure role-based access control](https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/considerations/roles)
 
 ## Privileged Identity Management
 Priviliged Access Management (PIM) is an Azure AD feature for providing Just-In-Time administration and eliminating standing privileges within Azure AD and Azure.
@@ -574,10 +574,10 @@ The user runnning the script, and Emergency Access Accounts group are excluded f
 
 > **Note**: If Microsoft Endpoint Manager (Intune) will be deployed for the Azure AD tenant used by MLZ, enroll privileged access devices and use [Conditional Access](https://docs.microsoft.com/en-us/mem/intune/protect/create-conditional-access-intune) to require a compliant device for Azure Management.
 
-> - 📘 [Common Conditional Access Policies](https://learn.microsoft.com/en-us/azure/active-directory/conditional-access/concept-conditional-access-policy-common)
-> - 📘 [Device-based Conditional Access with Intune](https://docs.microsoft.com/en-us/mem/intune/protect/create-conditional-access-intune)
-> - 📘 [Risk-based Conditional Access Policies](https://docs.microsoft.com/en-us/azure/active-directory/identity-protection/howto-identity-protection-configure-risk-policies)
-> - 📘 [Require authentication strength for external users](https://learn.microsoft.com/en-us/azure/active-directory/conditional-access/howto-conditional-access-policy-authentication-strength-external)
+> 📘 [Common Conditional Access Policies](https://learn.microsoft.com/en-us/azure/active-directory/conditional-access/concept-conditional-access-policy-common)\
+> 📘 [Device-based Conditional Access with Intune](https://docs.microsoft.com/en-us/mem/intune/protect/create-conditional-access-intune)\
+> 📘 [Risk-based Conditional Access Policies](https://docs.microsoft.com/en-us/azure/active-directory/identity-protection/howto-identity-protection-configure-risk-policies)\
+> 📘 [Require authentication strength for external users](https://learn.microsoft.com/en-us/azure/active-directory/conditional-access/howto-conditional-access-policy-authentication-strength-external)
 
 #### Review and Enable the Policies
 Sign in to the Azure Portal as an administrator and review the created policies. Ensure the current administrator and break-glass accounts have been excluded from each policy before enabling it.
@@ -897,8 +897,8 @@ Make Azure AD Conditional Access a well-informed Policy Enforcement Point (PEP) 
 
 Continue to [Zero Trust with Azure AD](/doc/zt/AAD-ZT-Quickstart.md) to get started, and check out the official Microsoft references below.
 
-> - 📘 [Zero Trust Rapid Modernization Plan](https://learn.microsoft.com/en-us/security/zero-trust/zero-trust-ramp-overview)
-> - 📘 [Zero Trust Resource Center](https://learn.microsoft.com/en-us/security/zero-trust/)
+> 📘 [Zero Trust Rapid Modernization Plan](https://learn.microsoft.com/en-us/security/zero-trust/zero-trust-ramp-overview)\
+> 📘 [Zero Trust Resource Center](https://learn.microsoft.com/en-us/security/zero-trust/)
 
 ## See Also
 ### MLZ Identity Add-On
