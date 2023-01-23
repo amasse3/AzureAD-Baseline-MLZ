@@ -9,6 +9,7 @@ While much of this content and sample configuration was developed as an unoffici
 
 ## Table of Contents
 - [About the baseline configuration](#about-the-baseline-configuration)
+- [Prepare to manage Azure AD](#prepare-to-mange-azure-ad)
 - [Scripted Configuration](#scripted-configuration)
   - [Administrative Units](#administrative-units)
   - [Emergency Access](#emergency-access)
@@ -29,7 +30,19 @@ While much of this content and sample configuration was developed as an unoffici
 - [See Also](#see-also)
 
 ## About the baseline configuration
+
+The script uses switches for each configuration item outlined in [scripted configuration](#scripted-configuration). 
+
+Each switch can be run individually, multiple switches can be included, or the `-All` switch can be used to apply everything in the configuration.
+
+> **Note**: Do not use the `-All` switch unless the `mlz-aad-parameters.json` file has been updated and validated for your organization.
+
 To learn about the deployment process, see the [about page](/doc/baseline/AAD-Config-Baseline-About.md).
+
+## Prepare to mange Azure AD
+Before we can get started with the scripted configuration, we need to validate Azure AD tenant access, licensing, and other prerequisites for managing Azure AD.
+
+Steps to get started are outlined in [Prepare to manage Azure AD](/doc/baseline/Prepare-AAD-Managment.md).
 
 # Scripted Configuration
 The document layout matches each section in the `Configure-AADTenantBaseline.ps1` PowerShell script.
