@@ -1007,7 +1007,7 @@ if ($ConditionalAccess -or $All) {
 
 #region TenantPolicies
 if ($TenantPolicies -or $All) {
-    Connect-MgGraph -Scopes Policy.ReadWrite.Authorization
+    Connect-MgGraph -Scopes Policy.ReadWrite.Authorization,Policy.ReadWrite.ExternalIdentities
 
     $authorizationPolicy = $Parameters.StepParameterSet.TenantPolicies.parameters.authorizationPolicy
     $externalIdentityPolicy = $Parameters.StepParameterSet.TenantPolicies.parameters.externalIdentityPolicy
