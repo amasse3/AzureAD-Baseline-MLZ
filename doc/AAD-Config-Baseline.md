@@ -622,7 +622,7 @@ The settings applied by the baseline are outlined below.
 #### User settings
 The MLZ AAD baseline will set the following Azure AD user settings:
 
-|Setting|MLZ-Baseline|
+|Setting|Baseline|
 |-------|--------|
 |Users can register applications|No|
 |Restrict Access to the Azure AD Admin Portal|Yes|
@@ -637,7 +637,7 @@ The MLZ AAD baseline will set the following Azure AD user settings:
 
 #### External collaboration settings
 MLZ AAD baseline will set the following Azure AD external collaboration settings:
-|Setting|MLZ-Baseline|
+|Setting|Baseline|
 |-------|------------|
 |Guest user access|Most Restricted|
 |Guest invitations|Most Restrictive (no one can invite)|
@@ -649,7 +649,7 @@ MLZ AAD baseline will set the following Azure AD external collaboration settings
 
 #### Cross-Tenant Access Policy
 MLZ AAD baseline will set the following inbound XTAP Settings:
-|Setting|MLZ-Baseline|
+|Setting|Baseline|
 |-------|------------|
 |Accept MFA|True|
 |Accept Compliant Device|True|

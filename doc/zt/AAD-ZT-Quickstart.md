@@ -43,8 +43,8 @@ Standardizing around a common identity platform often requires changes to IT pol
 > - Applications should be migrated from on-premises based federation services like Active Directory Federation Services.
 > - Integrate as many signals as possible (device, user, application, context, authentication strength, risk) into Azure AD Conditional Access.
 
-> - 📘 [Planning identity for Azure Government applications](https://learn.microsoft.com/en-us/azure/azure-government/documentation-government-plan-identity)
-> - 📘 [Microsoft Zero Trust Resources](https://www.microsoft.com/en-us/security/business/zero-trust)
+> 📘 [Planning identity for Azure Government applications](https://learn.microsoft.com/en-us/azure/azure-government/documentation-government-plan-identity)\
+> 📘 [Microsoft Zero Trust Resources](https://www.microsoft.com/en-us/security/business/zero-trust)
 
 #### Add Enterprise Applications to Azure AD
 Enterprise Apps are application resources assigned to users in your Azure Active Directory. Add applications from the Azure AD Gallery or add non-gallery apps that use SAML, WS-Federation, OpenID Connect, or OAuth protocols.
