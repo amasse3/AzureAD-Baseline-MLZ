@@ -838,24 +838,44 @@ if ($Certificates -or $All) {
     } elseif ($Environment -eq "Global") {
         $AADEnvironment = "AzureCloud"
     }
-    Connect-AzureAD -AzureEnvironmentName $AADEnvironment
 
+    Try {
+        $connected = Get-AzureADTenantDetail -ErrorAction Stop
+    } Catch [exception] {}
+
+    #Connect if not already connected
+    if (!($connected)) {
+        Connect-AzureAD -AzureEnvironmentName $AADEnvironment
+    }
+
+    #Load in the configuration
     $CertConfigPath = $Parameters.StepParameterSet.Certificates.parameters.CertJsonRelativePath
     $DisableCrlCheck = $Parameters.StepParameterSet.Certificates.parameters.DisableCrlCheck
     $CertConfig = Get-Content $CertConfigPath | ConvertFrom-Json
 
+    #Get existing certificate configuration
+    Write-host "Getting current certificate configuration for the tenant." -ForegroundColor Cyan
+    $TenantCertificates = Get-AzureADTrustedCertificateAuthority
+
+    #Check to see if certificates exist, if not add AzureADTrustedCertificateAuthority
     Write-host "Uploading certificates to the tenant." -ForegroundColor Cyan
     foreach ($cert in $Certconfig) {
-        $new_ca=New-Object -TypeName Microsoft.Open.AzureAD.Model.CertificateAuthorityInformation
-        $new_ca.AuthorityType=$($cert.authority)
-        $new_ca.TrustedCertificate=$(Convert-HexStringToByteArray -String $cert.RawData)
-        if ($DisableCrlCheck) {
-            $new_ca.crlDistributionPoint=''
+        if ($cert.Subject -in $TenantCertificates.TrustedIssuer) {
+            Write-host "Certificate $($cert.Subject) already exists."
         } else {
-            $new_ca.crlDistributionPoint=$($cert.crl)
+            $new_ca=New-Object -TypeName Microsoft.Open.AzureAD.Model.CertificateAuthorityInformation
+            $new_ca.AuthorityType=$($cert.authority)
+            $new_ca.TrustedCertificate=$(Convert-HexStringToByteArray -String $cert.RawData)
+
+            if ($DisableCrlCheck) {
+                $new_ca.crlDistributionPoint=''
+            } else {
+                $new_ca.crlDistributionPoint=$($cert.crl)
+            }
+        
+            New-AzureADTrustedCertificateAuthority -CertificateAuthorityInformation $new_ca
         }
         
-        New-AzureADTrustedCertificateAuthority -CertificateAuthorityInformation $new_ca
     }
 
     Write-Host -ForegroundColor Green "Completed Certificate configuration."

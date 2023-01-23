@@ -48,12 +48,16 @@ flowchart BT
     ms-DS-ConsistencyGUID<-->|writeback|ImmutableID
 ````
 
-### UserCertificateIds (cloud-only Users)
-Cloud-only users authenticating with DoD CAC need the Principal Name Subject Alternative Name (SAN) value on the CAC certificate to match an Azure AD user attribute. Since @mil value is non-routable, it cannnot be a `UserPrincipalName` value in Azure AD. `OnPremisesUserPrincipalName` attribute is reserved for synchronized identities, and cannot be modified. An alternative attribute called `userCertificateIds` can be used for this purpose. Configure using the Azure Portal following the reference below.
+### certificateUserIds
+Cloud-only users authenticating with DoD CAC need the Principal Name Subject Alternative Name (SAN) value on the CAC certificate to match an Azure AD user attribute. Since @mil value is non-routable, it cannnot be a `UserPrincipalName` value in Azure AD. `OnPremisesUserPrincipalName` attribute is reserved for synchronized identities, and cannot be modified.
 
-> 📘 **Reference**: [Certificate user IDs](https://learn.microsoft.com/en-us/azure/active-directory/authentication/concept-certificate-based-authentication-certificateuserids)
+An alternative attribute called `userCertificateIds` can be used for this purpose. Configure using the Azure Portal following the reference below.
 
-Programatic updates to userCertificateIds attribute can be perfomed using Microsoft Graph API. See sample script:
+> 📘 [Certificate user IDs](https://learn.microsoft.com/en-us/azure/active-directory/authentication/concept-certificate-based-authentication-certificateuserids)
+
+You may also want to use this attribute for synchronized users for scenarios where `OnPremisesUserPrincipalName` will not contain the right attribute value to match the certificate. To use Azure AD Connect to populate the attribute, see [update certificateUserIds with Azure AD Connect](https://learn.microsoft.com/en-us/azure/active-directory/authentication/concept-certificate-based-authentication-certificateuserids#update-certificate-user-ids-using-azure-ad-connect).
+
+Programatic updates to userCertificateIds attribute can be perfomed using Microsoft Graph API. Sample script included below:
 <details><summary><b>Show Script</b></summary>
 <p>
 
@@ -91,7 +95,7 @@ $user.AuthorizationInfo.CertificateUserIds
 ## 2. Create a Pilot Group
 Create a pilot group for targetting the certificate-based authentication method to an Azure AD security group. For this document, the name `Azure AD CBA Pilot` is used. Use the Azure Portal or Microsoft Graph PowerShell like the example below.
 
-> 📘 **Reference**: [Manage groups in the Azure AD Portal](https://learn.microsoft.com/en-us/azure/active-directory/fundamentals/how-to-manage-groups)
+> 📘 [Manage groups in the Azure AD Portal](https://learn.microsoft.com/en-us/azure/active-directory/fundamentals/how-to-manage-groups)
 <details><summary><b>Show Script</b></summary>
 <p>
 
@@ -109,7 +113,7 @@ New-MgGroup -DisplayName $DisplayName -MailEnabled:$false -MailNickname $MailNic
 ## 3. Optional: Enable Staged Rollout
 If the user domain is federated, staged rollout feature must be enabled to interrupt automatic re-direct to the federation service during user sign in. To configure staged rollout for the Azure AD CBA Pilot group created in the previous step, follow the Microsoft documentation below.
 
-> 📘 **Reference**: [Migrate to cloud authentication using Staged Rollout](https://learn.microsoft.com/en-us/azure/active-directory/hybrid/how-to-connect-staged-rollout)
+> 📘 [Migrate to cloud authentication using Staged Rollout](https://learn.microsoft.com/en-us/azure/active-directory/hybrid/how-to-connect-staged-rollout)
 
 ## 4. Configure Certification Authorities
 
@@ -226,7 +230,7 @@ Enable the CBA on the Azure AD tenant following the reference below. Use the fol
 |Protection Level|Multi-Factor Authentication|
 |Binding Policy | [See step 1.](#1-determine-username-mapping-policy)|
 
-> 📘 **Reference**: [Enable CBA on the tenant](https://learn.microsoft.com/en-us/azure/active-directory/authentication/how-to-certificate-based-authentication#step-2-enable-cba-on-the-tenant)
+> 📘 [Enable CBA on the tenant](https://learn.microsoft.com/en-us/azure/active-directory/authentication/how-to-certificate-based-authentication#step-2-enable-cba-on-the-tenant)
 
 ## 7. Test signing in with a certificate
 1. Add a user to the `Azure AD CBA Pilot` group. 
@@ -236,7 +240,7 @@ Enable the CBA on the Azure AD tenant following the reference below. Use the fol
 5. Select the CAC certificate and enter the PIN
 6. Verify the user signed in successfully. Reference the [documentation](https://learn.microsoft.com/en-us/azure/active-directory/authentication/concept-certificate-based-authentication-technical-deep-dive#understanding-the-certificate-based-authentication-error-page) to troubleshoot any issues.
 
-> 📘 **Reference**: [How Azure AD CBA Works](https://learn.microsoft.com/en-us/azure/active-directory/authentication/concept-certificate-based-authentication-technical-deep-dive)
+> 📘 [How Azure AD CBA Works](https://learn.microsoft.com/en-us/azure/active-directory/authentication/concept-certificate-based-authentication-technical-deep-dive)
 
 ## 8. Preview - Sign in with certificate on mobile device
 Mobile devices now support certificate-based authentication in the native browser using certificate stored in the PIV app for Yubikey devices. This new capability differs from previous mobile CBA implementations becuase A) ADFS is not required, B) it is true MFA since PIN / private key is used.
@@ -250,6 +254,5 @@ Mobile devices now support certificate-based authentication in the native browse
 
 > **Warning**: iOS requires notifications enabled for Yubico Authenticator app. Ensure that Focus Modes include Yubico Authenticator to bypass the notification block. When the notification does not succeed, the certificate authentication page (certauth.login.microsoftonline) will hang and time out with TLS error.
 
-> 📘 **Reference**:
-> - [Android devices - Support for certificates on hardware security key (preview)](https://learn.microsoft.com/en-us/azure/active-directory/authentication/concept-certificate-based-authentication-mobile-android#support-for-certificates-on-hardware-security-key-preview)
-> - [iOS devices- Support for certificates on hardware security key (preview)](https://learn.microsoft.com/en-us/azure/active-directory/authentication/concept-certificate-based-authentication-mobile-ios#support-for-certificates-on-hardware-security-key-preview)
+> 📘 [Android devices - Support for certificates on hardware security key (preview)](https://learn.microsoft.com/en-us/azure/active-directory/authentication/concept-certificate-based-authentication-mobile-android#support-for-certificates-on-hardware-security-key-preview)\
+> 📘 [iOS devices- Support for certificates on hardware security key (preview)](https://learn.microsoft.com/en-us/azure/active-directory/authentication/concept-certificate-based-authentication-mobile-ios#support-for-certificates-on-hardware-security-key-preview)
