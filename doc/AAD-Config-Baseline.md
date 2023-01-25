@@ -337,7 +337,7 @@ This section uploads certificates for Azure AD certificate-based authentication.
 <p>
 
 ### 🗒️Create certificate JSON file
-The sample file, [DODPKI.json](/src/DODPKI.json), contains the ID CA certificates and roots for the DOD PKI. This PKI is used by DOD Common Access Cards. For step-by-step guidance to manually configure DOD CAC, see [AAD-CertificateBasedAuthentication-DODPKI](/doc/AAD-CertificateBasedAuthentication-DODPKI.md).
+The sample file, [DODPKI.json](/src/DODPKI.json), contains the ID CA certificates and roots for the DOD PKI. This PKI is used by DOD Common Access Cards. For step-by-step guidance to manually configure DOD CAC, see [AAD-CertificateBasedAuthentication-DODPKI.md](/doc/quickstart/AAD-CertificateBasedAuthentication-DODPKI.md).
 
 To make your own JSON file, get the string-formatted Raw Data for each certificate using `GetRawCertDataString()` method in PowerShell and create a JSON object with the following format:
 
@@ -708,7 +708,7 @@ Your Azure AD CBA configuration may differ from the baseline setup and should be
  - configuring default multi-factor authentication level
  - configuring CA or OID based policies
 
-Steps for setting up Azure AD CBA with the DoD PKI can be found in [AAD-CertificateBasedAuthentication-DODPKI.md](/MLZ-Identity-AzureADSetup/doc/AAD-CertificateBasedAuthentication-DODPKI.md).
+Steps for setting up Azure AD CBA with the DoD PKI can be found in [AAD-CertificateBasedAuthentication-DODPKI.md](/doc/quickstart/AAD-CertificateBasedAuthentication-DODPKI.md).
 
 > 📘 [Azure AD Native Certificate-Based Authentication](https://docs.microsoft.com/en-us/azure/active-directory/authentication/how-to-certificate-based-authentication)
 
