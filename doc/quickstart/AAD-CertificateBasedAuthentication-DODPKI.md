@@ -159,7 +159,7 @@ To configure staged rollout for the Azure AD CBA Pilot group created in the prev
 
 > 📘 [Migrate to cloud authentication using Staged Rollout](https://learn.microsoft.com/en-us/azure/active-directory/hybrid/how-to-connect-staged-rollout)
 
-##4. Configure the Certification Authorities
+## 4. Configure the Certification Authorities
 This step provides 2 options for configuring the certification authorities:
  - [Option A: Automated Configuration](#option-a-automated-configuration)
  - [Option B: Manual Configuration](#option-b-manual-configuration)
