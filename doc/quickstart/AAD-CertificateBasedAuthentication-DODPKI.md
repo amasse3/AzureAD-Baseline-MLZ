@@ -16,6 +16,7 @@ This document provides step-by-step guidance for configuring DoD PKI with Azure 
  - [5. Configure AAD Authentication Method](#5-configure-the-cba-authentication-method)
  - [Test signing in with certificate](#test-signing-in-with-a-certificate)
  - [Preview - Sign in with certificate on mobile device](#preview---sign-in-with-certificate-on-mobile-device)
+ - [Common Issues](#common-issues)
  - [See Also](#see-also)
 
 ## 1. Determine username mapping policy
@@ -286,16 +287,16 @@ Mobile devices now support certificate-based authentication in the native browse
 > 📘 [Android devices - Support for certificates on hardware security key (preview)](https://learn.microsoft.com/en-us/azure/active-directory/authentication/concept-certificate-based-authentication-mobile-android#support-for-certificates-on-hardware-security-key-preview)\
 > 📘 [iOS devices- Support for certificates on hardware security key (preview)](https://learn.microsoft.com/en-us/azure/active-directory/authentication/concept-certificate-based-authentication-mobile-ios#support-for-certificates-on-hardware-security-key-preview)
 
-## Common Configuration Issues
-This section covers the most common configuration errors that may cause issues with CBA.
+## Common Issues
+This section covers the common configuration errors that may cause issues with CBA.
 
-Placeholder. To do: Add AAD error values and details.
-
-|No.|Issue|Common Cause|Fix|
+|No.|Issue|Cause|Fix|
 |---|-----|------------|---|
 |1|Timeout fetching CRL|A CRL endpoint was used that is not accessible by the Azure AD logon service.|Use a publicly accessible CRL|
-|2|Certificate does not map uniquely to an Azure AD user|More than one user has the same certificateUserIds or OnPremisesUserPrincipalName (for multi-forest AD DS customers) value|Update the Azure AD users so the value on the certificate maps to a unique user.|
-|3|Authentication fails because the CRL is invalid.|The CRL found at the CRL loccation is for a different certificate|Delete the certificate and upload again, specifying the proper CRL location.|      
+|2|No value in the certificate, as requested by tenant policy, is able to validate the user claim.|<ul><li>The incorrect certificate was selected by the user</li><li>CertificateUserIds for the user is not the correct pattern / value for the certificate</li><li>More than one user has the same certificateUserIds or OnPremisesUserPrincipalName value</li></ul>|Update the Azure AD users so the value on the certificate uniquely maps to the authenticating user.|
+|3|Authentication fails because the CRL is invalid.|The CRL found at the CRL location is for a different certificate.|Delete the certificate and upload again, specifying the proper CRL location.|
+|4|Authentication fails with an MFA errof.|X509 Authentication Method is a primary Authentication method that does not support a second factor like Azure MFA.|Set the CBA Authentication Method to "multi-factor authentication".
+|5|Users get prompted for a password when they don't have one|The first authentication after CBA is enabled will show a password prompt for Azure AD with **Sign in with certificate** link.|Once the user has signed in, the browser will remember the method selected and further authentication prompts will simply show "Use a certificate or smart card" without password field.|
 
 
 ## See Also
