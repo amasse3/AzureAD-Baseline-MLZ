@@ -25,11 +25,13 @@ Now that we have the warnings out of the way, we can get started with the MLZ id
 
 This document steps through setup and configuration of a new Azure AD tenant based configuration defined by JSON file applied using Microsoft Graph PowerShell.
 
+**[View the baseline](/doc/AAD-Config-Baseline.md)**
+
 ![AzureAD](/img/AAD_overview.png)
 
 ### Supporting Content:
 
-#### [Get started with Zero Trust and Azure AD](/doc/zt/AAD-ZT-Quickstart.md)
+#### [Get started with Zero Trust and Azure AD](/doc/quickstart/AAD-ZT-Quickstart.md)
 Leveraging Azure AD as an enterprise cloud identity platform is one of the most important steps you can take towards adopting zero trust.
 
 #### [Common Azure AD Deployment Patterns](/doc/MLZ-Common-Patterns.md)
@@ -42,7 +44,7 @@ Application identity can be complex, especially in multi-tenant organizations. T
 This page describes Azure AD and Azure RBAC permissions, approaches to delegated and centralized management.
 
 #### Other Pages
-- [DOD CAC Authentication Setup](doc/AAD-CertificateBasedAuthentication-DODPKI.md)
+- [DOD CAC Authentication Setup](/doc/quickstart/AAD-CertificateBasedAuthentication-DODPKI.md)
 - [Azure AD FAQ](/doc/MLZ-AAD-FAQ.md)  
 
 ### See Also
