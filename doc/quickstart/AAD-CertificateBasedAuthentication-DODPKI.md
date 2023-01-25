@@ -134,10 +134,11 @@ $user.AuthorizationInfo.CertificateUserIds
 </p>
 </details>
 
-##2. Optional: Create a Pilot Group
+## 2. Optional: Create a Pilot Group
 You may want to target a pilot group for Azure AD CBA. For this document, the name `Azure AD CBA Pilot` is used. Use the Azure Portal or Microsoft Graph PowerShell like the example below.
 
 > 📘 [Manage groups in the Azure AD Portal](https://learn.microsoft.com/en-us/azure/active-directory/fundamentals/how-to-manage-groups)
+
 <details><summary><b>Show Script</b></summary>
 <p>
 
