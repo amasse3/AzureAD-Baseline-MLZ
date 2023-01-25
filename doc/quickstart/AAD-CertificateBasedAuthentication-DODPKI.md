@@ -38,7 +38,7 @@ flowchart LR
 > 📘 [Configure authentication binding policy](https://learn.microsoft.com/en-us/azure/active-directory/authentication/how-to-certificate-based-authentication#step-3-configure-authentication-binding-policy)
 
 ### Synchronized Users
-When Alternate Login ID is configured with Azure AD Connect Sync, the Active Directory `userPrincipalName` is automatically sent to Azure AD as the `OnPremisesUserPrincipalName` attribute. In this case, binding can be configured for this attribute.
+When Alternate Login ID is configured with Azure AD Connect Sync, Active Directory `userPrincipalName` is synced to Azure AD `onPremisesUserPrincipalName` attribute. Since the CAC Principal Name likely matches the user's Active Directory UPN value, `onPremisesUserPrincipalName` can be used for certificate mapping.
 
 ````mermaid
 flowchart BT
@@ -64,13 +64,13 @@ flowchart BT
 ### Cloud-Only Users (or combination of cloud-only and synchronized)
 A new Azure AD attribute,`certificateUserIds`, is used when certificates used for CBA cannot be mapped to either userPrincipalName or OnPremisesUserPrincipalName Azure AD attributes.
 
-Cloud-only Azure AD identities cannot use UPN or On-Prem UPN attribute for mapping a DoD CAC certificate:
+Cloud-only Azure AD identities must use `certificateUserIds` mapping for DOD CAC certificates.
 - OnPremisesUserPrincipalName is only for synced identities and cannot be populated on cloud-only users.
 - UserPrincipalName in Azure AD has restrictions (e.g. DNS-routable domain suffix) that preclude mapping a CAC certificate to this attribute.
 
 `certificateUserIds` is multi-valued, allowing an Azure AD user to use more than one certificate credential. The fields and value patterns are listed in the table below:
 
-|**Certificate mapping field**|**certificateUserIds Pattern**|**Example**|
+|**Certificate mapping field**|**certificateUserIds pattern**|**Example**|
 |-----------------------------|------------------------------|-----------|
 |PrincipalName|`X509:<PN>` + `value`|`X509:<PN>123456789101112@mil`|
 |RFC822Name (Email)|`X509:<RFC822>` + `value`|`X509:<RFC822>bob@contoso.com`|
@@ -206,6 +206,7 @@ foreach ($cert in $Certconfig) {
 
 ### Option B: Manual Configuration
 **Download the certificates and CRL locations**
+
 1. Open your web browser and navigate to the public-facing cyber.mil website: [https://public.cyber.mil/pki-pke/tools-configuration-files/]
 2. Download the PKI CA Certificate Bundles (DoD PKI Only). The current version as of January 2023 is version 5.9 found [here](https://dl.dod.cyber.mil/wp-content/uploads/pki-pke/zip/certificates_pkcs7_DoD.zip).
 3. Expand the ZIP archive.
@@ -227,6 +228,7 @@ foreach ($cert in $Certconfig) {
 8. Keep this list open for reference.
 
 **Upload the certificates to the Azure AD Portal**
+
 Follow the [manual steps](https://learn.microsoft.com/en-us/azure/active-directory/authentication/how-to-certificate-based-authentication#step-1-configure-the-certification-authorities) to upload the certificates in the order below:
 
 |No.|Certificate|CRL|Is Root CA|
