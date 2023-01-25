@@ -220,6 +220,9 @@ foreach ($cert in $Certconfig) {
     - DOD ID CA-63
     - DOD ID CA-64
     - DOD ID CA-65
+
+> **Note**: There are many additional certificates in **certificates.pkcs7_DoD.zip**, however only the valid (not expired) ID CA certificates and the Root CA certificates are needed. Every CAC certificate valid for smartcard logon, and thus Azure AD CBA, is issued from 1 of the 5 ID CAs as of January 2023.
+
 7. Next, open the latest **DoD and ECA CRL Distribution Points (CRLDPs)** from [https://public.cyber.mil/pki-pke/tools-configuration-files/]. The current version as of January 2023 is [here](https://dl.dod.cyber.mil/wp-content/uploads/pki-pke/txt/unclass-dod_eca_crldps_nipr_20210415.txt).
 8. Keep this list open for reference.
 
@@ -236,6 +239,8 @@ Follow the [manual steps](https://learn.microsoft.com/en-us/azure/active-directo
 |6|DOD ID CA-63|http://crl.disa.mil/crl/DODIDCA_63.crl|No|
 |7|DOD ID CA-64|http://crl.disa.mil/crl/DODIDCA_64.crl|No|
 |8|DOD ID CA-65|http://crl.disa.mil/crl/DODIDCA_65.crl|No|
+
+> **Note**: Root Certificates need to be uploaded first and marked as root. If you make a mistake during the process, you will need to delete the certificate from the Azure Portal and upload it again.
 
 > 📘 [Configure certification authorities](https://learn.microsoft.com/en-us/azure/active-directory/authentication/how-to-certificate-based-authentication#step-1-configure-the-certification-authorities)
 
