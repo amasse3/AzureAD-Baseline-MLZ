@@ -9,20 +9,16 @@ This document provides step-by-step guidance for configuring DoD PKI with Azure 
 - User with Global Administrator role in Azure AD
 
 ## Table of contents
- - [Configuration Steps](#configuration-steps)
-   - [1. Determine username mapping policy](#1-determine-username-mapping-policy)
-   - [2. Optional: Create a Pilot Group](#2-optional-create-a-pilot-group)
-   - [3. Optional: Enable Staged Rollout](#3-optional-enable-staged-rollout)
-   - [4. Configure the Certification Authorities](#4-configure-the-certification-authorities)
-   - [5. Configure AAD Authentication Method](#5-configure-the-cba-authentication-method)
+ - [1. Determine username mapping policy](#1-determine-username-mapping-policy)
+ - [2. Optional: Create a Pilot Group](#2-optional-create-a-pilot-group)
+ - [3. Optional: Enable Staged Rollout](#3-optional-enable-staged-rollout)
+ - [4. Configure the Certification Authorities](#4-configure-the-certification-authorities)
+ - [5. Configure AAD Authentication Method](#5-configure-the-cba-authentication-method)
  - [Test signing in with certificate](#test-signing-in-with-a-certificate)
  - [Preview - Sign in with certificate on mobile device](#preview---sign-in-with-certificate-on-mobile-device)
  - [See Also](#see-also)
 
-## Configuration Steps
-Azure AD Certificate-based Authentication (CBA) can be configured with the Azure Portal or using PowerShell. This section outlines the steps for configuring the feauture for DOD Common Access Cards (CAC).
-
-### 1. Determine username mapping policy
+## 1. Determine username mapping policy
 For DOD Common Access Card (CAC) certificates, the `Principal Name` Subject Alternative Name (SAN) value needs to be mapped to an attribute on your Azure AD user accounts. Depending on the hybrid identity configuration, this value can be stored on either:
 - [OnPremisesUserPrincipalName (synchronized users)](#onpremisessamaccountname-synchronized-users)
 - [UserCertificateIds (cloud-only users)](#usercertificateids-cloud-only-users)
@@ -41,7 +37,7 @@ flowchart LR
 
 > 📘 [Configure authentication binding policy](https://learn.microsoft.com/en-us/azure/active-directory/authentication/how-to-certificate-based-authentication#step-3-configure-authentication-binding-policy)
 
-#### Synchronized Users
+### Synchronized Users
 When Alternate Login ID is configured with Azure AD Connect Sync, the Active Directory `userPrincipalName` is automatically sent to Azure AD as the `OnPremisesUserPrincipalName` attribute. In this case, binding can be configured for this attribute.
 
 ````mermaid
@@ -65,17 +61,21 @@ flowchart BT
     ms-DS-ConsistencyGUID<-->|writeback|ImmutableID
 ````
 
-#### Cloud-Only Users (or combination of cloud-only and synchronized)
-Cloud-only users authenticating with DoD CAC need the Principal Name Subject Alternative Name (SAN) value on the CAC certificate to match an Azure AD user attribute. Since @mil value is non-routable, it cannnot be a `UserPrincipalName` value in Azure AD. The attribute `OnPremisesUserPrincipalName` contains the Active Directory UPN for synchronized identities. This attribute cannot be modified for synchronized users and cannot be used for cloud-only identities.
+### Cloud-Only Users (or combination of cloud-only and synchronized)
+A new Azure AD attribute,`certificateUserIds`, is used when certificates used for CBA cannot be mapped to either userPrincipalName or OnPremisesUserPrincipalName Azure AD attributes.
 
-An alternative attribute, `certificateUserIds`, can be used in this scenario. It is multi-valued, allowing a user to have and use more than one certificate credential. The fields and value patterns are listed in the table below:
+Cloud-only Azure AD identities cannot use UPN or On-Prem UPN attribute for mapping a DoD CAC certificate:
+- OnPremisesUserPrincipalName is only for synced identities and cannot be populated on cloud-only users.
+- UserPrincipalName in Azure AD has restrictions (e.g. DNS-routable domain suffix) that preclude mapping a CAC certificate to this attribute.
+
+`certificateUserIds` is multi-valued, allowing an Azure AD user to use more than one certificate credential. The fields and value patterns are listed in the table below:
 
 |**Certificate mapping field**|**certificateUserIds Pattern**|**Example**|
 |-----------------------------|------------------------------|-----------|
-|PrincipalName|`X509:<PN>` + `value`|X509:<PN>123456789101112@mil|
-|RFC822Name (Email)|`X509:<RFC822>` + `value`|bob@contoso.com|
-|X509 Subject Key Identifier|`X509:<SKI>` + `value`|X509:<SKI>123456789abcdef|
-|X509 SHA1 Public Key|`X509:<SHA1-PUKEY>` + `value`|X509:<SHA1-PUKEY>123456789abcdef|
+|PrincipalName|`X509:<PN>` + `value`|`X509:<PN>123456789101112@mil`|
+|RFC822Name (Email)|`X509:<RFC822>` + `value`|`X509:<RFC822>bob@contoso.com`|
+|X509 Subject Key Identifier|`X509:<SKI>` + `value`|`X509:<SKI>123456789abcdef`|
+|X509 SHA1 Public Key|`X509:<SHA1-PUKEY>` + `value`|`X509:<SHA1-PUKEY>123456789abcdef`|
 
 Configure using the Azure Portal following the reference below.
 
@@ -134,7 +134,7 @@ $user.AuthorizationInfo.CertificateUserIds
 </p>
 </details>
 
-### 2. Optional: Create a Pilot Group
+##2. Optional: Create a Pilot Group
 You may want to target a pilot group for Azure AD CBA. For this document, the name `Azure AD CBA Pilot` is used. Use the Azure Portal or Microsoft Graph PowerShell like the example below.
 
 > 📘 [Manage groups in the Azure AD Portal](https://learn.microsoft.com/en-us/azure/active-directory/fundamentals/how-to-manage-groups)
@@ -151,19 +151,19 @@ New-MgGroup -DisplayName $DisplayName -MailEnabled:$false -MailNickname $MailNic
 </p>
 </details>
 
-### 3. Optional: Enable Staged Rollout
+## 3. Optional: Enable Staged Rollout
 If the user belongs to a federated domain (they authenticate to Azure AD using AD FS or some other provider), staged rollout feature must be enabled to interrupt automatic re-direct to the federation service during sign-in.
 
 To configure staged rollout for the Azure AD CBA Pilot group created in the previous step, follow the Microsoft documentation below.
 
 > 📘 [Migrate to cloud authentication using Staged Rollout](https://learn.microsoft.com/en-us/azure/active-directory/hybrid/how-to-connect-staged-rollout)
 
-### 4. Configure the Certification Authorities
+##4. Configure the Certification Authorities
 This step provides 2 options for configuring the certification authorities:
  - [Option A: Automated Configuration](#option-a-automated-configuration)
  - [Option B: Manual Configuration](#option-b-manual-configuration)
 
-#### Option A: Automated Configuration
+### Option A: Automated Configuration
 The automated configuration uses a JSON file pre-populated with the certificate details for the DOD PKI.
 
 1. Download [DODPKI.json](/src/DODPKI.json) from this repository.
@@ -203,7 +203,7 @@ foreach ($cert in $Certconfig) {
 
 > 📘 [Configure certification authorities - New-AzureADTrustedCertificateAuthority](https://learn.microsoft.com/en-us/azure/active-directory/authentication/how-to-certificate-based-authentication#add)
 
-#### Option B: Manual Configuration
+### Option B: Manual Configuration
 **Download the certificates and CRL locations**
 1. Open your web browser and navigate to the public-facing cyber.mil website: [https://public.cyber.mil/pki-pke/tools-configuration-files/]
 2. Download the PKI CA Certificate Bundles (DoD PKI Only). The current version as of January 2023 is version 5.9 found [here](https://dl.dod.cyber.mil/wp-content/uploads/pki-pke/zip/certificates_pkcs7_DoD.zip).
@@ -238,7 +238,7 @@ Follow the [manual steps](https://learn.microsoft.com/en-us/azure/active-directo
 
 > 📘 [Configure certification authorities](https://learn.microsoft.com/en-us/azure/active-directory/authentication/how-to-certificate-based-authentication#step-1-configure-the-certification-authorities)
 
-### 5. Configure the CBA Authentication Method
+## 5. Configure the CBA Authentication Method
 Enable the CBA on the Azure AD tenant following the reference below. Use the following settings:
 
 |Setting|Value|
