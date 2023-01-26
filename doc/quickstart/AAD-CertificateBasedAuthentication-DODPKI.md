@@ -10,7 +10,7 @@ This document provides step-by-step guidance for configuring DoD PKI with Azure 
 
 ## Table of contents
  - [Quick Start Configuration Script](#quick-start-configuration-script)
- - [Custom Configuration](#custom-configuration)
+ - [Customize Configuration](#customize-configuration)
    - [1. Determine username mapping policy](#1-determine-username-mapping-policy)
    - [2. Optional: Create a Pilot Group](#2-optional-create-a-pilot-group)
    - [3. Optional: Enable Staged Rollout](#3-optional-enable-staged-rollout)
@@ -81,13 +81,26 @@ Configure-CBA-QuickStart.ps1 -AzureEnvironmentName USGov
 Configure-CBA-QuickStart.ps1 -AzureEnvironmentName USGov -AADAttribute certificateUserIds -CertificateField PrincipalName -PKIJsonPath "c:\temp\myjsonpath\pki.json" -PilotGroupName "AAD CBA Test Flight A"
 ```
 
+## Validate configuration
+1. Review the settings in the Azure AD Portal:
+- Staged Rollout Settings
+- Authentication Methods Settings
+2. View an Azure AD user and verify the chosen attribute (UserPrincipalName, OnPremisesUserPrincipalName, CertificateUserIds) matches the value on their smartcard certificate for the chosen field
+3. Open an InPrivate browser window and try to sign in to the Azure Portal using a smartcard.
+
+If certificate-based authentication is functioning without any additional changes, you can stop here. If you want to read about configuring CBA step-by-step to create your own configuration script or guide, procceed to the next section, [Customize Configuration](#customize-configuration).
+
+> 📘 [How to configure Azure AD certificate-based authentication](https://learn.microsoft.com/en-us/azure/active-directory/authentication/how-to-certificate-based-authentication)
+
 # Customize Configuration
-Follow these steps below to walk through CBA design and configuration.
+This section includes guidance for design and configuration of Azure AD CBA for DOD CAC.
 
 ## 1. Determine username mapping policy
-For DOD Common Access Card (CAC) certificates, the `Principal Name` Subject Alternative Name (SAN) value needs to be mapped to an attribute on your Azure AD user accounts. Depending on the hybrid identity configuration, this value can be stored on either:
+DOD Common Access Card (CAC) certificates contain a `Principal Name` Subject Alternative Name (SAN) value needs to be mapped to an attribute on your Azure AD user objects. Depending on the hybrid identity configuration, this value can be stored on either:
 - [OnPremisesUserPrincipalName](#synchronized-users) (synchronized users)
 - [certificateUserIds](#cloud-only-users-or-combination-of-cloud-only-and-synchronized) (cloud-only users)
+
+> **Note**: Certificate-Based Authentication permits binding on UserPrincipalName attribute as well. However, since CAC PrincipalName is not a routable DNS domain suffix, it does not meet the requirements for an Azure AD UserPrincipalName.
 
 Use the following flow chart to determine which attribute you should use.
 
