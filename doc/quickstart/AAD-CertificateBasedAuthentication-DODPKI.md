@@ -9,20 +9,85 @@ This document provides step-by-step guidance for configuring DoD PKI with Azure 
 - User with Global Administrator role in Azure AD
 
 ## Table of contents
- - [1. Determine username mapping policy](#1-determine-username-mapping-policy)
- - [2. Optional: Create a Pilot Group](#2-optional-create-a-pilot-group)
- - [3. Optional: Enable Staged Rollout](#3-optional-enable-staged-rollout)
- - [4. Configure the Certification Authorities](#4-configure-the-certification-authorities)
- - [5. Configure AAD Authentication Method](#5-configure-the-cba-authentication-method)
- - [Test signing in with certificate](#test-signing-in-with-a-certificate)
+ - [Quick Start Configuration Script](#quick-start-configuration-script)
+ - [Custom Configuration](#custom-configuration)
+   - [1. Determine username mapping policy](#1-determine-username-mapping-policy)
+   - [2. Optional: Create a Pilot Group](#2-optional-create-a-pilot-group)
+   - [3. Optional: Enable Staged Rollout](#3-optional-enable-staged-rollout)
+   - [4. Configure the Certification Authorities](#4-configure-the-certification-authorities)
+   - [5. Configure AAD Authentication Method](#5-configure-the-cba-authentication-method)
+   - [Test signing in with certificate](#test-signing-in-with-a-certificate)
  - [Preview - Sign in with certificate on mobile device](#preview---sign-in-with-certificate-on-mobile-device)
  - [Common Issues](#common-issues)
  - [See Also](#see-also)
 
+# Quick Start Configuration Script
+Apply the quickstart CBA configuration by running the [Configure-CBA-Quickstart](/src/Configure-CBA-Quickstart.ps1) script.
+
+This script will complete the following:
+- [x] Read certificate configuration from [DODPKI.json](/src/DODPKI.json) or the file path specified in `-PKIJsonFilePath` parameter
+- [x] Connect with Azure AD PowerShell and create the AzureADTrustedCertificateAuthority configuration if certificates matching the subject name do not already exist
+- [x] Create a group `Azure AD CBA Pilot` or group specified in `-PilotGroupName` parameter if it does not already exist
+- [x] Create Feature Rollout Policy for CBA if it does not already exist, enable it and assign the Pilot Group
+- [x] Configure Azure AD CBA Authentication Method with `Principal Name = OnPremisesPrincipalName` or the Certificate-Attribute binding specified by `-CertificateField` and `AADAttribute` parameters.
+
+<details><summary><b>View default settings (no parameters)</b></summary>
+<p>
+```JSON
+{
+    "@odata.context": "https://graph.microsoft.com/beta/$metadata#authenticationMethodConfigurations/$entity",
+    "@odata.type": "#microsoft.graph.x509CertificateAuthenticationMethodConfiguration",
+    "id": "X509Certificate",
+    "state": "enabled",
+    "excludeTargets": [],
+    "certificateUserBindings": [
+        {
+            "x509CertificateField": "PrincipalName",
+            "userProperty": "onPremisesUserPrincipalName",
+            "priority": 1
+        }
+    ],
+    "authenticationModeConfiguration": {
+        "x509CertificateAuthenticationDefaultMode": "x509CertificateMultiFactor",
+        "rules": []
+    },
+    "includeTargets@odata.context": "https://graph.microsoft.com/beta/$metadata#policies/authenticationMethodsPolicy/authenticationMethodConfigurations('X509Certificate')/microsoft.graph.x509CertificateAuthenticationMethodConfiguration/includeTargets",
+    "includeTargets": [
+        {
+            "targetType": "group",
+            "id": "13480975-af4d-4497-949c-b204f2ef30db",
+            "isRegistrationRequired": false
+        }
+    ]
+}
+```
+Where `IncludeTargets` contains the `id` for the CBA Pilot group, **Azure AD CBA Pilot**.
+</p>
+</details>
+
+## Example 1: Azure AD Commercial with default settings
+```PowerShell
+Configure-CBA-QuickStart.ps1
+```
+> **Note**: Parameters will default. Running with no parameters will apply the parameters below:
+> `Configure-CBA-Quickstart.ps1 -AzureEnvironmentName "Global" -AADAttribute "onPremisesUserPrincipalName" -CertificateField "PrincipalName" -PKIJsonPath "DODPKI.json" -PilotGroupName "Azure AD CBA Pilot"`
+
+## Example 2: Azure AD Government with default settings
+```PowerShell
+Configure-CBA-QuickStart.ps1 -AzureEnvironmentName USGov
+```
+## Example 3: Azure AD Government with parameters
+```PowerShell
+Configure-CBA-QuickStart.ps1 -AzureEnvironmentName USGov -AADAttribute certificateUserIds -CertificateField PrincipalName -PKIJsonPath "c:\temp\myjsonpath\pki.json" -PilotGroupName "AAD CBA Test Flight A"
+```
+
+# Customize Configuration
+Follow these steps below to walk through CBA design and configuration.
+
 ## 1. Determine username mapping policy
 For DOD Common Access Card (CAC) certificates, the `Principal Name` Subject Alternative Name (SAN) value needs to be mapped to an attribute on your Azure AD user accounts. Depending on the hybrid identity configuration, this value can be stored on either:
-- [OnPremisesUserPrincipalName (synchronized users)](#onpremisessamaccountname-synchronized-users)
-- [UserCertificateIds (cloud-only users)](#usercertificateids-cloud-only-users)
+- [OnPremisesUserPrincipalName](#synchronized-users) (synchronized users)
+- [certificateUserIds](#cloud-only-users-or-combination-of-cloud-only-and-synchronized) (cloud-only users)
 
 Use the following flow chart to determine which attribute you should use.
 
@@ -84,12 +149,14 @@ Configure using the Azure Portal following the reference below.
 
 You may also want to use this attribute for synchronized users for scenarios where `OnPremisesUserPrincipalName` will not contain the right attribute value to match the certificate. To use Azure AD Connect to populate the attribute, see [update certificateUserIds with Azure AD Connect](https://learn.microsoft.com/en-us/azure/active-directory/authentication/concept-certificate-based-authentication-certificateuserids#update-certificate-user-ids-using-azure-ad-connect).
 
-Programatic updates to userCertificateIds attribute can be perfomed using Microsoft Graph API. Sample script included below:
+#### Updating certificateUserIds PowerShell
+Programatic updates to `certificateUserIds` attribute can be perfomed using Microsoft Graph API using the sample script below:
+
 <details><summary><b>Show Script</b></summary>
 <p>
 
 ````PowerShell
-function UpdateUserCertIDs {
+function Update-CertificateUserIds {
     Param(
         [String]$UserPrincipalName,
         [ValidateSet("PrincipalName","RFC822Name","X509SKI","X509SHA1PublicKey")]
@@ -126,7 +193,7 @@ function UpdateUserCertIDs {
 
 # Connect to MS Graph (example for Azure AD Government)
 Connect-MgGraph -Environment USGov -Scopes User.ReadWrite.All
-UpdateUserCertIDs -UserPrincipalName $UPN -binding PrincipalName -value $CACPNValue -USGov
+Update-CertificateUserIds -UserPrincipalName $UPN -binding PrincipalName -value $CACPNValue -USGov
 
 # Verify value for single user
 $user = Get-MgUser -UserId $UPN
