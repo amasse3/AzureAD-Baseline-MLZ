@@ -918,7 +918,8 @@ Continue to [Zero Trust with Azure AD](/doc/zt/AAD-ZT-Quickstart.md) to get star
 - [Common Deployment Patterns](./MLZ-Common-Patterns.md)
 - [Identity for MLZ Applications](./MLZ-Application-Identity.md)
 - [Permissions for MLZ](./AAD-Permissions-Management.md)
-- [CBA Configuration for DOD PKI](./AAD-CertificateBasedAuthentication-DODPKI.md)
+- [Zero Trust with Azure AD](/doc/zt/AAD-ZT-Quickstart.md)
+- [CBA Configuration for DOD PKI](/doc/quickstart/AAD-CertificateBasedAuthentication-DODPKI.md)
 - [MLZ Identity FAQ](./MLZ-AAD-FAQ.md)
 - [MLZ Identity Add-On Home](./../README.md)
 
