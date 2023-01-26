@@ -33,6 +33,7 @@ This script will complete the following:
 
 <details><summary><b>View default settings (no parameters)</b></summary>
 <p>
+
 ```JSON
 {
     "@odata.context": "https://graph.microsoft.com/beta/$metadata#authenticationMethodConfigurations/$entity",
@@ -61,7 +62,9 @@ This script will complete the following:
     ]
 }
 ```
+
 Where `IncludeTargets` contains the `id` for the CBA Pilot group, **Azure AD CBA Pilot**.
+
 </p>
 </details>
 
