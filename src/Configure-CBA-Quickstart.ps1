@@ -29,6 +29,34 @@ Param(
     [String]$AzureEnvironmentName = "Global"
 )
 
+#region functions
+function Convert-HexStringToByteArray {
+    [CmdletBinding()]Param(
+    [Parameter(Mandatory = $True, ValueFromPipeline = $True)]
+    [String]$String)
+ 
+    #Clean string
+    #$String = $String.ToLower() -replace "[^a-f0-9\\,x\-\:]",""
+    #$String = $String -replace "0x|\x|\-|,",":"
+    #$String = $String -replace "^:+|:+$|x|\",""
+ 
+    #Convert the rest
+    if ($String.Length -eq 0) {,@() ; return}
+ 
+    #Split string with or without colon delimiters.
+    if ($String.Length -eq 1) {
+        ,@([System.Convert]::ToByte($String,16))
+    } elseif (($String.Length % 2 -eq 0) -and ($String.IndexOf(":") -eq -1)) {
+        ,@($String -split '([a-f0-9]{2})' | foreach-object {
+            if ($_) {[System.Convert]::ToByte($_,16)}
+        })
+    } elseif ($String.IndexOf(":") -ne -1) {
+        ,@($String -split ':+' | foreach-object {[System.Convert]::ToByte($_,16)})
+    }
+    else {,@()}
+}
+#endregion
+
 #region warning
 $msg = "WARNING:`nSample scripts in this repository are not supported under any Microsoft support program or service. Scripts are provided AS IS without warranty of any kind. All warranties including, without limitation, any implied warranties of merchantability or of fitness for a particular purpose. The entire risk arising out of the use of sample scripts or configuration documentation remains with you. In no event shall Microsoft, its authors, or anyone else involved in the creation, produciton, or delivery of this content be liable for any damages whatsoever (including, without limitation, damages for loss of business profits, business interruption, loss of business information, or other pecuniary loss) arising out of the use of or inability to use the sample scripts or documentation, even if Microsoft has been advised of the possibility of such damages."
 Write-Host $msg -ForegroundColor Yellow
@@ -40,7 +68,7 @@ if (!$continue) {
     start-sleep -Seconds 3
     exit
 }
-
+#endregion
 
 # Read in Certificates Json
 $CertConfig = Get-Content $PKIJsonFilePath | ConvertFrom-Json
@@ -59,9 +87,11 @@ switch ($AzureEnvironmentName) {
 Try {$connected = Get-AzureADTenantDetail -ErrorAction Stop} Catch [exception] {}
 
 While (!($connected)) {
-    Connect-AzureAD -AzureEnvironmentName $AADEnvironment
+    Connect-AzureAD -AzureEnvironmentName $AADEnvironment | Out-Null
     Try{$connected = Get-AzureADTenantDetail -ErrorAction Stop} Catch [exception] {}
 }
+
+Start-Sleep -Seconds 4
 
 #Get existing certificate configuration
 $TenantCertificates = Get-AzureADTrustedCertificateAuthority
@@ -71,12 +101,12 @@ foreach ($cert in $Certconfig) {
     if ($cert.Subject -in $TenantCertificates.TrustedIssuer) {
         Write-host "Certificate $($cert.Subject) already exists."
     } else {
-        Write-Host "Creating certificate $($CertConfig.Subject)." -ForegroundColor Cyan
+        Write-Host "Creating certificate $($CertConfig[0].Subject.split(",")[0])." -ForegroundColor Cyan
         $new_ca=New-Object -TypeName Microsoft.Open.AzureAD.Model.CertificateAuthorityInformation
         $new_ca.AuthorityType=$($cert.authority)
         $new_ca.TrustedCertificate=$(Convert-HexStringToByteArray -String $cert.RawData)
         $new_ca.crlDistributionPoint=$($cert.crl)
-        New-AzureADTrustedCertificateAuthority -CertificateAuthorityInformation $new_ca
+        New-AzureADTrustedCertificateAuthority -CertificateAuthorityInformation $new_ca | Out-Null
     }
 }
 
@@ -127,7 +157,11 @@ Write-Host "Adding the pilot group $($GroupObj.Id) to CBA staged rollout." -Fore
 $params = @{
     "@odata.id" = "$MSGraphURI/v1.0/directoryObjects/$($GroupObj.Id)"
 }
-New-MgPolicyFeatureRolloutPolicyApplyToByRef -FeatureRolloutPolicyId $FeatureRolloutPolicy.Id -BodyParameter $params
+
+Try {
+    New-MgPolicyFeatureRolloutPolicyApplyToByRef -FeatureRolloutPolicyId $FeatureRolloutPolicy.Id -BodyParameter $params -ErrorAction SilentlyContinue | Out-Null
+} Catch [exception] {}
+
 
 # Configure Authentication Method
 Write-host "Enabling CBA Authentication method." -ForegroundColor Cyan
@@ -163,7 +197,7 @@ $params = @{
 	)
 }
 
-Update-MgPolicyAuthenticationMethodPolicy -BodyParameter $params
+Update-MgPolicyAuthenticationMethodPolicy -BodyParameter $params | Out-Null
 
 Write-Host "CBA Configuration complete." -ForegroundColor Green
 
