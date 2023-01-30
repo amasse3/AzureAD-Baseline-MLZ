@@ -1,7 +1,7 @@
 #Configure-CBA-Quickstart.ps1
 #
-# Version: 0.1 Testing
-# LastModified: 01/26/2023
+# Version: 0.2 Testing
+# LastModified: 01/30/2023
 #
 # Warning: Sample scripts in this repository are not supported under any Microsoft support program or service. 
 # Scripts are provided AS IS without warranty of any kind. All warranties including, without limitation, any 
@@ -84,11 +84,8 @@ switch ($AzureEnvironmentName) {
     Global {$AADEnvironment="AzureCloud";$MSGraphURI="https://graph.microsoft.us"}
 }
 
-Try {$connected = Get-AzureADTenantDetail -ErrorAction Stop} Catch [exception] {}
-
-While (!($connected)) {
-    Connect-AzureAD -AzureEnvironmentName $AADEnvironment | Out-Null
-    Try{$connected = Get-AzureADTenantDetail -ErrorAction Stop} Catch [exception] {}
+Try {$connected = Get-AzureADTenantDetail -ErrorAction Stop} Catch [Microsoft.Open.Azure.AD.CommonLibrary.AadNeedAuthenticationException] {Write-Warning "Not authenticated to Azure AD. Connecting"
+    $connected = Connect-AzureAD -AzureEnvironmentName $AADEnvironment
 }
 
 Start-Sleep -Seconds 4
@@ -111,11 +108,10 @@ foreach ($cert in $Certconfig) {
 }
 
 # Connect to MS Graph PowerShell
-#Connect-MgGraph -Scopes Policy.ReadWrite.FeatureRollout,Policy.ReadWrite.AuthenticationMethod,Group.ReadWrite.All,Organization.ReadWrite.All
+Connect-MGGraph -Environment $AzureEnvironmentName -Scopes Group.ReadWrite.All,Policy.ReadWrite.FeatureRollout,Policy.ReadWrite.AuthenticationMethod
 
 # Create Pilot Group
 $MailNickname = $PilotGroupName -replace '[\W]', ''
-Connect-MGGraph -Environment $AzureEnvironmentName -Scopes Group.ReadWrite.All
 
 # Create group if it does not already exist
 $GroupExists = Get-MgGroup -Filter "mailnickname eq `'$MailNickname`'"
@@ -159,7 +155,7 @@ $params = @{
 }
 
 Try {
-    New-MgPolicyFeatureRolloutPolicyApplyToByRef -FeatureRolloutPolicyId $FeatureRolloutPolicy.Id -BodyParameter $params -ErrorAction SilentlyContinue | Out-Null
+    $policyref = New-MgPolicyFeatureRolloutPolicyApplyToByRef -FeatureRolloutPolicyId $FeatureRolloutPolicy.Id -BodyParameter $params -ErrorAction SilentlyContinue
 } Catch [exception] {}
 
 
@@ -201,8 +197,10 @@ Update-MgPolicyAuthenticationMethodPolicy -BodyParameter $params | Out-Null
 
 Write-Host "CBA Configuration complete." -ForegroundColor Green
 
-if ($error.Count -gt 0) {
+Write-Host "Summary:`n - Uploaded certificates from $PKIJsonFilePath`n - Configured group $($GroupObj.MailNickname) $($GroupObj.Id)`n - Configured Staged Rollout for Azure AD CBA`n - Configured Azure AD Authentication Method for CBA`n - Set certificate binding $CertificateField = user.$AADAttribute"
+
+<#if ($error.Count -gt 0) {
     Write-Host -ForegroundColor Yellow "There were errors during configuration."
 } else {
     Write-Host "Summary:`n - Uploaded certificates from $PKIJsonFilePath`n - Configured group $($GroupObj.MailNickname) $($GroupObj.Id)`n - Configured Staged Rollout for Azure AD CBA`n - Configured Azure AD Authentication Method for CBA`n - Set certificate binding $CertificateField = user.$AADAttribute"
-}
+}#>
