@@ -298,8 +298,6 @@ foreach ($cert in $Certconfig) {
 5. Expand the AppData folder and click **Certificates**
 6. Right-click on the certificates listed below, select **All Tasks --> Export...**, select **DER encoded binary X.509 (.CER)** format, and choose a location to save the file.
     - DoD Root CA 3
-    - DoD Root CA 4
-    - DoD Root CA 5
     - DOD ID CA-59
     - DOD ID CA-62
     - DOD ID CA-63
@@ -318,15 +316,15 @@ Follow the [manual steps](https://learn.microsoft.com/en-us/azure/active-directo
 |No.|Certificate|CRL|Is Root CA|
 |---|-----------|---|----------|
 |1|DoD Root CA 3|http://crl.disa.mil/crl/DODROOTCA3.crl|Yes|
-|2|DoD Root CA 4|http://crl.disa.mil/crl/DODROOTCA4.crl|Yes|
-|3|DoD Root CA 5|http://crl.disa.mil/crl/DODROOTCA5.crl|Yes|
 |4|DOD ID CA-59|http://crl.disa.mil/crl/DODIDCA_59.crl|No|
 |5|DOD ID CA-62|http://crl.disa.mil/crl/DODIDCA_62.crl|No|
 |6|DOD ID CA-63|http://crl.disa.mil/crl/DODIDCA_63.crl|No|
 |7|DOD ID CA-64|http://crl.disa.mil/crl/DODIDCA_64.crl|No|
 |8|DOD ID CA-65|http://crl.disa.mil/crl/DODIDCA_65.crl|No|
 
-> **Note**: Root Certificates need to be uploaded first and marked as root. If you make a mistake during the process, you will need to delete the certificate from the Azure Portal and upload it again.
+> **Note**: 
+> - **Root Certificates**: Make sure to mark the root certificate as root. If you miss this step you will need to delete the certificate from the Azure Portal and upload it again.
+> - **CRL Location**: Do not confuse the CA CRL location with the CRL location on the CA certificate. The latter indicates the CRL for the issuer of the intermediate CA, not the CRL for certificates issued by the intermediate CA. Some organizations publish thee CRLs to their local enterprise network for performance reasons. Do not use an internal CRL location - use the DISA public CRL endpoints. Azure AD logon service must be able to reach the CRL over public internet.
 
 > 📘 [Configure certification authorities](https://learn.microsoft.com/en-us/azure/active-directory/authentication/how-to-certificate-based-authentication#step-1-configure-the-certification-authorities)
 
