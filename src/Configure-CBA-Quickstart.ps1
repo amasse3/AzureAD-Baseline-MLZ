@@ -18,7 +18,7 @@ Param(
     [ValidateSet("userPrincipalName","onPremisesUserPrincipalName","certificateUserIds")]
     [String]$AADAttribute = "onPremisesUserPrincipalName",
     [Parameter (Mandatory = $False, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)]
-    [ValidateSet("PrincipalName","RFC822Name","X509SKI","X509SHA1PublicKey")]
+    [ValidateSet("PrincipalName","RFC822Name","SubjectKeyIdentifier","SHA1PublicKey")]
     [String]$CertificateField = "PrincipalName",
     [Parameter (Mandatory = $False, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)]
     [String]$PKIJsonFilePath = "DODPKI.json",
