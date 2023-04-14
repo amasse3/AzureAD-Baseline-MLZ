@@ -1,7 +1,7 @@
 #Configure-CBA-Quickstart.ps1
 #
-# Version: 0.2 Testing
-# LastModified: 01/30/2023
+# Version: 0.3 Testing
+# LastModified: 04/14/2023
 #
 # Warning: Sample scripts in this repository are not supported under any Microsoft support program or service. 
 # Scripts are provided AS IS without warranty of any kind. All warranties including, without limitation, any 
