@@ -98,7 +98,7 @@ foreach ($cert in $Certconfig) {
     if ($cert.Subject -in $TenantCertificates.TrustedIssuer) {
         Write-host "Certificate $($cert.Subject) already exists."
     } else {
-        Write-Host "Creating certificate $($CertConfig[0].Subject.split(",")[0])." -ForegroundColor Cyan
+        Write-Host "Creating certificate $($cert.Subject.split(",")[0])." -ForegroundColor Cyan
         $new_ca=New-Object -TypeName Microsoft.Open.AzureAD.Model.CertificateAuthorityInformation
         $new_ca.AuthorityType=$($cert.authority)
         $new_ca.TrustedCertificate=$(Convert-HexStringToByteArray -String $cert.RawData)
@@ -124,6 +124,7 @@ if (!($GroupExists)) {
         $GroupObj = $GroupExists[0]
         Write-Host "$($GroupExists.count) groups exist with mailnickname value $Mailnickname. Configuring CBA with $($GroupObj.Id)." -ForegroundColor Yellow
     } else {
+        $GroupObj = $GroupExists
         Write-Host "Pilot Group $MailNickname already exists with id $($GroupObj.Id)."
     }
 }
