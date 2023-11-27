@@ -1,7 +1,7 @@
 #Configure-AADTenantBaseline.ps1
 #
-# Version: 0.5 Test release
-# LastModified: 01/11/2023
+# Version: 0.6 Test release
+# LastModified: 11/27/2023
 #
 # Warning: Sample scripts in this repository are not supported under any Microsoft support program or service. 
 # Scripts are provided AS IS without warranty of any kind. All warranties including, without limitation, any 
@@ -1127,7 +1127,7 @@ if ($EntitlementsManagement -or $All) {
 
     #New-MgEntitlementManagementAccessPackage -BodyParameter $params
     New-MgEntitlementManagementCatalog -BodyParameter $params
-    
+
     #Create the Mission Catalogs
     foreach ($MissionAU in $MissionAUs) {
         $params = Convert-MLZCatalogFromTemplate -template $MissionCatalogTemplate -missionAU $MissionAU | ConvertTo-Json
