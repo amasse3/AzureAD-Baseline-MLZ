@@ -1062,7 +1062,9 @@ if ($TenantPolicies -or $All) {
 
     Write-host -ForegroundColor Cyan "Updating Admin Consent Polices"
     
-    $ConsentSettings = Get-MgDirectorySetting | Where-Object{$_.DisplayName -eq "Consent Policy Settings"}
+    #$ConsentSettings = Get-MgDirectorySetting | Where-Object{$_.DisplayName -eq "Consent Policy Settings"}
+    $consentSettingsTemplateId = "dffd5d46-495d-40a9-8e21-954ff55e198a" # Consent Policy Settings
+    $ConsentSettings = Get-MgBetaDirectorySetting | ?{ $_.TemplateId -eq $consentSettingsTemplateId }
     
     #set params
     $params = @{
@@ -1090,10 +1092,10 @@ if ($TenantPolicies -or $All) {
         #create the new setting if there is not one existing
         #$TemplateId = $(Get-MgDirectorySettingTemplate | Where-Object {$_.DisplayName -eq "Consent Policy Settings"}).Id
         #New-MgDirectorySetting -TemplateId $TemplateId -Values $params.Values -DisplayName "Consent Policy Settings"
-        $consentSettingsTemplateId = "dffd5d46-495d-40a9-8e21-954ff55e198a" # Consent Policy Settings
+
         New-MgBetaDirectorySetting -TemplateId $consentSettingsTemplateId -Values $params.Values -DisplayName "Consent Policy Settings"
     } else {
-        Update-MgDirectorySetting -DirectorySettingId $ConsentSettings.Id  -BodyParameter $params #>
+        Update-MgBetaDirectorySetting -DirectorySettingId $ConsentSettings.Id  -BodyParameter $params 
     }
 
     Write-Host -ForegroundColor Cyan "Updating Cross-Tenant Access Policy Default Inbound Settings"
