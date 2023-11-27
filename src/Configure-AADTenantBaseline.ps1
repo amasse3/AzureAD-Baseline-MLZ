@@ -575,7 +575,7 @@ if ($EmergencyAccess -or $All) {
         Start-Sleep -Seconds 10
     }
     
-    write-host Stop
+
     #Add users to the group and AU
     $params = Build-MemberberArrayParams -members $EAAccountObjects.Id -MSGraphURI $MSGraphURI -objectType "users"
 
@@ -705,7 +705,7 @@ if ($NamedAccounts -or $All) {
     $CoreAUObj = Get-MgDirectoryAdministrativeUnit -Filter "startsWith(DisplayName, `'$($CoreAU.displayName)`')"
     $CoreUserObj = Get-MgUser -Filter "startsWith(Department,`'MLZ`')"
     $CoreUserRefArray = @($CoreUserObj.Id)
-    write-host STOP
+
     $params = Build-MemberberArrayParams -members $CoreUserRefArray -MSGraphURI $MSGraphURI -objectType "users"
     Update-MgDirectoryAdministrativeUnit -AdministrativeUnitId $CoreAUObj.Id -BodyParameter $params
 
