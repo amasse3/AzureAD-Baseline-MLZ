@@ -100,7 +100,7 @@ if (!$(Test-Path $ParametersJson)) {
 } else {
     #Load the file
     Write-Host "Loading parameters from $ParametersJson..."
-    $Parameters = $(Get-Content $ParametersJson) | ConvertFrom-Json
+    $Parameters = $(Get-Content $ParametersJson) | ConvertFrom-Json -Depth 10
 }
 
 #endregion
@@ -210,10 +210,10 @@ function Build-MemberberArrayParams {
     Param([Array]$members,[String]$MSGraphURI,[String]$objectType)
     $out = @()
     foreach ($member in $members) {
-        $out += "$MSGraphURI/$objectType/$member"
+        $out += "$MSGraphURI/v1.0/$objectType/$member"
     }
 
-    $params = @{"Members@odata.bind" = $out}
+    $params = @{"Members@odata.id" = $out}
 
     Return $params
 }
@@ -437,15 +437,16 @@ function Find-MLZMissionAUObj {
 function New-MLZAccessPackageCatalog {
     Param([object]$BodyParameter)
 
+
     Try {
-        $exists = Get-MgEntitlementManagementAccessPackageCatalog -Filter "displayName eq `'$($BodyParameter.displayname)`'"
+        $exists = Get-MgBetaEntitlementManagementAccessPackageCatalog -Filter "displayName eq `'$($BodyParameter.displayname)`'"
     } Catch {} #to be implemented
 
     if ($exists) {
         Write-Host "Access Package Catalog $($BodyParameter.displayName) already exists."
     } else {
         Write-Host -ForegroundColor Yellow "Creating Access Package Catalog $($BodyParameter.displayName)."
-        New-MgEntitlementManagementAccessPackageCatalog -BodyParameter $BodyParameter
+        New-MgBetaEntitlementManagementAccessPackageCatalog -BodyParameter $BodyParameter
     }
 }
 
@@ -497,12 +498,13 @@ Switch ($Environment) {
 
 #region PSTools
 if ($PSTools -or ($All -and $IncludeTools)) {
-    $modules = $mlzparams.StepParameterSet.PSTools.parameters.Modules
+    $modules = $Parameters.StepParameterSet.PSTools.parameters.Modules
+
     foreach ($module in $modules) {
         if ($Verbose) {
-            Install-Module $modules -Verbose
+            Install-Module $module -Verbose
         } else {
-            Install-Module $modules -Confirm
+            Install-Module $module -Confirm
         }
     }
 }
@@ -573,12 +575,12 @@ if ($EmergencyAccess -or $All) {
         Start-Sleep -Seconds 10
     }
     
-
+    write-host Stop
     #Add users to the group and AU
     $params = Build-MemberberArrayParams -members $EAAccountObjects.Id -MSGraphURI $MSGraphURI -objectType "users"
 
     Try {
-        Update-MgAdministrativeUnit -AdministrativeUnitId $EAAUObj.Id -BodyParameter $params -ErrorAction Stop
+        Update-MgDirectoryAdministrativeUnit -AdministrativeUnitId $EAAUObj.Id -BodyParameter $params -ErrorAction Stop
     } Catch [Exception] {
         Write-Host "Member already added. Skipping."
     }
@@ -703,6 +705,7 @@ if ($NamedAccounts -or $All) {
     $CoreAUObj = Get-MgDirectoryAdministrativeUnit -Filter "startsWith(DisplayName, `'$($CoreAU.displayName)`')"
     $CoreUserObj = Get-MgUser -Filter "startsWith(Department,`'MLZ`')"
     $CoreUserRefArray = @($CoreUserObj.Id)
+    write-host STOP
     $params = Build-MemberberArrayParams -members $CoreUserRefArray -MSGraphURI $MSGraphURI -objectType "users"
     Update-MgDirectoryAdministrativeUnit -AdministrativeUnitId $CoreAUObj.Id -BodyParameter $params
 
@@ -833,8 +836,10 @@ if ($AuthNMethods -or $All) {
 
 #endregion
 
+<#
 #region Certificates
 if ($Certificates -or $All) {
+    Import-Module AzureAD
     if ($Environment -eq "USGov" -or $Environment -eq "USGovDOD") {
         $AADEnvironment = "AzureUSGovernment"
     } elseif ($Environment -eq "Global") {
@@ -883,6 +888,7 @@ if ($Certificates -or $All) {
     Write-Host -ForegroundColor Green "Completed Certificate configuration."
 }
 #endregion
+#> 
 
 #region Groups
 if ($Groups -or $All) {
@@ -987,7 +993,7 @@ if ($ConditionalAccess -or $All) {
     Write-Host -ForegroundColor Cyan "Configuring Conditional Access Policies for MLZ Baseline."
 
     Connect-MgGraph -Scopes 'Application.Read.All','Policy.Read.All','Policy.ReadWrite.ConditionalAccess'
-    Select-MgProfile beta
+    #Select-MgProfile beta
 
     #get current user
     $CurrentUserID = $(Get-MgUser -Filter "UserPrincipalName eq `'$($(Get-MgContext).Account)`'").Id
