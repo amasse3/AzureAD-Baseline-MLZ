@@ -164,7 +164,8 @@ function New-MLZAdminUnit {
     Param([object]$BodyParameter)
 
     Try{
-        $AU = Get-MgAdministrativeUnit | Where-Object{$_.DisplayName -eq $($BodyParameter.displayName)} -ErrorAction SilentlyContinue
+        #$AU = Get-MgAdministrativeUnit | Where-Object{$_.DisplayName -eq $($BodyParameter.displayName)} -ErrorAction SilentlyContinue
+        $AU = Get-MgDirectoryAdministrativeUnit -Filter "Displayname eq '$($BodyParameter.displayName)'" -ErrorAction SilentlyContinue
     } Catch {}
 
     if ($AU) {
@@ -172,7 +173,8 @@ function New-MLZAdminUnit {
         Write-Host $msg
     } else {
         Write-host -ForegroundColor yellow "Adding Administrative Unit $($BodyParameter.displayName)."
-        $AU = New-MgAdministrativeUnit -BodyParameter $($BodyParameter | convertto-json)
+        #$AU = New-MgAdministrativeUnit -BodyParameter $($BodyParameter | convertto-json)
+        $AU = New-MgDirectoryAdministrativeUnit -DisplayName $($BodyParameter.displayName)
     }
     Return $AU
 }
@@ -428,7 +430,7 @@ function Find-MLZMissionAUObj {
         $t = $Template | ConvertTo-Csv -NoTypeInformation | ConvertFrom-Csv
         #build filter
         $f = $t.displayName -replace "ZZZ",$AU
-        $obj = Get-MgAdministrativeUnit -Filter "DisplayName eq `'$f`'"
+        $obj = Get-MgDirectoryAdministrativeUnit -Filter "DisplayName eq `'$f`'"
     return $obj
 }
 
@@ -486,9 +488,9 @@ Write-Host "Sign in to Azure AD"
 Connect-MgGraph -Environment $Environment -Scopes Directory.Read.All
 $upnsuffix = $(Get-MgDomain | Where-Object{$_.IsInitial -eq $true}).Id
 Switch ($Environment) {
-    Global {$MSGraphURI = "https://graph.microsoft.com/beta"}
-	USGov {$MSGraphURI = "https://graph.microsoft.us/beta"}
-    USGovDoD {$MSGraphURI = "https://graph.microsoft.us/beta"}
+    Global {$MSGraphURI = "https://graph.microsoft.com"}
+	USGov {$MSGraphURI = "https://graph.microsoft.us"}
+    USGovDoD {$MSGraphURI = "https://graph.microsoft.us"}
 }
 
 #endregion
@@ -698,11 +700,11 @@ if ($NamedAccounts -or $All) {
     #add to MLZ core admin unit
     Write-host -ForegroundColor Yellow "Adding MLZ core users to an Administrative Unit"
     $CoreAU = $Parameters.StepParameterSet.AdminUnits.parameters.CoreAU
-    $CoreAUObj = Get-MgAdministrativeUnit -Filter "startsWith(DisplayName, `'$($CoreAU.displayName)`')"
+    $CoreAUObj = Get-MgDirectoryAdministrativeUnit -Filter "startsWith(DisplayName, `'$($CoreAU.displayName)`')"
     $CoreUserObj = Get-MgUser -Filter "startsWith(Department,`'MLZ`')"
     $CoreUserRefArray = @($CoreUserObj.Id)
     $params = Build-MemberberArrayParams -members $CoreUserRefArray -MSGraphURI $MSGraphURI -objectType "users"
-    Update-MgAdministrativeUnit -AdministrativeUnitId $CoreAUObj.Id -BodyParameter $params
+    Update-MgDirectoryAdministrativeUnit -AdministrativeUnitId $CoreAUObj.Id -BodyParameter $params
 
     Write-Host -ForegroundColor Green "Completed creating Named Accounts."
 }
@@ -938,7 +940,7 @@ if ($PIM -or $All) {
     }
 
     $CoreAU = $Parameters.StepParameterSet.AdminUnits.parameters.CoreAU
-    $CoreAUObj = Get-MgAdministrativeUnit -Filter "DisplayName eq `'$($CoreAU.displayName)`'"
+    $CoreAUObj = Get-MgDirectoryAdministrativeUnit -Filter "DisplayName eq `'$($CoreAU.displayName)`'"
     $MissionAUs = $Parameters.GlobalParameterSet.MissionAUs
     $UserTemplate = $Parameters.StepParameterSet.AdminUnits.parameters.MissionAUUserTemplate
     $GroupTemplate = $Parameters.StepParameterSet.AdminUnits.parameters.MissionAUGroupTemplate
@@ -1038,7 +1040,8 @@ if ($TenantPolicies -or $All) {
             AllowedToReadOtherUsers = $authorizationPolicy.defaultUserRolePermissions.allowedToReadOtherUsers
         }
     }
-    Update-MgPolicyAuthorizationPolicy -AuthorizationPolicyId "authorizationPolicy" -BodyParameter $params
+    #Update-MgPolicyAuthorizationPolicy -AuthorizationPolicyId "authorizationPolicy" -BodyParameter $params
+    Update-MgPolicyAuthorizationPolicy -BodyParameter $params
 
     Write-host -ForegroundColor Cyan "Updating External Identity Policies"
 
@@ -1048,7 +1051,8 @@ if ($TenantPolicies -or $All) {
         AllowDeletedIdentitiesDataRemoval = $externalIdentityPolicy.allowDeletedIdentitiesDataRemoval
     }
 
-    Update-MgPolicyExternalIdentityPolicy -BodyParameter $params
+    #Update-MgPolicyExternalIdentityPolicy -BodyParameter $params
+    Update-MgBetaPolicyExternalIdentityPolicy -BodyParameter $params
 
     Write-host -ForegroundColor Cyan "Updating Admin Consent Polices"
     
@@ -1078,8 +1082,10 @@ if ($TenantPolicies -or $All) {
 
     if (!$ConsentSettings) {
         #create the new setting if there is not one existing
-        $TemplateId = $(Get-MgDirectorySettingTemplate | Where-Object {$_.DisplayName -eq "Consent Policy Settings"}).Id
-        New-MgDirectorySetting -TemplateId $TemplateId -Values $params.Values -DisplayName "Consent Policy Settings"
+        #$TemplateId = $(Get-MgDirectorySettingTemplate | Where-Object {$_.DisplayName -eq "Consent Policy Settings"}).Id
+        #New-MgDirectorySetting -TemplateId $TemplateId -Values $params.Values -DisplayName "Consent Policy Settings"
+        $consentSettingsTemplateId = "dffd5d46-495d-40a9-8e21-954ff55e198a" # Consent Policy Settings
+        New-MgBetaDirectorySetting -TemplateId $consentSettingsTemplateId -Values $params.Values -DisplayName "Consent Policy Settings"
     } else {
         Update-MgDirectorySetting -DirectorySettingId $ConsentSettings.Id  -BodyParameter $params #>
     }
@@ -1092,7 +1098,7 @@ if ($TenantPolicies -or $All) {
         IsHybridAzureADJoinedDeviceAccepted = $xtapDefaultPolicy.isHybridAzureADJoinedDeviceAccepted
     }
 
-    Update-MgPolicyCrossTenantAccessPolicyDefault -BodyParameter $params
+    Update-MgBetaPolicyCrossTenantAccessPolicyDefault -BodyParameter $params
 
     Write-Host -ForegroundColor Green "Completed configuration of Cross-Tenant Access Policy"
 }
@@ -1114,12 +1120,13 @@ if ($EntitlementsManagement -or $All) {
     #Create the Core Catalog
     
     $params = @{
-	    DisplayName = $catalog.displayName
-	    Description = $catalog.description
-	    IsExternallyVisible = $catalog.isExternallyVisible
+	    displayName = $CoreCatalog.displayName
+	    description = $CoreCatalog.description
+	    isExternallyVisible = $CoreCatalog.isExternallyVisible
     }
 
-    New-MgEntitlementManagementAccessPackage -BodyParameter $params
+    #New-MgEntitlementManagementAccessPackage -BodyParameter $params
+    New-MgEntitlementManagementCatalog -BodyParameter $params
     
     #Create the Mission Catalogs
     foreach ($MissionAU in $MissionAUs) {
