@@ -617,6 +617,7 @@ if ($EmergencyAccess -or $All) {
     #Assign Global Admin role
     $GARoleObj = Get-MgRoleManagementDirectoryRoleDefinition -UnifiedRoleDefinitionId "62e90394-69f5-4237-9190-012177145e10"
 
+
     if ($Parameters.StepParameterSet.EmergencyAccess.parameters.PIM.permanentActiveAssignment) {
         Try {
             $obj = Get-MgRoleManagementDirectoryRoleAssignmentScheduleRequest -Filter "PrincipalId eq `'$($EAGroupObj.Id)`'"
@@ -639,6 +640,7 @@ if ($EmergencyAccess -or $All) {
 		            }
 	            }
             }
+          
             New-MgRoleManagementDirectoryRoleAssignmentScheduleRequest -BodyParameter $params
         }
         
