@@ -213,7 +213,7 @@ function Build-MemberberArrayParams {
         $out += "$MSGraphURI/v1.0/$objectType/$member"
     }
 
-    $params = @{"Members@odata.id" = $out}
+    $params = @{"@odata.id" = $out}
 
     Return $params
 }
@@ -576,14 +576,29 @@ if ($EmergencyAccess -or $All) {
     }
     
 
-    #Add users to the group and AU
-    $params = Build-MemberberArrayParams -members $EAAccountObjects.Id -MSGraphURI $MSGraphURI -objectType "users"
 
-    Try {
+    foreach ($user in $EAAccountObjects.Id) {
+
+        $params = @{
+            "@odata.id" = "https://graph.microsoft.com/v1.0/users/$($user)"
+        }
+        Try {
+            New-MgDirectoryAdministrativeUnitMemberByRef -AdministrativeUnitId $EAAUObj.Id -BodyParameter $params
+        } Catch [Exception] {
+            Write-Host "Member already added. Skipping."
+        }
+        
+
+    }
+
+    #Add users to the group and AU
+    #$params = Build-MemberberArrayParams -members $EAAccountObjects.Id -MSGraphURI $MSGraphURI -objectType "users"
+
+    <#Try {
         Update-MgDirectoryAdministrativeUnit -AdministrativeUnitId $EAAUObj.Id -BodyParameter $params -ErrorAction Stop
     } Catch [Exception] {
         Write-Host "Member already added. Skipping."
-    }
+    }#>
 
     Try {
         Update-MgGroup -GroupId $EAGroupObj.Id -BodyParameter $params -ErrorAction Stop
@@ -706,8 +721,22 @@ if ($NamedAccounts -or $All) {
     $CoreUserObj = Get-MgUser -Filter "startsWith(Department,`'MLZ`')"
     $CoreUserRefArray = @($CoreUserObj.Id)
 
-    $params = Build-MemberberArrayParams -members $CoreUserRefArray -MSGraphURI $MSGraphURI -objectType "users"
-    Update-MgDirectoryAdministrativeUnit -AdministrativeUnitId $CoreAUObj.Id -BodyParameter $params
+    <#$params = Build-MemberberArrayParams -members $CoreUserRefArray -MSGraphURI $MSGraphURI -objectType "users"
+    Update-MgDirectoryAdministrativeUnit -AdministrativeUnitId $CoreAUObj.Id -BodyParameter $params#>
+
+    foreach ($user in $CoreUserObj.Id) {
+
+        $params = @{
+            "@odata.id" = "https://graph.microsoft.com/v1.0/users/$($user)"
+        }
+        Try {
+            New-MgDirectoryAdministrativeUnitMemberByRef -AdministrativeUnitId $CoreAUObj.Id -BodyParameter $params
+        } Catch [Exception] {
+            Write-Host "Member already added. Skipping."
+        }
+        
+
+    }
 
     Write-Host -ForegroundColor Green "Completed creating Named Accounts."
 }
