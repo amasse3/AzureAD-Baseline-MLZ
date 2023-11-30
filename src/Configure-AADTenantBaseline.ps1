@@ -867,9 +867,11 @@ if ($AuthNMethods -or $All) {
 
 #endregion
 
-<#
+
 #region Certificates
 if ($Certificates -or $All) {
+
+    <#
     Import-Module AzureAD
     if ($Environment -eq "USGov" -or $Environment -eq "USGovDOD") {
         $AADEnvironment = "AzureUSGovernment"
@@ -885,23 +887,29 @@ if ($Certificates -or $All) {
     if (!($connected)) {
         Connect-AzureAD -AzureEnvironmentName $AADEnvironment
     }
+    #>
+    Import-Module Microsoft.Graph.Identity.SignIns
+    connect-mggraph -scopes Organization.ReadWrite.All
 
     #Load in the configuration
     $CertConfigPath = $Parameters.StepParameterSet.Certificates.parameters.CertJsonRelativePath
     $DisableCrlCheck = $Parameters.StepParameterSet.Certificates.parameters.DisableCrlCheck
     $CertConfig = Get-Content $CertConfigPath | ConvertFrom-Json
+    $organizationId = (Get-MgOrganization).Id
 
     #Get existing certificate configuration
     Write-host "Getting current certificate configuration for the tenant." -ForegroundColor Cyan
-    $TenantCertificates = Get-AzureADTrustedCertificateAuthority
+    #$TenantCertificates = Get-AzureADTrustedCertificateAuthority
 
     #Check to see if certificates exist, if not add AzureADTrustedCertificateAuthority
     Write-host "Uploading certificates to the tenant." -ForegroundColor Cyan
     foreach ($cert in $Certconfig) {
+        
         if ($cert.Subject -in $TenantCertificates.TrustedIssuer) {
             Write-host "Certificate $($cert.Subject) already exists."
         } else {
-            $new_ca=New-Object -TypeName Microsoft.Open.AzureAD.Model.CertificateAuthorityInformation
+
+            <#$new_ca=New-Object -TypeName Microsoft.Open.AzureAD.Model.CertificateAuthorityInformation
             $new_ca.AuthorityType=$($cert.authority)
             $new_ca.TrustedCertificate=$(Convert-HexStringToByteArray -String $cert.RawData)
 
@@ -910,16 +918,34 @@ if ($Certificates -or $All) {
             } else {
                 $new_ca.crlDistributionPoint=$($cert.crl)
             }
-        
+            
             New-AzureADTrustedCertificateAuthority -CertificateAuthorityInformation $new_ca
+            #>
+            if ($cert.Authority -eq 0) {
+                
+                $params = @{
+                    certificateAuthorities = @(
+                        @{
+                            isRootAuthority = $true
+                            certificate = [System.Text.Encoding]::ASCII.GetBytes($cert.BinData)
+                        }
+                    )
+                }
+
+            }
+            else {
+                $params.certificateAuthorities += @{isRootAuthority=$false; certificate = [System.Text.Encoding]::ASCII.GetBytes($cert.BinData) }
+            }
+            
         }
         
     }
 
+    New-MgOrganizationCertificateBasedAuthConfiguration -OrganizationId $organizationId -BodyParameter $params -Verbose
     Write-Host -ForegroundColor Green "Completed Certificate configuration."
 }
 #endregion
-#> 
+ 
 
 #region Groups
 if ($Groups -or $All) {
