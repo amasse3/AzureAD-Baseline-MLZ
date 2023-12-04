@@ -580,7 +580,7 @@ if ($EmergencyAccess -or $All) {
     foreach ($user in $EAAccountObjects.Id) {
 
         $params = @{
-            "@odata.id" = "https://graph.microsoft.com/v1.0/users/$($user)"
+            "@odata.id" = "$MSGraphURI/v1.0/users/$($user)"
         }
         Try {
             New-MgDirectoryAdministrativeUnitMemberByRef -AdministrativeUnitId $EAAUObj.Id -BodyParameter $params
@@ -729,7 +729,7 @@ if ($NamedAccounts -or $All) {
     foreach ($user in $CoreUserObj.Id) {
 
         $params = @{
-            "@odata.id" = "https://graph.microsoft.com/v1.0/users/$($user)"
+            "@odata.id" = "$MSGraphURI/v1.0/users/$($user)"
         }
         Try {
             New-MgDirectoryAdministrativeUnitMemberByRef -AdministrativeUnitId $CoreAUObj.Id -BodyParameter $params
@@ -748,7 +748,7 @@ if ($NamedAccounts -or $All) {
 #region AuthNMethods
 if ($AuthNMethods -or $All) {
     Import-Module Microsoft.Graph.Identity.SignIns
-    Connect-MgGraph -Scopes Policy.ReadWrite.AuthenticationMethod
+    Connect-MgGraph -Scopes Policy.ReadWrite.AuthenticationMethod -Environment $Environment
     #Select-MgProfile beta
     $AuthNMethodsConfiguration = $Parameters.StepParameterSet.AuthNMethods.parameters.AuthenticationMethodsConfigurations
 
@@ -889,7 +889,7 @@ if ($Certificates -or $All) {
     }
     #>
     Import-Module Microsoft.Graph.Identity.SignIns
-    connect-mggraph -scopes Organization.ReadWrite.All
+    connect-mggraph -scopes Organization.ReadWrite.All -Environment $Environment
 
     #Load in the configuration
     $CertConfigPath = $Parameters.StepParameterSet.Certificates.parameters.CertJsonRelativePath
@@ -967,7 +967,7 @@ if ($Groups -or $All) {
 if ($PIM -or $All) {
     Import-Module Microsoft.Graph.Identity.Governance
     Import-Module Microsoft.Graph.Identity.DirectoryManagement
-    Connect-MgGraph -Scopes "RoleManagement.ReadWrite.Directory"
+    Connect-MgGraph -Scopes "RoleManagement.ReadWrite.Directory" -Environment $Environment
 
     $roles = $Parameters.StepParameterSet.PIM.parameters.Roles
     #$coreroles = $roles | ?{"tenant" -in $_.scope}
@@ -1049,7 +1049,7 @@ if ($PIM -or $All) {
 if ($ConditionalAccess -or $All) {
     Write-Host -ForegroundColor Cyan "Configuring Conditional Access Policies for MLZ Baseline."
 
-    Connect-MgGraph -Scopes 'Application.Read.All','Policy.Read.All','Policy.ReadWrite.ConditionalAccess'
+    Connect-MgGraph -Scopes 'Application.Read.All','Policy.Read.All','Policy.ReadWrite.ConditionalAccess' -Environment $Environment
     #Select-MgProfile beta
 
     #get current user
@@ -1072,7 +1072,7 @@ if ($ConditionalAccess -or $All) {
 
 #region TenantPolicies
 if ($TenantPolicies -or $All) {
-    Connect-MgGraph -Scopes Policy.ReadWrite.Authorization,Policy.ReadWrite.ExternalIdentities
+    Connect-MgGraph -Scopes Policy.ReadWrite.Authorization,Policy.ReadWrite.ExternalIdentities, Directory.ReadWrite.All, Policy.ReadWrite.CrossTenantAccess -Environment $Environment
 
     $authorizationPolicy = $Parameters.StepParameterSet.TenantPolicies.parameters.authorizationPolicy
     $externalIdentityPolicy = $Parameters.StepParameterSet.TenantPolicies.parameters.externalIdentityPolicy
