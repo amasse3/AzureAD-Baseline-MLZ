@@ -1,7 +1,7 @@
 #Configure-AADTenantBaseline.ps1
 #
-# Version: 0.5 Test release
-# LastModified: 01/11/2023
+# Version: 0.6 Test release
+# LastModified: 11/27/2023
 #
 # Warning: Sample scripts in this repository are not supported under any Microsoft support program or service. 
 # Scripts are provided AS IS without warranty of any kind. All warranties including, without limitation, any 
@@ -100,7 +100,7 @@ if (!$(Test-Path $ParametersJson)) {
 } else {
     #Load the file
     Write-Host "Loading parameters from $ParametersJson..."
-    $Parameters = $(Get-Content $ParametersJson) | ConvertFrom-Json
+    $Parameters = $(Get-Content $ParametersJson) | ConvertFrom-Json -Depth 10
 }
 
 #endregion
@@ -164,7 +164,8 @@ function New-MLZAdminUnit {
     Param([object]$BodyParameter)
 
     Try{
-        $AU = Get-MgAdministrativeUnit | Where-Object{$_.DisplayName -eq $($BodyParameter.displayName)} -ErrorAction SilentlyContinue
+        #$AU = Get-MgAdministrativeUnit | Where-Object{$_.DisplayName -eq $($BodyParameter.displayName)} -ErrorAction SilentlyContinue
+        $AU = Get-MgDirectoryAdministrativeUnit -Filter "Displayname eq '$($BodyParameter.displayName)'" -ErrorAction SilentlyContinue
     } Catch {}
 
     if ($AU) {
@@ -172,7 +173,8 @@ function New-MLZAdminUnit {
         Write-Host $msg
     } else {
         Write-host -ForegroundColor yellow "Adding Administrative Unit $($BodyParameter.displayName)."
-        $AU = New-MgAdministrativeUnit -BodyParameter $($BodyParameter | convertto-json)
+        #$AU = New-MgAdministrativeUnit -BodyParameter $($BodyParameter | convertto-json)
+        $AU = New-MgDirectoryAdministrativeUnit -DisplayName $($BodyParameter.displayName)
     }
     Return $AU
 }
@@ -208,10 +210,10 @@ function Build-MemberberArrayParams {
     Param([Array]$members,[String]$MSGraphURI,[String]$objectType)
     $out = @()
     foreach ($member in $members) {
-        $out += "$MSGraphURI/$objectType/$member"
+        $out += "$MSGraphURI/v1.0/$objectType/$member"
     }
 
-    $params = @{"Members@odata.bind" = $out}
+    $params = @{"@odata.id" = $out}
 
     Return $params
 }
@@ -428,22 +430,23 @@ function Find-MLZMissionAUObj {
         $t = $Template | ConvertTo-Csv -NoTypeInformation | ConvertFrom-Csv
         #build filter
         $f = $t.displayName -replace "ZZZ",$AU
-        $obj = Get-MgAdministrativeUnit -Filter "DisplayName eq `'$f`'"
+        $obj = Get-MgDirectoryAdministrativeUnit -Filter "DisplayName eq `'$f`'"
     return $obj
 }
 
 function New-MLZAccessPackageCatalog {
     Param([object]$BodyParameter)
 
+
     Try {
-        $exists = Get-MgEntitlementManagementAccessPackageCatalog -Filter "displayName eq `'$($BodyParameter.displayname)`'"
+        $exists = Get-MgBetaEntitlementManagementAccessPackageCatalog -Filter "displayName eq `'$($BodyParameter.displayname)`'"
     } Catch {} #to be implemented
 
     if ($exists) {
         Write-Host "Access Package Catalog $($BodyParameter.displayName) already exists."
     } else {
         Write-Host -ForegroundColor Yellow "Creating Access Package Catalog $($BodyParameter.displayName)."
-        New-MgEntitlementManagementAccessPackageCatalog -BodyParameter $BodyParameter
+        New-MgBetaEntitlementManagementAccessPackageCatalog -BodyParameter $BodyParameter
     }
 }
 
@@ -486,21 +489,22 @@ Write-Host "Sign in to Azure AD"
 Connect-MgGraph -Environment $Environment -Scopes Directory.Read.All
 $upnsuffix = $(Get-MgDomain | Where-Object{$_.IsInitial -eq $true}).Id
 Switch ($Environment) {
-    Global {$MSGraphURI = "https://graph.microsoft.com/beta"}
-	USGov {$MSGraphURI = "https://graph.microsoft.us/beta"}
-    USGovDoD {$MSGraphURI = "https://graph.microsoft.us/beta"}
+    Global {$MSGraphURI = "https://graph.microsoft.com"}
+	USGov {$MSGraphURI = "https://graph.microsoft.us"}
+    USGovDoD {$MSGraphURI = "https://graph.microsoft.us"}
 }
 
 #endregion
 
 #region PSTools
 if ($PSTools -or ($All -and $IncludeTools)) {
-    $modules = $mlzparams.StepParameterSet.PSTools.parameters.Modules
+    $modules = $Parameters.StepParameterSet.PSTools.parameters.Modules
+
     foreach ($module in $modules) {
         if ($Verbose) {
-            Install-Module $modules -Verbose
+            Install-Module $module -Verbose
         } else {
-            Install-Module $modules -Confirm
+            Install-Module $module -Confirm
         }
     }
 }
@@ -572,14 +576,29 @@ if ($EmergencyAccess -or $All) {
     }
     
 
-    #Add users to the group and AU
-    $params = Build-MemberberArrayParams -members $EAAccountObjects.Id -MSGraphURI $MSGraphURI -objectType "users"
 
-    Try {
-        Update-MgAdministrativeUnit -AdministrativeUnitId $EAAUObj.Id -BodyParameter $params -ErrorAction Stop
+    foreach ($user in $EAAccountObjects.Id) {
+
+        $params = @{
+            "@odata.id" = "$MSGraphURI/v1.0/users/$($user)"
+        }
+        Try {
+            New-MgDirectoryAdministrativeUnitMemberByRef -AdministrativeUnitId $EAAUObj.Id -BodyParameter $params
+        } Catch [Exception] {
+            Write-Host "Member already added. Skipping."
+        }
+        
+
+    }
+
+    #Add users to the group and AU
+    #$params = Build-MemberberArrayParams -members $EAAccountObjects.Id -MSGraphURI $MSGraphURI -objectType "users"
+
+    <#Try {
+        Update-MgDirectoryAdministrativeUnit -AdministrativeUnitId $EAAUObj.Id -BodyParameter $params -ErrorAction Stop
     } Catch [Exception] {
         Write-Host "Member already added. Skipping."
-    }
+    }#>
 
     Try {
         Update-MgGroup -GroupId $EAGroupObj.Id -BodyParameter $params -ErrorAction Stop
@@ -597,6 +616,7 @@ if ($EmergencyAccess -or $All) {
 
     #Assign Global Admin role
     $GARoleObj = Get-MgRoleManagementDirectoryRoleDefinition -UnifiedRoleDefinitionId "62e90394-69f5-4237-9190-012177145e10"
+
 
     if ($Parameters.StepParameterSet.EmergencyAccess.parameters.PIM.permanentActiveAssignment) {
         Try {
@@ -620,6 +640,7 @@ if ($EmergencyAccess -or $All) {
 		            }
 	            }
             }
+          
             New-MgRoleManagementDirectoryRoleAssignmentScheduleRequest -BodyParameter $params
         }
         
@@ -698,11 +719,26 @@ if ($NamedAccounts -or $All) {
     #add to MLZ core admin unit
     Write-host -ForegroundColor Yellow "Adding MLZ core users to an Administrative Unit"
     $CoreAU = $Parameters.StepParameterSet.AdminUnits.parameters.CoreAU
-    $CoreAUObj = Get-MgAdministrativeUnit -Filter "startsWith(DisplayName, `'$($CoreAU.displayName)`')"
+    $CoreAUObj = Get-MgDirectoryAdministrativeUnit -Filter "startsWith(DisplayName, `'$($CoreAU.displayName)`')"
     $CoreUserObj = Get-MgUser -Filter "startsWith(Department,`'MLZ`')"
     $CoreUserRefArray = @($CoreUserObj.Id)
-    $params = Build-MemberberArrayParams -members $CoreUserRefArray -MSGraphURI $MSGraphURI -objectType "users"
-    Update-MgAdministrativeUnit -AdministrativeUnitId $CoreAUObj.Id -BodyParameter $params
+
+    <#$params = Build-MemberberArrayParams -members $CoreUserRefArray -MSGraphURI $MSGraphURI -objectType "users"
+    Update-MgDirectoryAdministrativeUnit -AdministrativeUnitId $CoreAUObj.Id -BodyParameter $params#>
+
+    foreach ($user in $CoreUserObj.Id) {
+
+        $params = @{
+            "@odata.id" = "$MSGraphURI/v1.0/users/$($user)"
+        }
+        Try {
+            New-MgDirectoryAdministrativeUnitMemberByRef -AdministrativeUnitId $CoreAUObj.Id -BodyParameter $params
+        } Catch [Exception] {
+            Write-Host "Member already added. Skipping."
+        }
+        
+
+    }
 
     Write-Host -ForegroundColor Green "Completed creating Named Accounts."
 }
@@ -712,7 +748,7 @@ if ($NamedAccounts -or $All) {
 #region AuthNMethods
 if ($AuthNMethods -or $All) {
     Import-Module Microsoft.Graph.Identity.SignIns
-    Connect-MgGraph -Scopes Policy.ReadWrite.AuthenticationMethod
+    Connect-MgGraph -Scopes Policy.ReadWrite.AuthenticationMethod -Environment $Environment
     #Select-MgProfile beta
     $AuthNMethodsConfiguration = $Parameters.StepParameterSet.AuthNMethods.parameters.AuthenticationMethodsConfigurations
 
@@ -831,8 +867,12 @@ if ($AuthNMethods -or $All) {
 
 #endregion
 
+
 #region Certificates
 if ($Certificates -or $All) {
+
+    <#
+    Import-Module AzureAD
     if ($Environment -eq "USGov" -or $Environment -eq "USGovDOD") {
         $AADEnvironment = "AzureUSGovernment"
     } elseif ($Environment -eq "Global") {
@@ -847,23 +887,29 @@ if ($Certificates -or $All) {
     if (!($connected)) {
         Connect-AzureAD -AzureEnvironmentName $AADEnvironment
     }
+    #>
+    Import-Module Microsoft.Graph.Identity.SignIns
+    connect-mggraph -scopes Organization.ReadWrite.All -Environment $Environment
 
     #Load in the configuration
     $CertConfigPath = $Parameters.StepParameterSet.Certificates.parameters.CertJsonRelativePath
     $DisableCrlCheck = $Parameters.StepParameterSet.Certificates.parameters.DisableCrlCheck
     $CertConfig = Get-Content $CertConfigPath | ConvertFrom-Json
+    $organizationId = (Get-MgOrganization).Id
 
     #Get existing certificate configuration
     Write-host "Getting current certificate configuration for the tenant." -ForegroundColor Cyan
-    $TenantCertificates = Get-AzureADTrustedCertificateAuthority
+    #$TenantCertificates = Get-AzureADTrustedCertificateAuthority
 
     #Check to see if certificates exist, if not add AzureADTrustedCertificateAuthority
     Write-host "Uploading certificates to the tenant." -ForegroundColor Cyan
     foreach ($cert in $Certconfig) {
+        
         if ($cert.Subject -in $TenantCertificates.TrustedIssuer) {
             Write-host "Certificate $($cert.Subject) already exists."
         } else {
-            $new_ca=New-Object -TypeName Microsoft.Open.AzureAD.Model.CertificateAuthorityInformation
+
+            <#$new_ca=New-Object -TypeName Microsoft.Open.AzureAD.Model.CertificateAuthorityInformation
             $new_ca.AuthorityType=$($cert.authority)
             $new_ca.TrustedCertificate=$(Convert-HexStringToByteArray -String $cert.RawData)
 
@@ -872,15 +918,34 @@ if ($Certificates -or $All) {
             } else {
                 $new_ca.crlDistributionPoint=$($cert.crl)
             }
-        
+            
             New-AzureADTrustedCertificateAuthority -CertificateAuthorityInformation $new_ca
+            #>
+            if ($cert.Authority -eq 0) {
+                
+                $params = @{
+                    certificateAuthorities = @(
+                        @{
+                            isRootAuthority = $true
+                            certificate = [System.Text.Encoding]::ASCII.GetBytes($cert.BinData)
+                        }
+                    )
+                }
+
+            }
+            else {
+                $params.certificateAuthorities += @{isRootAuthority=$false; certificate = [System.Text.Encoding]::ASCII.GetBytes($cert.BinData) }
+            }
+            
         }
         
     }
 
+    New-MgOrganizationCertificateBasedAuthConfiguration -OrganizationId $organizationId -BodyParameter $params -Verbose
     Write-Host -ForegroundColor Green "Completed Certificate configuration."
 }
 #endregion
+ 
 
 #region Groups
 if ($Groups -or $All) {
@@ -902,7 +967,7 @@ if ($Groups -or $All) {
 if ($PIM -or $All) {
     Import-Module Microsoft.Graph.Identity.Governance
     Import-Module Microsoft.Graph.Identity.DirectoryManagement
-    Connect-MgGraph -Scopes "RoleManagement.ReadWrite.Directory"
+    Connect-MgGraph -Scopes "RoleManagement.ReadWrite.Directory" -Environment $Environment
 
     $roles = $Parameters.StepParameterSet.PIM.parameters.Roles
     #$coreroles = $roles | ?{"tenant" -in $_.scope}
@@ -938,7 +1003,7 @@ if ($PIM -or $All) {
     }
 
     $CoreAU = $Parameters.StepParameterSet.AdminUnits.parameters.CoreAU
-    $CoreAUObj = Get-MgAdministrativeUnit -Filter "DisplayName eq `'$($CoreAU.displayName)`'"
+    $CoreAUObj = Get-MgDirectoryAdministrativeUnit -Filter "DisplayName eq `'$($CoreAU.displayName)`'"
     $MissionAUs = $Parameters.GlobalParameterSet.MissionAUs
     $UserTemplate = $Parameters.StepParameterSet.AdminUnits.parameters.MissionAUUserTemplate
     $GroupTemplate = $Parameters.StepParameterSet.AdminUnits.parameters.MissionAUGroupTemplate
@@ -984,8 +1049,8 @@ if ($PIM -or $All) {
 if ($ConditionalAccess -or $All) {
     Write-Host -ForegroundColor Cyan "Configuring Conditional Access Policies for MLZ Baseline."
 
-    Connect-MgGraph -Scopes 'Application.Read.All','Policy.Read.All','Policy.ReadWrite.ConditionalAccess'
-    Select-MgProfile beta
+    Connect-MgGraph -Scopes 'Application.Read.All','Policy.Read.All','Policy.ReadWrite.ConditionalAccess' -Environment $Environment
+    #Select-MgProfile beta
 
     #get current user
     $CurrentUserID = $(Get-MgUser -Filter "UserPrincipalName eq `'$($(Get-MgContext).Account)`'").Id
@@ -1007,7 +1072,7 @@ if ($ConditionalAccess -or $All) {
 
 #region TenantPolicies
 if ($TenantPolicies -or $All) {
-    Connect-MgGraph -Scopes Policy.ReadWrite.Authorization,Policy.ReadWrite.ExternalIdentities
+    Connect-MgGraph -Scopes Policy.ReadWrite.Authorization,Policy.ReadWrite.ExternalIdentities, Directory.ReadWrite.All, Policy.ReadWrite.CrossTenantAccess -Environment $Environment
 
     $authorizationPolicy = $Parameters.StepParameterSet.TenantPolicies.parameters.authorizationPolicy
     $externalIdentityPolicy = $Parameters.StepParameterSet.TenantPolicies.parameters.externalIdentityPolicy
@@ -1038,7 +1103,8 @@ if ($TenantPolicies -or $All) {
             AllowedToReadOtherUsers = $authorizationPolicy.defaultUserRolePermissions.allowedToReadOtherUsers
         }
     }
-    Update-MgPolicyAuthorizationPolicy -AuthorizationPolicyId "authorizationPolicy" -BodyParameter $params
+    #Update-MgPolicyAuthorizationPolicy -AuthorizationPolicyId "authorizationPolicy" -BodyParameter $params
+    Update-MgPolicyAuthorizationPolicy -BodyParameter $params
 
     Write-host -ForegroundColor Cyan "Updating External Identity Policies"
 
@@ -1048,11 +1114,14 @@ if ($TenantPolicies -or $All) {
         AllowDeletedIdentitiesDataRemoval = $externalIdentityPolicy.allowDeletedIdentitiesDataRemoval
     }
 
-    Update-MgPolicyExternalIdentityPolicy -BodyParameter $params
+    #Update-MgPolicyExternalIdentityPolicy -BodyParameter $params
+    Update-MgBetaPolicyExternalIdentityPolicy -BodyParameter $params
 
     Write-host -ForegroundColor Cyan "Updating Admin Consent Polices"
     
-    $ConsentSettings = Get-MgDirectorySetting | Where-Object{$_.DisplayName -eq "Consent Policy Settings"}
+    #$ConsentSettings = Get-MgDirectorySetting | Where-Object{$_.DisplayName -eq "Consent Policy Settings"}
+    $consentSettingsTemplateId = "dffd5d46-495d-40a9-8e21-954ff55e198a" # Consent Policy Settings
+    $ConsentSettings = Get-MgBetaDirectorySetting | ?{ $_.TemplateId -eq $consentSettingsTemplateId }
     
     #set params
     $params = @{
@@ -1078,10 +1147,12 @@ if ($TenantPolicies -or $All) {
 
     if (!$ConsentSettings) {
         #create the new setting if there is not one existing
-        $TemplateId = $(Get-MgDirectorySettingTemplate | Where-Object {$_.DisplayName -eq "Consent Policy Settings"}).Id
-        New-MgDirectorySetting -TemplateId $TemplateId -Values $params.Values -DisplayName "Consent Policy Settings"
+        #$TemplateId = $(Get-MgDirectorySettingTemplate | Where-Object {$_.DisplayName -eq "Consent Policy Settings"}).Id
+        #New-MgDirectorySetting -TemplateId $TemplateId -Values $params.Values -DisplayName "Consent Policy Settings"
+
+        New-MgBetaDirectorySetting -TemplateId $consentSettingsTemplateId -Values $params.Values -DisplayName "Consent Policy Settings"
     } else {
-        Update-MgDirectorySetting -DirectorySettingId $ConsentSettings.Id  -BodyParameter $params #>
+        Update-MgBetaDirectorySetting -DirectorySettingId $ConsentSettings.Id  -BodyParameter $params 
     }
 
     Write-Host -ForegroundColor Cyan "Updating Cross-Tenant Access Policy Default Inbound Settings"
@@ -1092,7 +1163,7 @@ if ($TenantPolicies -or $All) {
         IsHybridAzureADJoinedDeviceAccepted = $xtapDefaultPolicy.isHybridAzureADJoinedDeviceAccepted
     }
 
-    Update-MgPolicyCrossTenantAccessPolicyDefault -BodyParameter $params
+    Update-MgBetaPolicyCrossTenantAccessPolicyDefault -BodyParameter $params
 
     Write-Host -ForegroundColor Green "Completed configuration of Cross-Tenant Access Policy"
 }
@@ -1114,13 +1185,14 @@ if ($EntitlementsManagement -or $All) {
     #Create the Core Catalog
     
     $params = @{
-	    DisplayName = $catalog.displayName
-	    Description = $catalog.description
-	    IsExternallyVisible = $catalog.isExternallyVisible
+	    displayName = $CoreCatalog.displayName
+	    description = $CoreCatalog.description
+	    isExternallyVisible = $CoreCatalog.isExternallyVisible
     }
 
-    New-MgEntitlementManagementAccessPackage -BodyParameter $params
-    
+    #New-MgEntitlementManagementAccessPackage -BodyParameter $params
+    New-MgEntitlementManagementCatalog -BodyParameter $params
+
     #Create the Mission Catalogs
     foreach ($MissionAU in $MissionAUs) {
         $params = Convert-MLZCatalogFromTemplate -template $MissionCatalogTemplate -missionAU $MissionAU | ConvertTo-Json
